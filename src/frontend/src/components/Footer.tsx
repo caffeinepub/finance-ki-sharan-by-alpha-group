@@ -79,9 +79,9 @@ export default function Footer() {
                 </div>
               )}
               {isMarketOpen && (
-                <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-green-500/10 border border-green-500/20">
-                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-xs text-green-500 font-medium">
+                <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-accent/10 border border-accent/20">
+                  <div className="h-2 w-2 rounded-full bg-accent animate-pulse" />
+                  <span className="text-xs text-accent font-medium">
                     Live
                   </span>
                 </div>

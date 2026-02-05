@@ -18,45 +18,25 @@ export interface GlossaryBatchTerm {
     key: string;
     term: GlossaryTerm;
 }
-export interface BlogPost {
-    id: bigint;
-    title: string;
-    content: string;
-    isPublished: boolean;
-    tags: Array<string>;
-    publishedAt: bigint;
-    author: string;
-    lastUpdatedAt: bigint;
-    category: string;
-}
-export interface Article {
-    id: bigint;
-    title: string;
-    content: string;
-    category: string;
-}
 export interface TransformationOutput {
     status: bigint;
     body: Uint8Array;
     headers: Array<http_header>;
 }
-export interface GlossaryTerm {
-    term: string;
-    example: string;
-    usage: string;
-    definition: string;
-}
 export interface GlossaryDiagnostic {
     key: string;
     term: string;
+}
+export interface GlossaryStats {
+    lastSnapshotVersion?: bigint;
+    currentTermCount: bigint;
+    lastBackupTimestamp?: bigint;
+    lastRestoreTimestamp?: bigint;
 }
 export interface Feedback {
     name: string;
     email: string;
     message: string;
-}
-export interface GlossaryBatch {
-    terms: Array<GlossaryBatchTerm>;
 }
 export interface MarketHour {
     closeMinute: bigint;
@@ -65,18 +45,11 @@ export interface MarketHour {
     openMinute: bigint;
     openHour: bigint;
 }
-export interface http_header {
-    value: string;
-    name: string;
-}
-export interface http_request_result {
-    status: bigint;
-    body: Uint8Array;
-    headers: Array<http_header>;
-}
-export interface LearningSection {
-    title: string;
-    content: string;
+export interface GlossarySnapshot {
+    terms: Array<[string, GlossaryTerm]>;
+    termCount: bigint;
+    createdAt: bigint;
+    version: bigint;
 }
 export interface ResearchPaper {
     id: bigint;
@@ -87,11 +60,6 @@ export interface ResearchPaper {
 export interface TransformationInput {
     context: Uint8Array;
     response: http_request_result;
-}
-export interface InternetResultSource {
-    url: string;
-    title: string;
-    snippet: string;
 }
 export interface Stock {
     ltp: number;
@@ -106,8 +74,52 @@ export interface ChatAskResponseSource {
     type: ChatSourceType;
     internetSource?: InternetResultSource;
 }
+export interface Article {
+    id: bigint;
+    title: string;
+    content: string;
+    category: string;
+}
+export interface BlogPost {
+    id: bigint;
+    title: string;
+    content: string;
+    isPublished: boolean;
+    tags: Array<string>;
+    publishedAt: bigint;
+    author: string;
+    lastUpdatedAt: bigint;
+    category: string;
+}
+export interface GlossaryTerm {
+    term: string;
+    example: string;
+    usage: string;
+    definition: string;
+}
+export interface GlossaryBatch {
+    terms: Array<GlossaryBatchTerm>;
+}
+export interface http_header {
+    value: string;
+    name: string;
+}
+export interface http_request_result {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<http_header>;
+}
+export interface LearningSection {
+    title: string;
+    content: string;
+}
 export interface ChatAskResponsePayload {
     sources: Array<ChatAskResponseSource>;
+}
+export interface InternetResultSource {
+    url: string;
+    title: string;
+    snippet: string;
 }
 export interface Nifty50StockData {
     ltp: number;
@@ -142,6 +154,7 @@ export interface backendInterface {
     deleteGlossaryTerm(key: string): Promise<void>;
     deleteLearningSection(key: string): Promise<void>;
     deleteResearchPaper(id: bigint): Promise<void>;
+    exportGlossarySnapshot(): Promise<GlossarySnapshot>;
     getAllFeedback(): Promise<Array<[bigint, Feedback]>>;
     getAllNifty50Data(): Promise<Array<[string, Nifty50StockData]>>;
     getApplicationPaths(): Promise<string>;
@@ -154,6 +167,7 @@ export interface backendInterface {
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getGlossaryDiagnosticsByPrefix(prefix: string): Promise<Array<GlossaryDiagnostic>>;
+    getGlossarySnapshotStats(): Promise<GlossaryStats>;
     getGlossaryTerms(): Promise<Array<[string, GlossaryTerm]>>;
     getLearningSection(key: string): Promise<LearningSection | null>;
     getLearningSections(): Promise<Array<[string, LearningSection]>>;
@@ -171,6 +185,8 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     isMarketOpen(): Promise<boolean>;
     publishGlossaryBatch(batch: GlossaryBatch): Promise<void>;
+    replaceGlossaryWithSnapshot(snapshot: GlossarySnapshot): Promise<void>;
+    restoreGlossaryFromSnapshot(snapshot: GlossarySnapshot): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     searchGlossary(searchTerm: string): Promise<Array<[string, GlossaryTerm]>>;
     setMaintenanceMode(enabled: boolean): Promise<void>;

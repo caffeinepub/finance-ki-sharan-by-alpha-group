@@ -93,23 +93,6 @@ export interface GlossaryBatchTerm {
     key: string;
     term: GlossaryTerm;
 }
-export interface BlogPost {
-    id: bigint;
-    title: string;
-    content: string;
-    isPublished: boolean;
-    tags: Array<string>;
-    publishedAt: bigint;
-    author: string;
-    lastUpdatedAt: bigint;
-    category: string;
-}
-export interface Article {
-    id: bigint;
-    title: string;
-    content: string;
-    category: string;
-}
 export interface TransformationOutput {
     status: bigint;
     body: Uint8Array;
@@ -118,15 +101,15 @@ export interface TransformationOutput {
 export interface _CaffeineStorageRefillInformation {
     proposed_top_up_amount?: bigint;
 }
-export interface GlossaryTerm {
-    term: string;
-    example: string;
-    usage: string;
-    definition: string;
-}
 export interface GlossaryDiagnostic {
     key: string;
     term: string;
+}
+export interface GlossaryStats {
+    lastSnapshotVersion?: bigint;
+    currentTermCount: bigint;
+    lastBackupTimestamp?: bigint;
+    lastRestoreTimestamp?: bigint;
 }
 export interface Feedback {
     name: string;
@@ -137,9 +120,6 @@ export interface _CaffeineStorageCreateCertificateResult {
     method: string;
     blob_hash: string;
 }
-export interface GlossaryBatch {
-    terms: Array<GlossaryBatchTerm>;
-}
 export interface MarketHour {
     closeMinute: bigint;
     closeHour: bigint;
@@ -147,18 +127,11 @@ export interface MarketHour {
     openMinute: bigint;
     openHour: bigint;
 }
-export interface http_header {
-    value: string;
-    name: string;
-}
-export interface http_request_result {
-    status: bigint;
-    body: Uint8Array;
-    headers: Array<http_header>;
-}
-export interface LearningSection {
-    title: string;
-    content: string;
+export interface GlossarySnapshot {
+    terms: Array<[string, GlossaryTerm]>;
+    termCount: bigint;
+    createdAt: bigint;
+    version: bigint;
 }
 export interface ResearchPaper {
     id: bigint;
@@ -169,11 +142,6 @@ export interface ResearchPaper {
 export interface TransformationInput {
     context: Uint8Array;
     response: http_request_result;
-}
-export interface InternetResultSource {
-    url: string;
-    title: string;
-    snippet: string;
 }
 export interface Stock {
     ltp: number;
@@ -188,8 +156,52 @@ export interface ChatAskResponseSource {
     type: ChatSourceType;
     internetSource?: InternetResultSource;
 }
+export interface Article {
+    id: bigint;
+    title: string;
+    content: string;
+    category: string;
+}
+export interface BlogPost {
+    id: bigint;
+    title: string;
+    content: string;
+    isPublished: boolean;
+    tags: Array<string>;
+    publishedAt: bigint;
+    author: string;
+    lastUpdatedAt: bigint;
+    category: string;
+}
+export interface GlossaryTerm {
+    term: string;
+    example: string;
+    usage: string;
+    definition: string;
+}
+export interface GlossaryBatch {
+    terms: Array<GlossaryBatchTerm>;
+}
+export interface http_header {
+    value: string;
+    name: string;
+}
+export interface http_request_result {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<http_header>;
+}
+export interface LearningSection {
+    title: string;
+    content: string;
+}
 export interface ChatAskResponsePayload {
     sources: Array<ChatAskResponseSource>;
+}
+export interface InternetResultSource {
+    url: string;
+    title: string;
+    snippet: string;
 }
 export interface Nifty50StockData {
     ltp: number;
@@ -235,6 +247,7 @@ export interface backendInterface {
     deleteGlossaryTerm(key: string): Promise<void>;
     deleteLearningSection(key: string): Promise<void>;
     deleteResearchPaper(id: bigint): Promise<void>;
+    exportGlossarySnapshot(): Promise<GlossarySnapshot>;
     getAllFeedback(): Promise<Array<[bigint, Feedback]>>;
     getAllNifty50Data(): Promise<Array<[string, Nifty50StockData]>>;
     getApplicationPaths(): Promise<string>;
@@ -247,6 +260,7 @@ export interface backendInterface {
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getGlossaryDiagnosticsByPrefix(prefix: string): Promise<Array<GlossaryDiagnostic>>;
+    getGlossarySnapshotStats(): Promise<GlossaryStats>;
     getGlossaryTerms(): Promise<Array<[string, GlossaryTerm]>>;
     getLearningSection(key: string): Promise<LearningSection | null>;
     getLearningSections(): Promise<Array<[string, LearningSection]>>;
@@ -264,6 +278,8 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     isMarketOpen(): Promise<boolean>;
     publishGlossaryBatch(batch: GlossaryBatch): Promise<void>;
+    replaceGlossaryWithSnapshot(snapshot: GlossarySnapshot): Promise<void>;
+    restoreGlossaryFromSnapshot(snapshot: GlossarySnapshot): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     searchGlossary(searchTerm: string): Promise<Array<[string, GlossaryTerm]>>;
     setMaintenanceMode(enabled: boolean): Promise<void>;
@@ -278,7 +294,7 @@ export interface backendInterface {
     updateNifty50Data(symbol: string, ltp: number, dayClose: number): Promise<void>;
     updateStock(symbol: string, stock: Stock): Promise<void>;
 }
-import type { Article as _Article, BlogPost as _BlogPost, ChatAskResponsePayload as _ChatAskResponsePayload, ChatAskResponseSource as _ChatAskResponseSource, ChatSourceType as _ChatSourceType, ExternalBlob as _ExternalBlob, InternetResultSource as _InternetResultSource, LearningSection as _LearningSection, Nifty50StockData as _Nifty50StockData, ResearchPaper as _ResearchPaper, Stock as _Stock, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
+import type { Article as _Article, BlogPost as _BlogPost, ChatAskResponsePayload as _ChatAskResponsePayload, ChatAskResponseSource as _ChatAskResponseSource, ChatSourceType as _ChatSourceType, ExternalBlob as _ExternalBlob, GlossaryStats as _GlossaryStats, InternetResultSource as _InternetResultSource, LearningSection as _LearningSection, Nifty50StockData as _Nifty50StockData, ResearchPaper as _ResearchPaper, Stock as _Stock, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _caffeineStorageBlobIsLive(arg0: Uint8Array): Promise<boolean> {
@@ -561,6 +577,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async exportGlossarySnapshot(): Promise<GlossarySnapshot> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.exportGlossarySnapshot();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.exportGlossarySnapshot();
+            return result;
+        }
+    }
     async getAllFeedback(): Promise<Array<[bigint, Feedback]>> {
         if (this.processError) {
             try {
@@ -729,6 +759,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getGlossarySnapshotStats(): Promise<GlossaryStats> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getGlossarySnapshotStats();
+                return from_candid_GlossaryStats_n24(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getGlossarySnapshotStats();
+            return from_candid_GlossaryStats_n24(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async getGlossaryTerms(): Promise<Array<[string, GlossaryTerm]>> {
         if (this.processError) {
             try {
@@ -747,14 +791,14 @@ export class Backend implements backendInterface {
         if (this.processError) {
             try {
                 const result = await this.actor.getLearningSection(arg0);
-                return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n27(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getLearningSection(arg0);
-            return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n27(this._uploadFile, this._downloadFile, result);
         }
     }
     async getLearningSections(): Promise<Array<[string, LearningSection]>> {
@@ -817,14 +861,14 @@ export class Backend implements backendInterface {
         if (this.processError) {
             try {
                 const result = await this.actor.getNifty50Data(arg0);
-                return from_candid_opt_n25(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getNifty50Data(arg0);
-            return from_candid_opt_n25(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
         }
     }
     async getNifty50Stocks(): Promise<Array<Stock>> {
@@ -859,42 +903,42 @@ export class Backend implements backendInterface {
         if (this.processError) {
             try {
                 const result = await this.actor.getResearchPaper(arg0);
-                return from_candid_opt_n26(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n29(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getResearchPaper(arg0);
-            return from_candid_opt_n26(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n29(this._uploadFile, this._downloadFile, result);
         }
     }
     async getResearchPapers(): Promise<Array<ResearchPaper>> {
         if (this.processError) {
             try {
                 const result = await this.actor.getResearchPapers();
-                return from_candid_vec_n30(this._uploadFile, this._downloadFile, result);
+                return from_candid_vec_n33(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getResearchPapers();
-            return from_candid_vec_n30(this._uploadFile, this._downloadFile, result);
+            return from_candid_vec_n33(this._uploadFile, this._downloadFile, result);
         }
     }
     async getStock(arg0: string): Promise<Stock | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getStock(arg0);
-                return from_candid_opt_n31(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n34(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getStock(arg0);
-            return from_candid_opt_n31(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n34(this._uploadFile, this._downloadFile, result);
         }
     }
     async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
@@ -964,6 +1008,34 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.publishGlossaryBatch(arg0);
+            return result;
+        }
+    }
+    async replaceGlossaryWithSnapshot(arg0: GlossarySnapshot): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.replaceGlossaryWithSnapshot(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.replaceGlossaryWithSnapshot(arg0);
+            return result;
+        }
+    }
+    async restoreGlossaryFromSnapshot(arg0: GlossarySnapshot): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.restoreGlossaryFromSnapshot(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.restoreGlossaryFromSnapshot(arg0);
             return result;
         }
     }
@@ -1159,11 +1231,14 @@ function from_candid_ChatAskResponseSource_n14(_uploadFile: (file: ExternalBlob)
 function from_candid_ChatSourceType_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ChatSourceType): ChatSourceType {
     return from_candid_variant_n17(_uploadFile, _downloadFile, value);
 }
-async function from_candid_ExternalBlob_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ExternalBlob): Promise<ExternalBlob> {
+async function from_candid_ExternalBlob_n32(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ExternalBlob): Promise<ExternalBlob> {
     return await _downloadFile(value);
 }
-async function from_candid_ResearchPaper_n27(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ResearchPaper): Promise<ResearchPaper> {
-    return await from_candid_record_n28(_uploadFile, _downloadFile, value);
+function from_candid_GlossaryStats_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _GlossaryStats): GlossaryStats {
+    return from_candid_record_n25(_uploadFile, _downloadFile, value);
+}
+async function from_candid_ResearchPaper_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ResearchPaper): Promise<ResearchPaper> {
+    return await from_candid_record_n31(_uploadFile, _downloadFile, value);
 }
 function from_candid_UserRole_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
     return from_candid_variant_n23(_uploadFile, _downloadFile, value);
@@ -1183,16 +1258,19 @@ function from_candid_opt_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
 function from_candid_opt_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_LearningSection]): LearningSection | null {
+function from_candid_opt_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [bigint]): bigint | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Nifty50StockData]): Nifty50StockData | null {
+function from_candid_opt_n27(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_LearningSection]): LearningSection | null {
     return value.length === 0 ? null : value[0];
 }
-async function from_candid_opt_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_ResearchPaper]): Promise<ResearchPaper | null> {
-    return value.length === 0 ? null : await from_candid_ResearchPaper_n27(_uploadFile, _downloadFile, value[0]);
+function from_candid_opt_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Nifty50StockData]): Nifty50StockData | null {
+    return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Stock]): Stock | null {
+async function from_candid_opt_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_ResearchPaper]): Promise<ResearchPaper | null> {
+    return value.length === 0 ? null : await from_candid_ResearchPaper_n30(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_opt_n34(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Stock]): Stock | null {
     return value.length === 0 ? null : value[0];
 }
 function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [boolean]): boolean | null {
@@ -1231,7 +1309,25 @@ function from_candid_record_n15(_uploadFile: (file: ExternalBlob) => Promise<Uin
         internetSource: record_opt_to_undefined(from_candid_opt_n18(_uploadFile, _downloadFile, value.internetSource))
     };
 }
-async function from_candid_record_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_record_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    lastSnapshotVersion: [] | [bigint];
+    currentTermCount: bigint;
+    lastBackupTimestamp: [] | [bigint];
+    lastRestoreTimestamp: [] | [bigint];
+}): {
+    lastSnapshotVersion?: bigint;
+    currentTermCount: bigint;
+    lastBackupTimestamp?: bigint;
+    lastRestoreTimestamp?: bigint;
+} {
+    return {
+        lastSnapshotVersion: record_opt_to_undefined(from_candid_opt_n7(_uploadFile, _downloadFile, value.lastSnapshotVersion)),
+        currentTermCount: value.currentTermCount,
+        lastBackupTimestamp: record_opt_to_undefined(from_candid_opt_n26(_uploadFile, _downloadFile, value.lastBackupTimestamp)),
+        lastRestoreTimestamp: record_opt_to_undefined(from_candid_opt_n26(_uploadFile, _downloadFile, value.lastRestoreTimestamp))
+    };
+}
+async function from_candid_record_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: bigint;
     title: string;
     file: _ExternalBlob;
@@ -1245,7 +1341,7 @@ async function from_candid_record_n28(_uploadFile: (file: ExternalBlob) => Promi
     return {
         id: value.id,
         title: value.title,
-        file: await from_candid_ExternalBlob_n29(_uploadFile, _downloadFile, value.file),
+        file: await from_candid_ExternalBlob_n32(_uploadFile, _downloadFile, value.file),
         description: value.description
     };
 }
@@ -1284,8 +1380,8 @@ function from_candid_variant_n23(_uploadFile: (file: ExternalBlob) => Promise<Ui
 function from_candid_vec_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_ChatAskResponseSource>): Array<ChatAskResponseSource> {
     return value.map((x)=>from_candid_ChatAskResponseSource_n14(_uploadFile, _downloadFile, x));
 }
-async function from_candid_vec_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_ResearchPaper>): Promise<Array<ResearchPaper>> {
-    return await Promise.all(value.map(async (x)=>await from_candid_ResearchPaper_n27(_uploadFile, _downloadFile, x)));
+async function from_candid_vec_n33(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_ResearchPaper>): Promise<Array<ResearchPaper>> {
+    return await Promise.all(value.map(async (x)=>await from_candid_ResearchPaper_n30(_uploadFile, _downloadFile, x)));
 }
 async function to_candid_ExternalBlob_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ExternalBlob): Promise<_ExternalBlob> {
     return await _uploadFile(value);

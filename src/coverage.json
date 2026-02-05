@@ -1,81 +1,53 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-04T17:05:51.599Z",
+  "generatedAt": "2026-02-05T05:50:51.041Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 3,
+    "total": 2,
+    "implemented": 2,
     "items": [
       {
-        "id": "REQ-6",
-        "summary": "Add backend support for a dedicated Blogs feature that is separate from existing Articles: define a new `BlogPost` type and implement public query APIs to list blog posts and fetch a single blog post by id, plus admin-only CRUD APIs to create, update, and delete blog posts.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-7",
-        "summary": "Add a new public Blogs UI section with routing: implement a `BlogsPage` at route `/blogs` that displays a list of blog posts, and implement a blog detail page at route `/blogs/$id` that renders a single blog post by id with appropriate loading/empty/error states.",
+        "id": "REQ-1",
+        "summary": "Create a new reusable calculator visualization component that renders the invested vs earned breakdown as a pie/donut chart, matching the existing light/dark theme tokens and visual style used by the current breakdown card. The component must support the same inputs as the existing bar chart: invested, earned, optional total, and optional label overrides; it must also handle empty/zero values by showing the existing empty-state message in a card.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/BlogsPage.tsx",
-          "frontend/src/pages/BlogDetailPage.tsx",
-          "frontend/src/App.tsx"
+          "frontend/src/components/calculators/ResultBreakdownPieChart.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/BlogsPage.tsx",
-          "frontend/src/pages/BlogDetailPage.tsx",
-          "frontend/src/App.tsx"
+          "frontend/src/components/calculators/ResultBreakdownPieChart.tsx"
         ]
       },
       {
-        "id": "REQ-8",
-        "summary": "Update the global navigation to include the new Blogs section: add a top-level nav item labeled \"Blogs\" that routes to `/blogs`, matching the existing Header navigation behavior on both desktop and mobile menus.",
+        "id": "REQ-2",
+        "summary": "Replace usage of the existing ResultBreakdownBarChart with the new pie/donut chart component in all calculator pages that currently render the bar chart breakdown (at minimum: SIP, Lump Sum, and PPF), keeping the placement directly below the numeric results summary and preserving the existing labels and displayed values.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/Header.tsx"
+          "frontend/src/pages/SIPCalculatorPage.tsx",
+          "frontend/src/pages/LumpSumCalculatorPage.tsx",
+          "frontend/src/pages/PPFCalculatorPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/Header.tsx"
-        ]
-      },
-      {
-        "id": "REQ-9",
-        "summary": "Add React Query hooks for Blogs in `frontend/src/hooks/useQueries.ts` to fetch the blog list and individual blog posts by id, following the existing patterns used for articles and research papers.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/BlogsPage.tsx",
-          "frontend/src/pages/BlogDetailPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/BlogsPage.tsx",
-          "frontend/src/pages/BlogDetailPage.tsx"
+          "frontend/src/pages/SIPCalculatorPage.tsx",
+          "frontend/src/pages/LumpSumCalculatorPage.tsx",
+          "frontend/src/pages/PPFCalculatorPage.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
-    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/components/Header.tsx",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/BlogDetailPage.tsx",
-    "frontend/src/pages/BlogsPage.tsx",
+    "frontend/src/components/calculators/ResultBreakdownBarChart.tsx",
+    "frontend/src/components/calculators/ResultBreakdownPieChart.tsx",
+    "frontend/src/pages/LumpSumCalculatorPage.tsx",
+    "frontend/src/pages/PPFCalculatorPage.tsx",
+    "frontend/src/pages/SIPCalculatorPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

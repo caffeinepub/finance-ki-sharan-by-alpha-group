@@ -3,83 +3,137 @@
 @tailwind utilities;
 
 @layer base {
+    /* ============================================
+     * THEME CUSTOMIZATION - SINGLE SOURCE OF TRUTH
+     * ============================================
+     * This file is the centralized location for all theme tokens.
+     * To apply custom brand colors:
+     * 1. Update OKLCH values below for both :root (light) and .dark modes
+     * 2. Maintain AA+ contrast ratios for accessibility
+     * 3. Keep semantic token names intact (primary, secondary, etc.)
+     * 4. Test both light and dark modes after changes
+     * ============================================ */
+    
     :root {
         --radius: 0.625rem;
-        --background: 0.99 0 0;
-        --foreground: 0.15 0 0;
+        
+        /* Light Mode - Professional Finance Theme */
+        /* Neutral backgrounds with warm undertones */
+        --background: 0.98 0.005 60;
+        --foreground: 0.20 0.01 60;
         --card: 1 0 0;
-        --card-foreground: 0.15 0 0;
+        --card-foreground: 0.20 0.01 60;
         --popover: 1 0 0;
-        --popover-foreground: 0.15 0 0;
-        --primary: 0.55 0.18 250;
-        --primary-foreground: 0.99 0 0;
-        --secondary: 0.96 0.01 250;
-        --secondary-foreground: 0.15 0 0;
-        --muted: 0.96 0.01 250;
-        --muted-foreground: 0.50 0.02 250;
-        --accent: 0.92 0.03 250;
-        --accent-foreground: 0.15 0 0;
-        --destructive: 0.577 0.245 27.325;
-        --destructive-foreground: 0.99 0 0;
-        --border: 0.90 0.01 250;
-        --input: 0.90 0.01 250;
-        --ring: 0.55 0.18 250;
-        --chart-1: 0.646 0.222 41.116;
-        --chart-2: 0.6 0.118 184.704;
-        --chart-3: 0.398 0.07 227.392;
-        --chart-4: 0.828 0.189 84.429;
-        --chart-5: 0.769 0.188 70.08;
-        --sidebar: 0.99 0 0;
-        --sidebar-foreground: 0.15 0 0;
-        --sidebar-primary: 0.55 0.18 250;
-        --sidebar-primary-foreground: 0.99 0 0;
-        --sidebar-accent: 0.96 0.01 250;
-        --sidebar-accent-foreground: 0.15 0 0;
-        --sidebar-border: 0.90 0.01 250;
-        --sidebar-ring: 0.55 0.18 250;
+        --popover-foreground: 0.20 0.01 60;
+        
+        /* Primary: Deep forest green - trust, growth, stability */
+        --primary: 0.45 0.12 160;
+        --primary-foreground: 0.98 0.005 60;
+        
+        /* Secondary: Warm taupe - professional, grounded */
+        --secondary: 0.92 0.015 60;
+        --secondary-foreground: 0.20 0.01 60;
+        
+        /* Muted: Soft beige - subtle backgrounds */
+        --muted: 0.94 0.01 60;
+        --muted-foreground: 0.50 0.02 60;
+        
+        /* Accent: Rich amber gold - highlights, calls-to-action */
+        --accent: 0.65 0.15 70;
+        --accent-foreground: 0.98 0.005 60;
+        
+        /* Destructive: Warm red - errors, warnings */
+        --destructive: 0.55 0.22 25;
+        --destructive-foreground: 0.98 0.005 60;
+        
+        /* Borders and inputs */
+        --border: 0.88 0.01 60;
+        --input: 0.88 0.01 60;
+        --ring: 0.45 0.12 160;
+        
+        /* Chart colors - professional finance palette */
+        --chart-1: 0.55 0.15 160;
+        --chart-2: 0.60 0.14 70;
+        --chart-3: 0.50 0.12 40;
+        --chart-4: 0.45 0.10 180;
+        --chart-5: 0.65 0.16 50;
+        
+        /* Sidebar tokens */
+        --sidebar: 0.98 0.005 60;
+        --sidebar-foreground: 0.20 0.01 60;
+        --sidebar-primary: 0.45 0.12 160;
+        --sidebar-primary-foreground: 0.98 0.005 60;
+        --sidebar-accent: 0.94 0.01 60;
+        --sidebar-accent-foreground: 0.20 0.01 60;
+        --sidebar-border: 0.88 0.01 60;
+        --sidebar-ring: 0.45 0.12 160;
     }
 
     .dark {
-        --background: 0.10 0.02 240;
-        --foreground: 0.98 0.01 240;
-        --card: 0.15 0.03 240;
-        --card-foreground: 0.98 0.01 240;
-        --popover: 0.12 0.02 240;
-        --popover-foreground: 0.98 0.01 240;
-        --primary: 0.65 0.22 220;
-        --primary-foreground: 0.10 0.02 240;
-        --secondary: 0.20 0.03 240;
-        --secondary-foreground: 0.98 0.01 240;
-        --muted: 0.20 0.03 240;
-        --muted-foreground: 0.60 0.04 240;
-        --accent: 0.28 0.05 240;
-        --accent-foreground: 0.98 0.01 240;
-        --destructive: 0.55 0.24 25;
-        --destructive-foreground: 0.98 0.01 240;
-        --border: 0.22 0.03 240;
-        --input: 0.22 0.03 240;
-        --ring: 0.65 0.22 220;
-        --chart-1: 0.488 0.243 264.376;
-        --chart-2: 0.696 0.17 162.48;
-        --chart-3: 0.769 0.188 70.08;
-        --chart-4: 0.627 0.265 303.9;
-        --chart-5: 0.645 0.246 16.439;
-        --sidebar: 0.15 0.03 240;
-        --sidebar-foreground: 0.98 0.01 240;
-        --sidebar-primary: 0.65 0.22 220;
-        --sidebar-primary-foreground: 0.10 0.02 240;
-        --sidebar-accent: 0.20 0.03 240;
-        --sidebar-accent-foreground: 0.98 0.01 240;
-        --sidebar-border: 0.22 0.03 240;
-        --sidebar-ring: 0.65 0.22 220;
+        /* Dark Mode - Professional Finance Theme */
+        /* Deep charcoal backgrounds with subtle warm undertones */
+        --background: 0.12 0.015 60;
+        --foreground: 0.95 0.01 60;
+        --card: 0.16 0.02 60;
+        --card-foreground: 0.95 0.01 60;
+        --popover: 0.14 0.018 60;
+        --popover-foreground: 0.95 0.01 60;
+        
+        /* Primary: Sage green - softer for dark mode, maintains trust */
+        --primary: 0.65 0.14 155;
+        --primary-foreground: 0.12 0.015 60;
+        
+        /* Secondary: Warm slate - professional depth */
+        --secondary: 0.22 0.02 60;
+        --secondary-foreground: 0.95 0.01 60;
+        
+        /* Muted: Dark taupe - subtle contrast */
+        --muted: 0.24 0.025 60;
+        --muted-foreground: 0.62 0.03 60;
+        
+        /* Accent: Golden amber - warm highlights */
+        --accent: 0.70 0.16 65;
+        --accent-foreground: 0.12 0.015 60;
+        
+        /* Destructive: Softer red for dark mode */
+        --destructive: 0.58 0.20 25;
+        --destructive-foreground: 0.95 0.01 60;
+        
+        /* Borders and inputs */
+        --border: 0.26 0.025 60;
+        --input: 0.26 0.025 60;
+        --ring: 0.65 0.14 155;
+        
+        /* Chart colors - adjusted for dark mode visibility */
+        --chart-1: 0.60 0.16 155;
+        --chart-2: 0.68 0.15 70;
+        --chart-3: 0.55 0.13 40;
+        --chart-4: 0.50 0.12 180;
+        --chart-5: 0.70 0.17 50;
+        
+        /* Sidebar tokens */
+        --sidebar: 0.16 0.02 60;
+        --sidebar-foreground: 0.95 0.01 60;
+        --sidebar-primary: 0.65 0.14 155;
+        --sidebar-primary-foreground: 0.12 0.015 60;
+        --sidebar-accent: 0.24 0.025 60;
+        --sidebar-accent-foreground: 0.95 0.01 60;
+        --sidebar-border: 0.26 0.025 60;
+        --sidebar-ring: 0.65 0.14 155;
     }
 
     * {
         @apply border-border;
     }
+    
     body {
-        @apply bg-background text-foreground;
+        @apply bg-background text-foreground font-body;
         font-feature-settings: "rlig" 1, "calt" 1;
+    }
+    
+    /* Apply heading font to all heading elements */
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-heading;
     }
 }
 

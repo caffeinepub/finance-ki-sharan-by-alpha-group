@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import ResultBreakdownPieChart from '@/components/calculators/ResultBreakdownPieChart';
+import { formatINR } from '@/utils/formatters';
 
 export default function PPFCalculatorPage() {
   const navigate = useNavigate();
@@ -40,14 +42,6 @@ export default function PPFCalculatorPage() {
   };
 
   const results = calculatePPF();
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
 
   return (
     <div className="container py-12">
@@ -123,22 +117,32 @@ export default function PPFCalculatorPage() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Total Invested:</span>
-                  <span className="font-semibold text-lg">{formatCurrency(results.totalInvested)}</span>
+                  <span className="font-semibold text-lg">{formatINR(results.totalInvested)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Interest Earned:</span>
-                  <span className="font-semibold text-lg text-primary">{formatCurrency(results.interestEarned)}</span>
+                  <span className="font-semibold text-lg text-primary">{formatINR(results.interestEarned)}</span>
                 </div>
                 <div className="border-t border-border pt-3 mt-3">
                   <div className="flex justify-between items-center">
                     <span className="font-medium">Maturity Value:</span>
-                    <span className="text-2xl font-bold text-primary">{formatCurrency(results.maturityValue)}</span>
+                    <span className="text-2xl font-bold text-primary">{formatINR(results.maturityValue)}</span>
                   </div>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Pie Chart */}
+        <ResultBreakdownPieChart
+          invested={results.totalInvested}
+          earned={results.interestEarned}
+          total={results.maturityValue}
+          investedLabel="Total Invested"
+          earnedLabel="Interest Earned"
+          totalLabel="Maturity Value"
+        />
 
         <Card className="border-primary/20 bg-muted/30">
           <CardHeader>

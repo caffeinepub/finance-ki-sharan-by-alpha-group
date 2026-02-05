@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import ResultBreakdownPieChart from '@/components/calculators/ResultBreakdownPieChart';
+import { formatINR } from '@/utils/formatters';
 
 export default function SIPCalculatorPage() {
   const navigate = useNavigate();
@@ -37,14 +39,6 @@ export default function SIPCalculatorPage() {
   };
 
   const sipResults = calculateSIP();
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
 
   return (
     <div className="container py-12">
@@ -125,22 +119,32 @@ export default function SIPCalculatorPage() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Total Invested:</span>
-                  <span className="font-semibold text-lg">{formatCurrency(sipResults.invested)}</span>
+                  <span className="font-semibold text-lg">{formatINR(sipResults.invested)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Estimated Returns:</span>
-                  <span className="font-semibold text-lg text-primary">{formatCurrency(sipResults.returns)}</span>
+                  <span className="font-semibold text-lg text-primary">{formatINR(sipResults.returns)}</span>
                 </div>
                 <div className="border-t border-border pt-3 mt-3">
                   <div className="flex justify-between items-center">
                     <span className="font-medium">Maturity Value:</span>
-                    <span className="text-2xl font-bold text-primary">{formatCurrency(sipResults.totalValue)}</span>
+                    <span className="text-2xl font-bold text-primary">{formatINR(sipResults.totalValue)}</span>
                   </div>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Pie Chart */}
+        <ResultBreakdownPieChart
+          invested={sipResults.invested}
+          earned={sipResults.returns}
+          total={sipResults.totalValue}
+          investedLabel="Total Invested"
+          earnedLabel="Estimated Returns"
+          totalLabel="Maturity Value"
+        />
 
         {/* Information Card */}
         <Card className="border-primary/20 bg-muted/30">

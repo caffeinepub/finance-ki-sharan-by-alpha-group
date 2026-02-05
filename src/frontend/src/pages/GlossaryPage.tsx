@@ -1,12 +1,13 @@
 import { useState, useMemo } from 'react';
-import { Search, Loader2, BookOpen, ExternalLink, AlertTriangle } from 'lucide-react';
+import { Search, Loader2, BookOpen, ExternalLink, AlertTriangle, Database } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useSearchTerms, useGetAllTerms } from '../hooks/useQueries';
+import { useSearchTerms, useGetAllTerms, useIsCallerAdmin } from '../hooks/useQueries';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { parseGlossaryDefinition, findTermByReference } from '../utils/glossaryFormatting';
+import GlossaryBackupRestorePanel from '../components/GlossaryBackupRestorePanel';
 
 export default function GlossaryPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -16,6 +17,7 @@ export default function GlossaryPage() {
   
   const { data: terms = [], isLoading, isError, error } = useSearchTerms(searchQuery);
   const { data: allTerms = [] } = useGetAllTerms();
+  const { data: isAdmin = false } = useIsCallerAdmin();
 
   const groupedTerms = useMemo(() => {
     const groups: Record<string, typeof terms> = {};
@@ -40,6 +42,9 @@ export default function GlossaryPage() {
     }
   };
 
+  // Check if glossary is truly empty (no search query and no terms)
+  const isGlossaryEmpty = !isLoading && !isError && !normalizedQuery && terms.length === 0;
+
   return (
     <div className="w-full">
       <div className="bg-gradient-to-b from-primary/10 to-background">
@@ -57,12 +62,30 @@ export default function GlossaryPage() {
             </p>
           </div>
 
+          {/* Admin Backup/Restore Panel */}
+          {isAdmin && (
+            <div className="max-w-2xl mx-auto mb-8">
+              <GlossaryBackupRestorePanel />
+            </div>
+          )}
+
           {isError && (
             <Alert variant="destructive" className="mb-8 max-w-2xl mx-auto">
               <AlertTriangle className="h-4 w-4" />
               <AlertTitle>Error Loading Glossary</AlertTitle>
               <AlertDescription>
                 {error instanceof Error ? error.message : 'Failed to load glossary terms. Please try refreshing the page.'}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Empty State Message */}
+          {isGlossaryEmpty && (
+            <Alert className="mb-8 max-w-2xl mx-auto">
+              <Database className="h-4 w-4" />
+              <AlertTitle>Glossary is Empty</AlertTitle>
+              <AlertDescription>
+                The glossary currently contains no terms. {!isAdmin && 'Please contact an administrator to restore the glossary from a backup.'}
               </AlertDescription>
             </Alert>
           )}
@@ -195,14 +218,6 @@ export default function GlossaryPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          )}
-
-          {!isLoading && !isError && terms.length === 0 && !normalizedQuery && (
-            <div className="text-center py-12">
-              <p className="text-lg text-muted-foreground">
-                Start searching to explore financial terms
-              </p>
             </div>
           )}
         </div>

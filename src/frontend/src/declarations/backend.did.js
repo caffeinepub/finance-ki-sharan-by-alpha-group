@@ -56,6 +56,12 @@ export const ChatAskResponseSource = IDL.Record({
 export const ChatAskResponsePayload = IDL.Record({
   'sources' : IDL.Vec(ChatAskResponseSource),
 });
+export const GlossarySnapshot = IDL.Record({
+  'terms' : IDL.Vec(IDL.Tuple(IDL.Text, GlossaryTerm)),
+  'termCount' : IDL.Nat,
+  'createdAt' : IDL.Int,
+  'version' : IDL.Nat,
+});
 export const Feedback = IDL.Record({
   'name' : IDL.Text,
   'email' : IDL.Text,
@@ -89,6 +95,12 @@ export const UserProfile = IDL.Record({
 export const GlossaryDiagnostic = IDL.Record({
   'key' : IDL.Text,
   'term' : IDL.Text,
+});
+export const GlossaryStats = IDL.Record({
+  'lastSnapshotVersion' : IDL.Opt(IDL.Nat),
+  'currentTermCount' : IDL.Nat,
+  'lastBackupTimestamp' : IDL.Opt(IDL.Int),
+  'lastRestoreTimestamp' : IDL.Opt(IDL.Int),
 });
 export const MarketHour = IDL.Record({
   'closeMinute' : IDL.Nat,
@@ -192,6 +204,7 @@ export const idlService = IDL.Service({
   'deleteGlossaryTerm' : IDL.Func([IDL.Text], [], []),
   'deleteLearningSection' : IDL.Func([IDL.Text], [], []),
   'deleteResearchPaper' : IDL.Func([IDL.Nat], [], []),
+  'exportGlossarySnapshot' : IDL.Func([], [GlossarySnapshot], []),
   'getAllFeedback' : IDL.Func(
       [],
       [IDL.Vec(IDL.Tuple(IDL.Nat, Feedback))],
@@ -220,6 +233,7 @@ export const idlService = IDL.Service({
       [IDL.Vec(GlossaryDiagnostic)],
       ['query'],
     ),
+  'getGlossarySnapshotStats' : IDL.Func([], [GlossaryStats], ['query']),
   'getGlossaryTerms' : IDL.Func(
       [],
       [IDL.Vec(IDL.Tuple(IDL.Text, GlossaryTerm))],
@@ -261,6 +275,8 @@ export const idlService = IDL.Service({
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'isMarketOpen' : IDL.Func([], [IDL.Bool], ['query']),
   'publishGlossaryBatch' : IDL.Func([GlossaryBatch], [], []),
+  'replaceGlossaryWithSnapshot' : IDL.Func([GlossarySnapshot], [], []),
+  'restoreGlossaryFromSnapshot' : IDL.Func([GlossarySnapshot], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'searchGlossary' : IDL.Func(
       [IDL.Text],
@@ -348,6 +364,12 @@ export const idlFactory = ({ IDL }) => {
   const ChatAskResponsePayload = IDL.Record({
     'sources' : IDL.Vec(ChatAskResponseSource),
   });
+  const GlossarySnapshot = IDL.Record({
+    'terms' : IDL.Vec(IDL.Tuple(IDL.Text, GlossaryTerm)),
+    'termCount' : IDL.Nat,
+    'createdAt' : IDL.Int,
+    'version' : IDL.Nat,
+  });
   const Feedback = IDL.Record({
     'name' : IDL.Text,
     'email' : IDL.Text,
@@ -378,6 +400,12 @@ export const idlFactory = ({ IDL }) => {
   const GlossaryDiagnostic = IDL.Record({
     'key' : IDL.Text,
     'term' : IDL.Text,
+  });
+  const GlossaryStats = IDL.Record({
+    'lastSnapshotVersion' : IDL.Opt(IDL.Nat),
+    'currentTermCount' : IDL.Nat,
+    'lastBackupTimestamp' : IDL.Opt(IDL.Int),
+    'lastRestoreTimestamp' : IDL.Opt(IDL.Int),
   });
   const MarketHour = IDL.Record({
     'closeMinute' : IDL.Nat,
@@ -476,6 +504,7 @@ export const idlFactory = ({ IDL }) => {
     'deleteGlossaryTerm' : IDL.Func([IDL.Text], [], []),
     'deleteLearningSection' : IDL.Func([IDL.Text], [], []),
     'deleteResearchPaper' : IDL.Func([IDL.Nat], [], []),
+    'exportGlossarySnapshot' : IDL.Func([], [GlossarySnapshot], []),
     'getAllFeedback' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Nat, Feedback))],
@@ -508,6 +537,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(GlossaryDiagnostic)],
         ['query'],
       ),
+    'getGlossarySnapshotStats' : IDL.Func([], [GlossaryStats], ['query']),
     'getGlossaryTerms' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Text, GlossaryTerm))],
@@ -553,6 +583,8 @@ export const idlFactory = ({ IDL }) => {
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'isMarketOpen' : IDL.Func([], [IDL.Bool], ['query']),
     'publishGlossaryBatch' : IDL.Func([GlossaryBatch], [], []),
+    'replaceGlossaryWithSnapshot' : IDL.Func([GlossarySnapshot], [], []),
+    'restoreGlossaryFromSnapshot' : IDL.Func([GlossarySnapshot], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'searchGlossary' : IDL.Func(
         [IDL.Text],

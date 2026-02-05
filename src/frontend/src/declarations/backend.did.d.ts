@@ -50,6 +50,18 @@ export interface Feedback {
 export interface GlossaryBatch { 'terms' : Array<GlossaryBatchTerm> }
 export interface GlossaryBatchTerm { 'key' : string, 'term' : GlossaryTerm }
 export interface GlossaryDiagnostic { 'key' : string, 'term' : string }
+export interface GlossarySnapshot {
+  'terms' : Array<[string, GlossaryTerm]>,
+  'termCount' : bigint,
+  'createdAt' : bigint,
+  'version' : bigint,
+}
+export interface GlossaryStats {
+  'lastSnapshotVersion' : [] | [bigint],
+  'currentTermCount' : bigint,
+  'lastBackupTimestamp' : [] | [bigint],
+  'lastRestoreTimestamp' : [] | [bigint],
+}
 export interface GlossaryTerm {
   'term' : string,
   'example' : string,
@@ -145,6 +157,7 @@ export interface _SERVICE {
   'deleteGlossaryTerm' : ActorMethod<[string], undefined>,
   'deleteLearningSection' : ActorMethod<[string], undefined>,
   'deleteResearchPaper' : ActorMethod<[bigint], undefined>,
+  'exportGlossarySnapshot' : ActorMethod<[], GlossarySnapshot>,
   'getAllFeedback' : ActorMethod<[], Array<[bigint, Feedback]>>,
   'getAllNifty50Data' : ActorMethod<[], Array<[string, Nifty50StockData]>>,
   'getApplicationPaths' : ActorMethod<[], string>,
@@ -160,6 +173,7 @@ export interface _SERVICE {
     [string],
     Array<GlossaryDiagnostic>
   >,
+  'getGlossarySnapshotStats' : ActorMethod<[], GlossaryStats>,
   'getGlossaryTerms' : ActorMethod<[], Array<[string, GlossaryTerm]>>,
   'getLearningSection' : ActorMethod<[string], [] | [LearningSection]>,
   'getLearningSections' : ActorMethod<[], Array<[string, LearningSection]>>,
@@ -177,6 +191,8 @@ export interface _SERVICE {
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'isMarketOpen' : ActorMethod<[], boolean>,
   'publishGlossaryBatch' : ActorMethod<[GlossaryBatch], undefined>,
+  'replaceGlossaryWithSnapshot' : ActorMethod<[GlossarySnapshot], undefined>,
+  'restoreGlossaryFromSnapshot' : ActorMethod<[GlossarySnapshot], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'searchGlossary' : ActorMethod<[string], Array<[string, GlossaryTerm]>>,
   'setMaintenanceMode' : ActorMethod<[boolean], undefined>,

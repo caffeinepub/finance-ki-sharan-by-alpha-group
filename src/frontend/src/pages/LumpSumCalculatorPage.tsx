@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import ResultBreakdownPieChart from '@/components/calculators/ResultBreakdownPieChart';
+import { formatINR } from '@/utils/formatters';
 
 export default function LumpSumCalculatorPage() {
   const navigate = useNavigate();
@@ -33,14 +35,7 @@ export default function LumpSumCalculatorPage() {
   };
 
   const lumpSumResults = calculateLumpSum();
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
+  const principal = parseFloat(lumpSum) || 0;
 
   return (
     <div className="container py-12">
@@ -121,22 +116,32 @@ export default function LumpSumCalculatorPage() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Investment Amount:</span>
-                  <span className="font-semibold text-lg">{formatCurrency(parseFloat(lumpSum) || 0)}</span>
+                  <span className="font-semibold text-lg">{formatINR(principal)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Total Gain:</span>
-                  <span className="font-semibold text-lg text-primary">{formatCurrency(lumpSumResults.totalGain)}</span>
+                  <span className="font-semibold text-lg text-primary">{formatINR(lumpSumResults.totalGain)}</span>
                 </div>
                 <div className="border-t border-border pt-3 mt-3">
                   <div className="flex justify-between items-center">
                     <span className="font-medium">Maturity Value:</span>
-                    <span className="text-2xl font-bold text-primary">{formatCurrency(lumpSumResults.maturityValue)}</span>
+                    <span className="text-2xl font-bold text-primary">{formatINR(lumpSumResults.maturityValue)}</span>
                   </div>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Pie Chart */}
+        <ResultBreakdownPieChart
+          invested={principal}
+          earned={lumpSumResults.totalGain}
+          total={lumpSumResults.maturityValue}
+          investedLabel="Investment Amount"
+          earnedLabel="Total Gain"
+          totalLabel="Maturity Value"
+        />
 
         {/* Information Card */}
         <Card className="border-primary/20 bg-muted/30">

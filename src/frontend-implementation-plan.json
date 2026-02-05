@@ -1,73 +1,50 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Dedicated Blogs section (UI + queries + navigation)",
+  "title": "Replace calculator breakdown bar chart with reusable pie/donut chart",
   "requirements": [
     {
-      "id": "REQ-7",
-      "summary": "Add public Blogs routes and pages for listing blog posts and viewing a single blog post by id with loading/empty/error states.",
+      "id": "REQ-1",
+      "summary": "Add a reusable invested-vs-earned pie/donut breakdown component that matches existing theme tokens and preserves the current empty-state card behavior.",
       "acceptanceCriteria": [
-        "Navigating to `/blogs` shows a blog list UI that loads from the backend and handles loading and empty states.",
-        "Navigating to `/blogs/<id>` shows a detail view for that blog post (title + content) and handles missing ids (not found state).",
-        "Routes are wired into `frontend/src/App.tsx` using the existing TanStack Router pattern used for `/articles`, `/research`, etc."
+        "A new pie/donut breakdown component exists under frontend/src/components/calculators (new file) and can be imported by calculator pages.",
+        "Given invested > 0 or earned > 0, the chart renders slices for invested and earned with correct proportions based on invested + earned.",
+        "Given invested=0 and earned=0 (and total absent or 0), the component renders the same kind of card-based empty state prompting the user to enter valid inputs.",
+        "The component uses existing theme color tokens (e.g., chart variables) and remains legible in both light and dark mode.",
+        "The component includes a legend that shows the label + exact INR-formatted value for each slice (and uses the same label override behavior as the current bar chart component)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/BlogsPage.tsx",
+          "path": "frontend/src/components/calculators/ResultBreakdownPieChart.tsx",
           "operation": "create",
-          "description": "Create `BlogsPage` to render a public list of blog posts using the Blogs React Query hook, including loading state, empty state, and a list UI that navigates to `/blogs/$id` for an item. Use composed shadcn/ui components (e.g., Card) and lucide icons as needed; do not modify any `frontend/src/components/ui/*` files. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/BlogDetailPage.tsx",
-          "operation": "create",
-          "description": "Create blog detail page for route `/blogs/$id` that reads the route param, fetches the blog post by id via the single-blog query hook, and renders title + content with appropriate loading, error, and not-found states (including invalid id parsing). Use composed shadcn/ui components as needed; do not modify any `frontend/src/components/ui/*` files. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Register TanStack Router routes for `/blogs` and `/blogs/$id` alongside existing routes, importing and wiring `BlogsPage` and `BlogDetailPage` into the routeTree so the pages are navigable."
+          "description": "Create a new reusable ResultBreakdownPieChart component (pie/donut) using existing Card UI composition and existing theme tokens (e.g., bg-chart-1/bg-chart-2 and related foreground tokens). Match the current breakdown card structure (title, border style) and reuse the same empty-state message when invested/earned/total are all zero/absent. Support props parity with ResultBreakdownBarChart (invested, earned, optional total, and optional label overrides), render invested+earned proportions based on invested+earned, and include a legend that displays each slice label plus INR-formatted value via formatINR. Avoid adding any new charting library dependency."
         }
       ]
     },
     {
-      "id": "REQ-8",
-      "summary": "Add a top-level \"Blogs\" navigation item in the global Header for both desktop and mobile menus with correct active-route styling for `/blogs` and `/blogs/$id`.",
+      "id": "REQ-2",
+      "summary": "Replace ResultBreakdownBarChart usage with the new pie/donut component in SIP, Lump Sum, and PPF calculator pages without changing layout or displayed values.",
       "acceptanceCriteria": [
-        "Header shows a \"Blogs\" nav item alongside existing items (Home, Learn Finance, Glossary, Articles, etc.).",
-        "The mobile sheet navigation also includes \"Blogs\".",
-        "Active-route styling works consistently when the current path is `/blogs` or a blog detail route."
+        "frontend/src/pages/SIPCalculatorPage.tsx no longer renders ResultBreakdownBarChart and instead renders the pie/donut breakdown with the same invested/earned/total inputs and labels.",
+        "frontend/src/pages/LumpSumCalculatorPage.tsx no longer renders ResultBreakdownBarChart and instead renders the pie/donut breakdown with the same invested/earned/total inputs and labels.",
+        "frontend/src/pages/PPFCalculatorPage.tsx no longer renders ResultBreakdownBarChart and instead renders the pie/donut breakdown with the same invested/earned/total inputs and labels.",
+        "All updated calculator pages compile without unused-import warnings and render the breakdown correctly."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/Header.tsx",
+          "path": "frontend/src/pages/SIPCalculatorPage.tsx",
           "operation": "modify",
-          "description": "Add a new nav item `{ label: 'Blogs', path: '/blogs' }` to the top-level navigation used for both desktop and mobile menus. Update active-route logic so the Blogs item is treated as active when `currentPath` starts with `/blogs` (covering both `/blogs` and `/blogs/$id`), while preserving existing behavior for other items and calculator highlighting. Use composed shadcn/ui components only; do not modify any `frontend/src/components/ui/*` files. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-9",
-      "summary": "Add React Query hooks for fetching blog lists and individual blog posts by id, following existing actor-gated query patterns.",
-      "acceptanceCriteria": [
-        "A query hook exists to fetch the blog list from the backend and is used by `/blogs`.",
-        "A query hook exists to fetch a single blog post by id and is used by `/blogs/$id`.",
-        "Hooks are disabled until the backend actor is available, consistent with existing hooks."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Add Blogs query hooks that call backend actor methods exposed in `frontend/src/backend.d.ts`: (1) a list hook that fetches public blogs (ensure unpublished are excluded for public UI), and (2) a detail hook that fetches a single blog post by id. Follow existing patterns: return safe defaults when actor is unavailable and set `enabled: !!actor && !isFetching` (and also guard by presence/validity of id for the detail hook)."
+          "description": "Replace the ResultBreakdownBarChart import and usage with ResultBreakdownPieChart, keeping the component placement directly below the numeric results summary. Preserve the exact invested/earned/total values and label overrides currently passed (Total Invested / Estimated Returns / Maturity Value), and ensure no unused imports remain."
         },
         {
-          "path": "frontend/src/pages/BlogsPage.tsx",
+          "path": "frontend/src/pages/LumpSumCalculatorPage.tsx",
           "operation": "modify",
-          "description": "Wire `BlogsPage` to use the newly added blog list query hook from `frontend/src/hooks/useQueries.ts`, ensuring the hook drives loading/empty states and the displayed list."
+          "description": "Replace the ResultBreakdownBarChart import and usage with ResultBreakdownPieChart, keeping the component placement directly below the numeric results summary. Preserve the exact invested/earned/total values and label overrides currently passed (Investment Amount / Total Gain / Maturity Value), and ensure no unused imports remain."
         },
         {
-          "path": "frontend/src/pages/BlogDetailPage.tsx",
+          "path": "frontend/src/pages/PPFCalculatorPage.tsx",
           "operation": "modify",
-          "description": "Wire `BlogDetailPage` to use the newly added single-blog query hook from `frontend/src/hooks/useQueries.ts`, ensuring the hook drives loading/error/not-found states and the rendered blog content."
+          "description": "Replace the ResultBreakdownBarChart import and usage with ResultBreakdownPieChart, keeping the component placement directly below the numeric results summary. Preserve the exact invested/earned/total values and label overrides currently passed (Total Invested / Interest Earned / Maturity Value), and ensure no unused imports remain."
         }
       ]
     }

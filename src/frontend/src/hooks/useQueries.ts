@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { GlossaryTerm, Article, ResearchPaper, LearningSection, Feedback, Stock, UserProfile, ChatAskResponsePayload, BlogPost } from '../backend';
+import type { GlossaryTerm, Article, ResearchPaper, LearningSection, Feedback, Stock, UserProfile, ChatAskResponsePayload, BlogPost, GlossarySnapshot, GlossaryStats } from '../backend';
 import { toast } from 'sonner';
 
 // Maintenance Mode Query
@@ -184,6 +184,78 @@ export function useDeleteTerm() {
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to delete term');
+    },
+  });
+}
+
+// Glossary Backup/Restore Queries and Mutations
+export function useGetGlossarySnapshotStats() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<GlossaryStats>({
+    queryKey: ['glossaryStats'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getGlossarySnapshotStats();
+    },
+    enabled: !!actor && !isFetching,
+    retry: false,
+  });
+}
+
+export function useExportGlossarySnapshot() {
+  const { actor } = useActor();
+
+  return useMutation({
+    mutationFn: async () => {
+      if (!actor) throw new Error('Actor not initialized');
+      return actor.exportGlossarySnapshot();
+    },
+    onSuccess: () => {
+      toast.success('Glossary snapshot exported successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to export glossary snapshot');
+    },
+  });
+}
+
+export function useRestoreGlossaryFromSnapshot() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (snapshot: GlossarySnapshot) => {
+      if (!actor) throw new Error('Actor not initialized');
+      return actor.restoreGlossaryFromSnapshot(snapshot);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['glossaryTerms'] });
+      queryClient.invalidateQueries({ queryKey: ['glossaryStats'] });
+      toast.success('Glossary restored successfully (merge mode)');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to restore glossary');
+    },
+  });
+}
+
+export function useReplaceGlossaryWithSnapshot() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (snapshot: GlossarySnapshot) => {
+      if (!actor) throw new Error('Actor not initialized');
+      return actor.replaceGlossaryWithSnapshot(snapshot);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['glossaryTerms'] });
+      queryClient.invalidateQueries({ queryKey: ['glossaryStats'] });
+      toast.success('Glossary replaced successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to replace glossary');
     },
   });
 }

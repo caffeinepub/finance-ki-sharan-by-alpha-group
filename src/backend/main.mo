@@ -1,3 +1,4 @@
+
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
 import Map "mo:core/Map";
@@ -12,8 +13,13 @@ import MixinStorage "blob-storage/Mixin";
 import OutCall "http-outcalls/outcall";
 import Bool "mo:core/Bool";
 import Runtime "mo:core/Runtime";
+import Time "mo:core/Time";
+import Int "mo:core/Int";
+
 
 actor {
+  type InternalTime = Int;
+
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
   include MixinStorage();
@@ -132,6 +138,21 @@ actor {
     isPublished : Bool;
   };
 
+  // For backup and restore
+  public type GlossarySnapshot = {
+    terms : [(Text, GlossaryTerm)];
+    createdAt : Int;
+    termCount : Nat;
+    version : Nat;
+  };
+
+  public type GlossaryStats = {
+    currentTermCount : Nat;
+    lastBackupTimestamp : ?Int;
+    lastRestoreTimestamp : ?Int;
+    lastSnapshotVersion : ?Nat;
+  };
+
   let userProfiles = Map.empty<Principal, UserProfile>();
   let glossary = Map.empty<Text, GlossaryTerm>();
   let articles = Map.empty<Nat, Article>();
@@ -149,6 +170,10 @@ actor {
   var nextBlogId = 1;
   var marketHoursInitialized = false;
   var maintenanceMode : Bool = false;
+
+  var lastBackupTimestamp : ?InternalTime = null;
+  var lastRestoreTimestamp : ?InternalTime = null;
+  var lastSnapshotVersion = 0;
 
   // ============================================
   // Helper function to check maintenance mode
@@ -264,7 +289,7 @@ actor {
   };
 
   // ============================================
-  // Glossary Management
+  // Glossary Management with Backup & Restore
   // ============================================
   public query ({ caller }) func getGlossaryTerms() : async [(Text, GlossaryTerm)] {
     checkMaintenanceAccess(caller);
@@ -331,6 +356,68 @@ actor {
     for (entry in batch.terms.values()) {
       glossary.add(entry.key, entry.term);
     };
+  };
+
+  // == Glossary Backup/Restore New Functions ==
+
+  public query ({ caller }) func getGlossarySnapshotStats() : async GlossaryStats {
+    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized: Only admins can view stats");
+    };
+    {
+      currentTermCount = glossary.size();
+      lastBackupTimestamp;
+      lastRestoreTimestamp;
+      lastSnapshotVersion = if (lastSnapshotVersion == 0) { null } else { ?lastSnapshotVersion };
+    };
+  };
+
+  public shared ({ caller }) func exportGlossarySnapshot() : async GlossarySnapshot {
+    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized: Only admins can export glossary snapshot");
+    };
+
+    let newSnapshot : GlossarySnapshot = {
+      terms = glossary.entries().toArray();
+      createdAt = Time.now();
+      termCount = glossary.size();
+      version = lastSnapshotVersion + 1;
+    };
+
+    lastBackupTimestamp := ?Time.now();
+    lastSnapshotVersion += 1;
+
+    newSnapshot;
+  };
+
+  public shared ({ caller }) func restoreGlossaryFromSnapshot(snapshot : GlossarySnapshot) : async () {
+    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized: Only admins can restore glossary from snapshot");
+    };
+
+    for (entry in snapshot.terms.values()) {
+      let (key, term) = entry;
+      glossary.add(key, term);
+    };
+
+    lastRestoreTimestamp := ?Time.now();
+    lastSnapshotVersion := snapshot.version;
+  };
+
+  public shared ({ caller }) func replaceGlossaryWithSnapshot(snapshot : GlossarySnapshot) : async () {
+    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized: Only admins can replace glossary with snapshot");
+    };
+
+    glossary.clear();
+
+    for (entry in snapshot.terms.values()) {
+      let (key, term) = entry;
+      glossary.add(key, term);
+    };
+
+    lastRestoreTimestamp := ?Time.now();
+    lastSnapshotVersion := snapshot.version;
   };
 
   // ============================================

@@ -2,12 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-new-public-blogs-ui-section-with-routing-implement-a-blogspage-at-route-blogs-that-displays-a-list-of-blog-posts-and-implement-a-blog-detail-page-at-route-blogs-id-that-renders-a-single-blog-post-by-id-with-appropriate-loading-empty-error-states",
-      "featureTitle": "Add a new public Blogs UI section with routing: implement a `BlogsPage` at route `/blogs` that displays a list of blog posts, and implement a blog detail page at route `/blogs/$id` that renders a single blog post by id with appropriate loading/empty/error states.",
+      "featureId": "feature-create-a-new-reusable-calculator-visualization-component-that-renders-the-invested-vs-earned-breakdown-as-a-pie-donut-chart-matching-the-existing-light-dark-theme-tokens-and-visual-style-used-by-the-current-breakdown-card-the-component-must-support-the-same-inputs-as-the-existing-bar-chart-invested-earned-optional-total-and-optional-label-overrides-it-must-also-handle-empty-zero-values-by-showing-the-existing-empty-state-message-in-a-card",
+      "featureTitle": "Create a new reusable calculator visualization component that renders the invested vs earned breakdown as a pie/donut chart, matching the existing light/dark theme tokens and visual style used by the current breakdown card. The component must support the same inputs as the existing bar chart: invested, earned, optional total, and optional label overrides; it must also handle empty/zero values by showing the existing empty-state message in a card.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/pages/BlogDetailPage.tsx",
-        "frontend/src/pages/BlogsPage.tsx"
+        "frontend/src/components/calculators/ResultBreakdownPieChart.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -20,15 +18,17 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-7"
+        "REQ-1"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-global-navigation-to-include-the-new-blogs-section-add-a-top-level-nav-item-labeled-blogs-that-routes-to-blogs-matching-the-existing-header-navigation-behavior-on-both-desktop-and-mobile-menus",
-      "featureTitle": "Update the global navigation to include the new Blogs section: add a top-level nav item labeled \"Blogs\" that routes to `/blogs`, matching the existing Header navigation behavior on both desktop and mobile menus.",
+      "featureId": "feature-replace-usage-of-the-existing-resultbreakdownbarchart-with-the-new-pie-donut-chart-component-in-all-calculator-pages-that-currently-render-the-bar-chart-breakdown-at-minimum-sip-lump-sum-and-ppf-keeping-the-placement-directly-below-the-numeric-results-summary-and-preserving-the-existing-labels-and-displayed-values",
+      "featureTitle": "Replace usage of the existing ResultBreakdownBarChart with the new pie/donut chart component in all calculator pages that currently render the bar chart breakdown (at minimum: SIP, Lump Sum, and PPF), keeping the placement directly below the numeric results summary and preserving the existing labels and displayed values.",
       "files": [
-        "frontend/src/components/Header.tsx"
+        "frontend/src/pages/LumpSumCalculatorPage.tsx",
+        "frontend/src/pages/PPFCalculatorPage.tsx",
+        "frontend/src/pages/SIPCalculatorPage.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -41,30 +41,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-8"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-react-query-hooks-for-blogs-in-frontend-src-hooks-usequeries-ts-to-fetch-the-blog-list-and-individual-blog-posts-by-id-following-the-existing-patterns-used-for-articles-and-research-papers",
-      "featureTitle": "Add React Query hooks for Blogs in `frontend/src/hooks/useQueries.ts` to fetch the blog list and individual blog posts by id, following the existing patterns used for articles and research papers.",
-      "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/BlogDetailPage.tsx",
-        "frontend/src/pages/BlogsPage.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "authorization@4.0.0",
-        "http-outcalls@3.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-9"
+        "REQ-2"
       ],
       "confidence": "high"
     }
