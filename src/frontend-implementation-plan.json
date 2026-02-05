@@ -1,51 +1,169 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Replace existing logo and favicon assets with provided logo image (no URL/path changes)",
+  "title": "Add reusable Cash Flow schedule + CSV export to all calculator pages",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Regenerate the existing logo image file at the exact path referenced by Header and Maintenance screen using uploaded `012.jpeg`, preserving transparency/compatibility with light and dark themes.",
+      "id": "REQ-7",
+      "summary": "Create a reusable Cash Flow section component for calculators that renders a time-ordered cash-flow schedule with an optional running balance and a clear not-applicable state.",
       "acceptanceCriteria": [
-        "`frontend/src/components/Header.tsx` and `frontend/src/components/MaintenanceScreen.tsx` continue to reference `/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png` with no broken images.",
-        "The displayed logo in the header (height ~40px) and maintenance screen (height ~80px) visually matches the uploaded logo design from `012.jpeg`.",
-        "The generated logo has a clean, transparent background (or a background that blends seamlessly with both light and dark themes)."
+        "A reusable calculator cash-flow UI component exists under the calculators components area and can be used by multiple calculator pages.",
+        "The component supports rendering a list of cash-flow rows with at least: period/date label and amount (negative for outflow, positive for inflow).",
+        "If no rows are available (or the calculator does not have a meaningful schedule), the UI renders a clear English message indicating cash-flow schedule is not applicable for that calculator."
       ],
       "file_operations": [
         {
-          "path": "frontend/public/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png",
-          "operation": "modify",
-          "description": "Replace/regenerate this static logo PNG (200×100) using the design from uploaded `012.jpeg`, ensuring clean transparency (or a theme-friendly background) and comfortable padding so it renders well at ~40px and ~80px heights. Keep the filename and location unchanged so existing references continue to work."
+          "path": "frontend/src/components/calculators/CashFlowSection.tsx",
+          "operation": "create",
+          "description": "Create a reusable CashFlowSection component that accepts a title, an array of time-ordered cash-flow rows (label + amount + optional runningBalance), and renders a styled table-like UI plus a clear 'not applicable' message when rows are empty. Compose existing shadcn components (e.g., Card/Button) without editing anything under frontend/src/components/ui. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/components/Header.tsx",
-          "operation": "modify",
-          "description": "Verify (without changing the referenced path) that the header continues to use `/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png` and that sizing remains ~40px tall with no broken image."
-        },
-        {
-          "path": "frontend/src/components/MaintenanceScreen.tsx",
-          "operation": "modify",
-          "description": "Verify (without changing the referenced path) that the maintenance screen continues to use `/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png` and that sizing remains ~80px tall with no broken image."
+          "path": "frontend/src/utils/cashFlowSchedules.ts",
+          "operation": "create",
+          "description": "Add client-side helpers to build consistent cash-flow schedules (e.g., monthly/yearly period label generators, sign conventions, optional running-balance calculation) that calculator pages can call to derive their rows from current inputs and assumptions."
         }
       ]
     },
     {
-      "id": "REQ-2",
-      "summary": "Regenerate the existing favicon image file at the exact path referenced by the app using uploaded `012.jpeg`, optimized for legibility at 32×32.",
+      "id": "REQ-8",
+      "summary": "Embed the Cash Flow section into every calculator page and populate it with a schedule derived from each calculator’s current inputs/assumptions (including XIRR reflecting user-edited cash flows).",
       "acceptanceCriteria": [
-        "`frontend/index.html` continues to reference `/assets/generated/favicon-logo.dim_32x32.png` with no broken favicon.",
-        "Browser tab favicon visually matches the uploaded logo design from `012.jpeg` and remains legible at 32×32."
+        "All calculator routes listed in the existing app (SIP, Lump Sum, Step-Up, SWP, SSY, PPF, EPF, FD, RD, EMI, Home Loan EMI, Fixed vs Reducing Loan, GST, HRA, NPS, APY, Gratuity, XIRR, CAGR, Simple Interest, Simple vs Compound Interest, NSC) visibly include a “Cash Flow” section on the page.",
+        "For calculators with periodic contributions/repayments/withdrawals, the Cash Flow section shows multiple rows that match the calculator’s time step (monthly or yearly) and reflect correct signs (outflows negative, inflows positive).",
+        "For calculators that are not time-series by nature (e.g., GST/HRA/Gratuity-type one-off computations), the Cash Flow section renders either a single-row cash flow (time 0) or an English “Not applicable” message, but never appears blank or broken.",
+        "XIRR continues to work and the Cash Flow section reflects the same list the user edits (including adds/removes/updates)."
       ],
       "file_operations": [
         {
-          "path": "frontend/public/assets/generated/favicon-logo.dim_32x32.png",
+          "path": "frontend/src/pages/SIPCalculatorPage.tsx",
           "operation": "modify",
-          "description": "Replace/regenerate this static favicon PNG (32×32) derived from `012.jpeg`, simplified/cropped for legibility at small size. Keep the filename and location unchanged so the existing reference remains valid."
+          "description": "Import and render the CashFlowSection component on the page and populate it with a monthly schedule derived from the current SIP inputs (monthly investments as negative outflows over the selected months; add an optional maturity inflow at the end using the current computed maturity value). Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/index.html",
+          "path": "frontend/src/pages/LumpSumCalculatorPage.tsx",
           "operation": "modify",
-          "description": "Verify (without changing the referenced path) that the favicon link continues to reference `/assets/generated/favicon-logo.dim_32x32.png` and loads without errors."
+          "description": "Import and render the CashFlowSection component and populate it with a simple two-row schedule: a single negative outflow at start (principal) and a single positive inflow at maturity (current computed maturity value). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/StepUpCalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component (for both tabs) and populate it with a monthly schedule reflecting the active tab's step-up logic: monthly contributions as negative outflows per month for the duration, with contribution amount changing per year; optionally include a maturity inflow at the end based on the computed total value. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/SWPCalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and populate it with a month-by-month schedule that mirrors the calculator simulation: initial investment as a positive inflow at time 0, monthly withdrawals as negative outflows, and include a running balance column using the simulated balance after each step. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/SSYCalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and populate it with a yearly schedule: yearly deposits as negative outflows for the computed deposit years; optionally add a maturity inflow row at maturity using the computed maturity value. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/PPFCalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and populate it with a yearly schedule: yearly investments as negative outflows for the tenure; optionally add a maturity inflow row using the computed maturity value. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/EPFCalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and populate it with a monthly schedule: employee+employer combined monthly contributions as negative outflows for the selected tenure; optionally add a maturity inflow row equal to the computed maturity balance. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/FDCalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and populate it with a two-row schedule: principal as negative outflow at start and maturity amount as positive inflow at end (based on the current interest type/inputs). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/RDCalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and populate it with a monthly schedule: monthly deposits as negative outflows over the computed months; optionally add a maturity inflow row using the computed maturity value. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/EMICalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and populate it with a monthly schedule: loan disbursal as positive inflow at time 0 and EMI payments as negative outflows over the loan tenure months. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/HomeLoanEMICalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and populate it with a monthly schedule: principal disbursal as positive inflow at time 0 and EMI payments as negative outflows over the loan tenure months. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/FixedVsReducingLoanCalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and populate it with a not-applicable message or a minimal single-row schedule (time 0) since this calculator is a comparison view rather than a single time-series schedule. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/GSTCalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and show a not-applicable message or a single-row schedule (time 0) representing a one-off computation (e.g., base amount outflow and after-tax amount outflow/inflow if you choose a single-row representation), ensuring it never renders blank. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/HRACalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and show a not-applicable message or a single-row schedule (time 0) since HRA is a one-off tax exemption computation, ensuring it never renders blank. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/NPSCalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and populate it with a monthly schedule: monthly contributions as negative outflows until retirement; optionally add a retirement inflow row equal to the computed total corpus. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/AtalPensionYojanaCalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and populate it with a monthly schedule using the computed monthly contribution from the matrix: monthly contributions as negative outflows until age 60; optionally add a maturity inflow row using the estimated maturity corpus. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/GratuityCalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and show a not-applicable message or a single-row schedule (time 0) representing the computed gratuity as a one-off inflow, ensuring it never renders blank. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/XIRRCalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and populate it directly from the same cashFlows state the user edits (date label uses the entered date; amount uses the entered numeric value), keeping the section in sync with add/remove/update actions. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/CAGRCalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and populate it with a two-row schedule: initial value as negative outflow at start and final value as positive inflow at end of the period, reflecting current inputs. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/SimpleInterestCalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and populate it with a two-row schedule: principal as negative outflow at start and total amount as positive inflow at end of the period, reflecting current inputs. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/SimpleVsCompoundInterestCalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and populate it with a not-applicable message or a minimal schedule (e.g., two-row for the selected method only) to avoid implying two simultaneous real cash-flow tracks; ensure the section never renders blank. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/NSCCalculatorPage.tsx",
+          "operation": "modify",
+          "description": "Import and render the CashFlowSection component and populate it with a two-row schedule: investment as negative outflow at start and maturity value as positive inflow at end, reflecting current inputs. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "summary": "Add a client-side CSV export action in the Cash Flow section that downloads the currently rendered schedule.",
+      "acceptanceCriteria": [
+        "The Cash Flow section provides a user-visible action labeled in English (e.g., “Download CSV”).",
+        "Clicking the action downloads a CSV representing exactly the currently rendered cash-flow rows (including header row).",
+        "The export works fully client-side without requiring backend changes."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/calculators/CashFlowSection.tsx",
+          "operation": "modify",
+          "description": "Add a user-visible action (e.g., a Button labeled “Download CSV”) that exports exactly the rows currently being rendered (including header row) via client-side CSV creation + browser download. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/utils/csv.ts",
+          "operation": "create",
+          "description": "Add small client-side utilities to build CSV content (with proper escaping) and trigger a browser download from the CashFlowSection without backend changes."
         }
       ]
     }

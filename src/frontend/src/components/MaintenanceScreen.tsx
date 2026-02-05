@@ -1,15 +1,12 @@
 import { Wrench } from 'lucide-react';
+import BrandLogo from './BrandLogo';
 
 export default function MaintenanceScreen() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
       <div className="w-full max-w-md text-center">
         <div className="mb-8 flex justify-center">
-          <img 
-            src="/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png" 
-            alt="Finance Ki Sharan Logo" 
-            className="h-20 w-auto"
-          />
+          <BrandLogo className="h-20 w-auto" />
         </div>
         
         <div className="mb-6 flex justify-center">
@@ -35,7 +32,7 @@ export default function MaintenanceScreen() {
         </div>
         
         <footer className="mt-12 text-sm text-muted-foreground">
-          <p>© 2025. Built with love using <a href="https://caffeine.ai" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">caffeine.ai</a></p>
+          <p>© 2026. Built with love using <a href="https://caffeine.ai" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">caffeine.ai</a></p>
         </footer>
       </div>
     </div>

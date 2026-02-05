@@ -6,7 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import ResultBreakdownPieChart from '@/components/calculators/ResultBreakdownPieChart';
+import CashFlowSection from '@/components/calculators/CashFlowSection';
 import { formatINR } from '@/utils/formatters';
+import { createSimpleTwoRowSchedule } from '@/utils/cashFlowSchedules';
 
 export default function LumpSumCalculatorPage() {
   const navigate = useNavigate();
@@ -36,6 +38,11 @@ export default function LumpSumCalculatorPage() {
 
   const lumpSumResults = calculateLumpSum();
   const principal = parseFloat(lumpSum) || 0;
+  
+  // Generate cash flow schedule
+  const cashFlowRows = principal > 0 && lumpSumResults.maturityValue > 0
+    ? createSimpleTwoRowSchedule(principal, lumpSumResults.maturityValue, 'Initial Investment', 'Maturity')
+    : [];
 
   return (
     <div className="container py-12">
@@ -141,6 +148,12 @@ export default function LumpSumCalculatorPage() {
           investedLabel="Investment Amount"
           earnedLabel="Total Gain"
           totalLabel="Maturity Value"
+        />
+
+        {/* Cash Flow Section */}
+        <CashFlowSection
+          rows={cashFlowRows}
+          csvFilename="lumpsum-cash-flow.csv"
         />
 
         {/* Information Card */}

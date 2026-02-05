@@ -6,7 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import ResultBreakdownPieChart from '@/components/calculators/ResultBreakdownPieChart';
+import CashFlowSection from '@/components/calculators/CashFlowSection';
 import { formatINR } from '@/utils/formatters';
+import { createMonthlyContributionSchedule } from '@/utils/cashFlowSchedules';
 
 export default function SIPCalculatorPage() {
   const navigate = useNavigate();
@@ -39,6 +41,14 @@ export default function SIPCalculatorPage() {
   };
 
   const sipResults = calculateSIP();
+  
+  // Generate cash flow schedule
+  const monthly = parseFloat(sipMonthly) || 0;
+  const years = parseFloat(sipYears) || 0;
+  const months = years * 12;
+  const cashFlowRows = monthly > 0 && months > 0
+    ? createMonthlyContributionSchedule(monthly, months, true, sipResults.totalValue)
+    : [];
 
   return (
     <div className="container py-12">
@@ -144,6 +154,12 @@ export default function SIPCalculatorPage() {
           investedLabel="Total Invested"
           earnedLabel="Estimated Returns"
           totalLabel="Maturity Value"
+        />
+
+        {/* Cash Flow Section */}
+        <CashFlowSection
+          rows={cashFlowRows}
+          csvFilename="sip-cash-flow.csv"
         />
 
         {/* Information Card */}

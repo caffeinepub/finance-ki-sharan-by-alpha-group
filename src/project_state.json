@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 52,
+  "projectStateVersion": 95,
   "summary": "Finance Ki Sharan (By Alpha Group) is a React + TypeScript single-page financial education platform backed by a Motoko canister on the Internet Computer. The site provides structured learning sections, a searchable glossary with cross-references, categorized articles, research paper downloads (via ExternalBlob), investor-protection/regulations awareness content, a public blogs section (list + detail) backed by backend blog APIs, a contact/feedback flow with an admin-only feedback viewer, and a NIFTY 50 ticker shown in the global footer. Authentication uses DFINITY Internet Identity; backend operations are guarded by role-based access control (admin/user/guest) and an optional maintenance mode that blocks non-admin users. A floating in-app chat widget (“ArthSaathi”) provides deterministic, education-only responses sourced from site content with strict refusal for personalized investment recommendations and legal/tax advice.",
   "existing_features": [
     {
@@ -640,26 +640,114 @@
       "version": 1
     },
     {
-      "id": "feature-replace-the-current-site-logo-asset-used-in-the-header-and-maintenance-screen-with-the-provided-existing-logo-uploaded-image-012-jpeg-by-regenerating-the-logo-file-at-the-exact-path-currently-referenced-by-the-app",
-      "title": "Replace the current site logo asset used in the Header and Maintenance screen with the provided existing logo (uploaded image `012.jpeg`) by regenerating the logo file at the exact path currently referenced by the app.",
+      "id": "IF-61",
+      "title": "Deployed header logo + favicon replaced with generated assets from user-uploaded image",
+      "synonyms": [
+        "BrandLogo asset replacement",
+        "Generated logo + favicon",
+        "Header logo fix"
+      ],
+      "description": "Replaced the main header/navigation logo with a cleaned, reliably-rendering generated PNG asset and set a matching generated favicon. Updated frontend logo rendering/utilities so the deployed site displays the brand mark correctly and consistently.",
+      "reqIds": [
+        "AR-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-62",
+      "title": "Favicon cache-busting + updated favicon asset linking",
+      "synonyms": [
+        "Favicon v2",
+        "Favicon refresh fix",
+        "Updated favicon-logo-v2"
+      ],
+      "description": "Updated the favicon implementation to reliably reflect the latest logo on the live site by introducing a revised generated favicon asset and ensuring the app links to it in a way that avoids stale-cache issues after rebuild/redeploy.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-favicon-reliably-appears-on-the-deployed-site-by-updating-frontend-index-html-to-include-a-robust-set-of-favicon-link-tags-e-g-rel-icon-with-explicit-sizes-rel-shortcut-icon-and-rel-apple-touch-icon-that-point-to-the-generated-favicon-assets-using-the-correct-base-path-base-url",
+      "title": "Ensure the favicon reliably appears on the deployed site by updating `frontend/index.html` to include a robust set of favicon link tags (e.g., `rel=\"icon\"` with explicit `sizes`, `rel=\"shortcut icon\"`, and `rel=\"apple-touch-icon\"`) that point to the generated favicon assets using the correct base path (`%BASE_URL%`).",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-the-site-favicon-to-match-the-provided-existing-logo-uploaded-image-012-jpeg-by-regenerating-the-favicon-file-at-the-exact-path-currently-referenced-by-the-app",
-      "title": "Update the site favicon to match the provided existing logo (uploaded image `012.jpeg`) by regenerating the favicon file at the exact path currently referenced by the app.",
+      "id": "feature-add-a-small-developer-facing-troubleshooting-section-to-frontend-deployment-retry-md-describing-how-to-verify-the-deployed-favicon-direct-url-checks-private-window-test-and-how-to-distinguish-browser-cache-issues-from-missing-asset-linking-issues",
+      "title": "Add a small, developer-facing troubleshooting section to `frontend/DEPLOYMENT_RETRY.md` describing how to verify the deployed favicon (direct URL checks, private window test) and how to distinguish browser cache issues from missing asset/linking issues.",
       "reqIds": [
-        "REQ-2"
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-set-the-website-to-open-in-light-mode-by-default-for-first-time-visitors-including-when-they-open-the-site-via-a-shared-link-and-do-not-automatically-switch-to-dark-mode-based-on-the-user-s-system-browser-preference-keep-the-existing-theme-toggle-so-that-if-a-user-explicitly-switches-to-dark-mode-that-choice-persists-on-reload",
+      "title": "Set the website to open in Light mode by default for first-time visitors (including when they open the site via a shared link), and do not automatically switch to Dark mode based on the user’s system/browser preference. Keep the existing theme toggle so that if a user explicitly switches to Dark mode, that choice persists on reload.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-generate-and-add-the-missing-favicon-asset-files-to-the-frontend-public-assets-using-the-user-uploaded-image-web-app-manifest-192x192-png-as-the-source-and-ensure-they-exist-at-the-exact-paths-referenced-by-frontend-index-html-frontend-public-assets-generated-favicon-logo-v2-dim-16x16-png-frontend-public-assets-generated-favicon-logo-v2-dim-32x32-png-frontend-public-assets-generated-apple-touch-icon-dim-180x180-png-and-frontend-public-favicon-ico",
+      "title": "Generate and add the missing favicon asset files to the frontend public assets using the user-uploaded image `web-app-manifest-192x192.png` as the source, and ensure they exist at the exact paths referenced by `frontend/index.html`: `frontend/public/assets/generated/favicon-logo-v2.dim_16x16.png`, `frontend/public/assets/generated/favicon-logo-v2.dim_32x32.png`, `frontend/public/assets/generated/apple-touch-icon.dim_180x180.png`, and `frontend/public/favicon.ico`.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-reusable-cash-flow-section-component-for-calculators-that-can-render-a-time-ordered-cash-flow-schedule-date-period-label-cash-flow-amount-and-optional-running-balance-and-can-be-embedded-into-every-calculator-page",
+      "title": "Add a reusable “Cash Flow” section/component for calculators that can render a time-ordered cash-flow schedule (date/period label, cash flow amount, and optional running balance) and can be embedded into every calculator page.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-every-existing-calculator-page-to-include-the-cash-flow-section-and-populate-it-with-an-appropriate-cash-flow-schedule-derived-from-the-calculator-s-current-inputs-and-assumptions-e-g-sip-monthly-investments-as-outflows-lump-sum-as-a-single-outflow-at-start-and-a-single-inflow-at-maturity-swp-withdrawals-as-inflows-over-months-xirr-uses-the-user-entered-cash-flows",
+      "title": "Update every existing calculator page to include the Cash Flow section and populate it with an appropriate cash-flow schedule derived from the calculator’s current inputs and assumptions (e.g., SIP monthly investments as outflows; Lump Sum as a single outflow at start and a single inflow at maturity; SWP withdrawals as inflows over months; XIRR uses the user-entered cash flows).",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-simple-export-option-in-the-cash-flow-section-to-download-the-currently-displayed-cash-flow-schedule-as-a-csv-file",
+      "title": "Add a simple export option in the Cash Flow section to download the currently displayed cash-flow schedule as a CSV file.",
+      "reqIds": [
+        "REQ-9"
       ],
       "version": 1
     }
   ],
   "new_feature_requests": [
     {
+      "id": "AR-2",
+      "summary": "Add the missing static icon files to the frontend public assets so browsers with different favicon expectations can load an appropriate icon (at minimum: `frontend/public/assets/generated/favicon-logo-v2.dim_16x16.png`, `frontend/public/assets/generated/favicon-logo-v2.dim_32x32.png` (existing), `frontend/public/assets/generated/apple-touch-icon.dim_180x180.png`, and `frontend/public/favicon.ico`).",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Set the site to open in LIGHT mode by default (not dark) when someone visits via link for the first time (override system/browser dark preference unless user explicitly switches).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
       "id": "AR-5",
-      "summary": "Replace the current site logo with an existing logo asset (swap in the requested existing logo across header/branding where used).",
+      "summary": "Verify that the favicon link tags in `frontend/index.html` correctly reference the generated favicon assets using `%BASE_URL%` and update them only if necessary so that browsers load a favicon reliably across common cases (16x16/32x32/apple-touch-icon/ico).",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Add cash flow input/support across all calculators (cashflow-based calculation mode where applicable).",
       "reqIds": [],
       "status": "pending"
     }
@@ -686,20 +774,13 @@
     "Blogs list ordering is unspecified (Map iteration order); UI may show posts in non-chronological order unless sorted client-side or server-side.",
     "Several calculators use simplified assumptions (e.g., FD assumes quarterly compounding; RD uses a simplified accumulation approach; APY uses an approximate matrix), so results may differ from official/bank-specific rules.",
     "XIRR uses a basic Newton–Raphson approximation without robust handling for derivative≈0/non-convergence; some cashflow patterns may yield unstable results.",
-    "Admin page direct path '/admin' on icp0 can fail with gateway 'couldn't determine the destination canister' error; app may require hash-based routing (e.g., '#/admin') or proper canister-aware routing configuration."
+    "Live site favicon still not updating/visible after redeploy; likely due to caching or incorrect favicon asset/linking on some clients."
   ],
   "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- Logo mark on transparent background, centered with comfortable padding (logo-finance-ki-sharan-transparent.dim_200x100.png)\n- Square favicon version derived from the logo, simplified/cropped for legibility (favicon-logo.dim_32x32.png)",
   "generatedImages": [
     {
-      "filename": "logo-finance-ki-sharan-transparent.dim_200x100.png",
-      "description": "Logo mark on transparent background, centered with comfortable padding",
-      "targetWidth": 200,
-      "targetHeight": 100
-    },
-    {
-      "filename": "favicon-logo.dim_32x32.png",
-      "description": "Square favicon version derived from the logo, simplified/cropped for legibility",
+      "filename": "frontend/public/assets/generated/favicon-logo-v2.dim_32x32.png",
+      "description": "Generated updated favicon PNG (v2) derived from the user-uploaded image to ensure the live site reflects the correct favicon after cache-busting/redeploy.",
       "targetWidth": 32,
       "targetHeight": 32
     }

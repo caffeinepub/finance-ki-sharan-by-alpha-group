@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
+import BrandLogo from './BrandLogo';
+import { BRAND_NAME, BRAND_TAGLINE } from '@/utils/assetPaths';
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
@@ -100,14 +102,10 @@ export default function Header() {
           onClick={() => handleNavigate('/')}
           className="flex items-center gap-3 transition-opacity hover:opacity-80"
         >
-          <img 
-            src="/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png" 
-            alt="Finance Ki Sharan Logo" 
-            className="h-10 w-auto"
-          />
+          <BrandLogo className="h-10 w-auto" />
           <div className="flex flex-col">
-            <h1 className="text-lg font-bold leading-tight text-primary">Finance Ki Sharan</h1>
-            <p className="text-xs text-muted-foreground">By Alpha Group</p>
+            <h1 className="text-lg font-bold leading-tight text-primary">{BRAND_NAME}</h1>
+            <p className="text-xs text-muted-foreground">{BRAND_TAGLINE}</p>
           </div>
         </button>
 

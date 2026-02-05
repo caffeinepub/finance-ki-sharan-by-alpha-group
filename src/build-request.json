@@ -1,57 +1,78 @@
 {
   "kind": "build_request",
-  "title": "Replace site logo with the provided existing logo image",
+  "title": "Add cash-flow schedules to all calculator pages",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Replace the current site logo asset used in the Header and Maintenance screen with the provided existing logo (uploaded image `012.jpeg`) by regenerating the logo file at the exact path currently referenced by the app.",
+      "id": "REQ-7",
+      "text": "Add a reusable “Cash Flow” section/component for calculators that can render a time-ordered cash-flow schedule (date/period label, cash flow amount, and optional running balance) and can be embedded into every calculator page.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4",
+          "msg-6"
         ],
         "quotes": [
-          "that logo ko replace kar do existing se"
+          "add cash flow in all calculators"
         ]
       },
       "acceptanceCriteria": [
-        "`frontend/src/components/Header.tsx` and `frontend/src/components/MaintenanceScreen.tsx` continue to reference `/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png` with no broken images.",
-        "The displayed logo in the header (height ~40px) and maintenance screen (height ~80px) visually matches the uploaded logo design from `012.jpeg`.",
-        "The generated logo has a clean, transparent background (or a background that blends seamlessly with both light and dark themes)."
+        "A reusable calculator cash-flow UI component exists under the calculators components area and can be used by multiple calculator pages.",
+        "The component supports rendering a list of cash-flow rows with at least: period/date label and amount (negative for outflow, positive for inflow).",
+        "If no rows are available (or the calculator does not have a meaningful schedule), the UI renders a clear English message indicating cash-flow schedule is not applicable for that calculator."
       ]
     },
     {
-      "id": "REQ-2",
-      "text": "Update the site favicon to match the provided existing logo (uploaded image `012.jpeg`) by regenerating the favicon file at the exact path currently referenced by the app.",
+      "id": "REQ-8",
+      "text": "Update every existing calculator page to include the Cash Flow section and populate it with an appropriate cash-flow schedule derived from the calculator’s current inputs and assumptions (e.g., SIP monthly investments as outflows; Lump Sum as a single outflow at start and a single inflow at maturity; SWP withdrawals as inflows over months; XIRR uses the user-entered cash flows).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4",
+          "msg-6"
         ],
         "quotes": [
-          "that logo ko replace kar do existing se"
+          "add cash flow in calculators",
+          "add cash flow in all calculators"
         ]
       },
       "acceptanceCriteria": [
-        "`frontend/index.html` continues to reference `/assets/generated/favicon-logo.dim_32x32.png` with no broken favicon.",
-        "Browser tab favicon visually matches the uploaded logo design from `012.jpeg` and remains legible at 32×32."
+        "All calculator routes listed in the existing app (SIP, Lump Sum, Step-Up, SWP, SSY, PPF, EPF, FD, RD, EMI, Home Loan EMI, Fixed vs Reducing Loan, GST, HRA, NPS, APY, Gratuity, XIRR, CAGR, Simple Interest, Simple vs Compound Interest, NSC) visibly include a “Cash Flow” section on the page.",
+        "For calculators with periodic contributions/repayments/withdrawals, the Cash Flow section shows multiple rows that match the calculator’s time step (monthly or yearly) and reflect correct signs (outflows negative, inflows positive).",
+        "For calculators that are not time-series by nature (e.g., GST/HRA/Gratuity-type one-off computations), the Cash Flow section renders either a single-row cash flow (time 0) or an English “Not applicable” message, but never appears blank or broken.",
+        "XIRR continues to work and the Cash Flow section reflects the same list the user edits (including adds/removes/updates)."
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "text": "Add a simple export option in the Cash Flow section to download the currently displayed cash-flow schedule as a CSV file.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "add cash flow in all calculators"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The Cash Flow section provides a user-visible action labeled in English (e.g., “Download CSV”).",
+        "Clicking the action downloads a CSV representing exactly the currently rendered cash-flow rows (including header row).",
+        "The export works fully client-side without requiring backend changes."
       ]
     }
   ],
   "constraints": [
-    "Do not change any files under `frontend/src/components/ui` or other immutable paths listed in SYSTEM_CONTEXT.",
-    "Keep the app’s existing logo and favicon URL paths unchanged; update by replacing the underlying static assets so no routing/code refactor is required."
+    "Do not edit files under frontend/src/components/ui (shadcn components are read-only and must be composed).",
+    "Do not edit any frontend immutablePaths listed in SYSTEM_CONTEXT; implement changes via other modules/components/pages."
   ],
   "nonGoals": [
-    "Creating a new brand identity, changing site name/tagline text, or redesigning the header layout.",
-    "Fixing admin routing / canister gateway issues (not part of this request)."
+    "Do not change the backend canister APIs for calculators (keep all cash-flow generation client-side).",
+    "Do not introduce new calculator types or new routes beyond adding the Cash Flow section to existing calculators.",
+    "Do not add third-party analytics or external data sources for cash-flow calculations."
   ],
   "imageRequirements": {
-    "required": [
-      "Logo mark on transparent background, centered with comfortable padding (logo-finance-ki-sharan-transparent.dim_200x100.png)",
-      "Square favicon version derived from the logo, simplified/cropped for legibility (favicon-logo.dim_32x32.png)"
-    ],
+    "required": [],
     "edits": []
   },
   "userProfileUpdate": {

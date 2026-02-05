@@ -2,6 +2,7 @@ import { ArrowRight, BookOpen, FileText, GraduationCap, Shield, TrendingUp } fro
 import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ASSET_PATHS } from '@/utils/assetPaths';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ export default function HomePage() {
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent rounded-2xl blur-3xl" />
               <img
-                src="/assets/generated/hero-finance-learning.dim_800x400.png"
+                src={ASSET_PATHS.heroImage}
                 alt="Financial Learning"
                 className="relative rounded-2xl shadow-2xl border border-border/50"
               />

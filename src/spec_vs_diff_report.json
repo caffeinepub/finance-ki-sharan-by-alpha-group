@@ -1,41 +1,28 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T09:59:15.397Z",
-  "summary": "The diff only shows updates to metadata/documentation-style files (frontend-file-summaries.txt and project_state.json). There is no evidence that the underlying static logo and favicon assets at the existing referenced paths were replaced, nor that the specific referencing files were preserved as required.",
+  "generatedAt": "2026-02-05T14:44:38.763Z",
+  "summary": "A reusable CashFlowSection component with CSV export and an empty-state message was added, along with CSV/schedule utilities. However, only the SIP and Lump Sum calculator pages were updated to include the Cash Flow section; the diff does not show updates to the rest of the required calculator pages (including XIRR-specific syncing).",
   "missing_requirements": [
     {
-      "id": "REQ-1",
-      "requirement": "Replace the current site logo asset used in the Header and Maintenance screen with the provided existing logo (uploaded image `012.jpeg`) by regenerating the logo file at the exact path currently referenced by the app (`/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png`).",
-      "reason": "No static asset replacement is shown in the diff summary, and no change indicates the logo image file at the required path was regenerated/replaced while keeping references unchanged.",
+      "id": "REQ-8",
+      "requirement": "Update every existing calculator page to include the Cash Flow section and populate it with an appropriate cash-flow schedule derived from the calculator’s current inputs and assumptions (including XIRR reflecting the user-edited cash flows).",
+      "reason": "The diff shows CashFlowSection integrated only in SIPCalculatorPage and LumpSumCalculatorPage. There is no evidence that the other listed calculator pages/routes (Step-Up, SWP, SSY, PPF, EPF, FD, RD, EMI, Home Loan EMI, Fixed vs Reducing Loan, GST, HRA, NPS, APY, Gratuity, XIRR, CAGR, Simple Interest, Simple vs Compound Interest, NSC) were updated to display a Cash Flow section or generate schedules appropriate to their inputs. No XIRR page changes are shown to ensure the cash-flow list mirrors user edits.",
       "evidence": [
-        "frontend-file-summaries.txt",
-        "project_state.json"
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "requirement": "Update the site favicon to match the provided existing logo (uploaded image `012.jpeg`) by regenerating the favicon file at the exact path currently referenced by the app (`/assets/generated/favicon-logo.dim_32x32.png`).",
-      "reason": "No static asset replacement is shown in the diff summary, and no change indicates the favicon file at the required path was regenerated/replaced while keeping references unchanged.",
-      "evidence": [
-        "frontend-file-summaries.txt",
-        "project_state.json"
+        "frontend/src/pages/SIPCalculatorPage.tsx",
+        "frontend/src/pages/LumpSumCalculatorPage.tsx"
       ]
     }
   ],
-  "hallucinated_features": [
-    {
-      "description": "Large set of unrelated frontend feature/code changes (routing changes, removal of a nav item, new pages, styling updates, chat widget, NIFTY 50 ticker, etc.).",
-      "reason": "The BuildRequest is narrowly scoped to replacing existing logo and favicon static assets without changing referenced paths or doing routing/code refactors. The diff summary text describes many unrelated modifications not requested.",
-      "evidence": [
-        "frontend-file-summaries.txt",
-        "project_state.json"
-      ]
-    }
-  ],
-  "confidence": 0.74,
+  "hallucinated_features": [],
+  "confidence": 0.72,
   "changed_files": [
     "frontend-file-summaries.txt",
+    "frontend/src/components/calculators/CashFlowSection.tsx",
+    "frontend/src/pages/LumpSumCalculatorPage.tsx",
+    "frontend/src/pages/SIPCalculatorPage.tsx",
+    "frontend/src/utils/cashFlowSchedules.ts",
+    "frontend/src/utils/csv.ts",
     "project_state.json"
   ]
 }

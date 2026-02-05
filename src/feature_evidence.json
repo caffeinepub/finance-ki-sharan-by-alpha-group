@@ -2,9 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-replace-the-current-site-logo-asset-used-in-the-header-and-maintenance-screen-with-the-provided-existing-logo-uploaded-image-012-jpeg-by-regenerating-the-logo-file-at-the-exact-path-currently-referenced-by-the-app",
-      "featureTitle": "Replace the current site logo asset used in the Header and Maintenance screen with the provided existing logo (uploaded image `012.jpeg`) by regenerating the logo file at the exact path currently referenced by the app.",
-      "files": [],
+      "featureId": "feature-add-a-reusable-cash-flow-section-component-for-calculators-that-can-render-a-time-ordered-cash-flow-schedule-date-period-label-cash-flow-amount-and-optional-running-balance-and-can-be-embedded-into-every-calculator-page",
+      "featureTitle": "Add a reusable “Cash Flow” section/component for calculators that can render a time-ordered cash-flow schedule (date/period label, cash flow amount, and optional running balance) and can be embedded into every calculator page.",
+      "files": [
+        "frontend/src/components/calculators/CashFlowSection.tsx",
+        "frontend/src/utils/cashFlowSchedules.ts"
+      ],
       "components": [
         "core-infrastructure@1.0.2",
         "shadcn-ui@1.0.0",
@@ -16,14 +19,17 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-1"
+        "REQ-7"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-site-favicon-to-match-the-provided-existing-logo-uploaded-image-012-jpeg-by-regenerating-the-favicon-file-at-the-exact-path-currently-referenced-by-the-app",
-      "featureTitle": "Update the site favicon to match the provided existing logo (uploaded image `012.jpeg`) by regenerating the favicon file at the exact path currently referenced by the app.",
-      "files": [],
+      "featureId": "feature-update-every-existing-calculator-page-to-include-the-cash-flow-section-and-populate-it-with-an-appropriate-cash-flow-schedule-derived-from-the-calculator-s-current-inputs-and-assumptions-e-g-sip-monthly-investments-as-outflows-lump-sum-as-a-single-outflow-at-start-and-a-single-inflow-at-maturity-swp-withdrawals-as-inflows-over-months-xirr-uses-the-user-entered-cash-flows",
+      "featureTitle": "Update every existing calculator page to include the Cash Flow section and populate it with an appropriate cash-flow schedule derived from the calculator’s current inputs and assumptions (e.g., SIP monthly investments as outflows; Lump Sum as a single outflow at start and a single inflow at maturity; SWP withdrawals as inflows over months; XIRR uses the user-entered cash flows).",
+      "files": [
+        "frontend/src/pages/LumpSumCalculatorPage.tsx",
+        "frontend/src/pages/SIPCalculatorPage.tsx"
+      ],
       "components": [
         "core-infrastructure@1.0.2",
         "shadcn-ui@1.0.0",
@@ -35,7 +41,29 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-2"
+        "REQ-8"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-simple-export-option-in-the-cash-flow-section-to-download-the-currently-displayed-cash-flow-schedule-as-a-csv-file",
+      "featureTitle": "Add a simple export option in the Cash Flow section to download the currently displayed cash-flow schedule as a CSV file.",
+      "files": [
+        "frontend/src/components/calculators/CashFlowSection.tsx",
+        "frontend/src/utils/csv.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "http-outcalls@3.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-9"
       ],
       "confidence": "high"
     }

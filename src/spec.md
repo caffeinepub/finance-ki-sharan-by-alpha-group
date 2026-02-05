@@ -1,11 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Replace the app’s existing logo and favicon with assets derived from the uploaded logo image (`012.jpeg`) while keeping all referenced URL paths unchanged.
+**Goal:** Add a reusable Cash Flow schedule section to every calculator page, with CSV export.
 
 **Planned changes:**
-- Regenerate/replace the existing logo asset at `/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png` to visually match `012.jpeg` and work on light/dark themes.
-- Regenerate/replace the existing favicon asset at `/assets/generated/favicon-logo.dim_32x32.png` to match `012.jpeg` and remain legible at 32×32.
-- Keep existing code references unchanged in `frontend/src/components/Header.tsx`, `frontend/src/components/MaintenanceScreen.tsx`, and `frontend/index.html`.
+- Create a reusable “Cash Flow” UI component under the calculators components area that renders a time-ordered schedule (period/date label, cash-flow amount, optional running balance) and shows an English “Not applicable” message when a schedule doesn’t apply.
+- Update all existing calculator pages to include the Cash Flow section and generate an appropriate cash-flow schedule from each calculator’s current inputs/assumptions (including using the user-edited list for XIRR).
+- Add a client-side “Download CSV” action in the Cash Flow section that exports exactly the currently displayed rows (with a header row).
 
-**User-visible outcome:** The header and maintenance screen display the new provided logo, and the browser tab shows a matching favicon, with no broken image links.
+**User-visible outcome:** Every calculator page shows a “Cash Flow” section with a clear schedule (or a clear “Not applicable” message), and users can download the displayed cash-flow schedule as a CSV.
