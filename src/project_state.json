@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 22,
+  "projectStateVersion": 52,
   "summary": "Finance Ki Sharan (By Alpha Group) is a React + TypeScript single-page financial education platform backed by a Motoko canister on the Internet Computer. The site provides structured learning sections, a searchable glossary with cross-references, categorized articles, research paper downloads (via ExternalBlob), investor-protection/regulations awareness content, a public blogs section (list + detail) backed by backend blog APIs, a contact/feedback flow with an admin-only feedback viewer, and a NIFTY 50 ticker shown in the global footer. Authentication uses DFINITY Internet Identity; backend operations are guarded by role-based access control (admin/user/guest) and an optional maintenance mode that blocks non-admin users. A floating in-app chat widget (“ArthSaathi”) provides deterministic, education-only responses sourced from site content with strict refusal for personalized investment recommendations and legal/tax advice.",
   "existing_features": [
     {
@@ -589,16 +589,67 @@
       "version": 1
     },
     {
-      "id": "feature-create-a-new-reusable-calculator-visualization-component-that-renders-the-invested-vs-earned-breakdown-as-a-pie-donut-chart-matching-the-existing-light-dark-theme-tokens-and-visual-style-used-by-the-current-breakdown-card-the-component-must-support-the-same-inputs-as-the-existing-bar-chart-invested-earned-optional-total-and-optional-label-overrides-it-must-also-handle-empty-zero-values-by-showing-the-existing-empty-state-message-in-a-card",
-      "title": "Create a new reusable calculator visualization component that renders the invested vs earned breakdown as a pie/donut chart, matching the existing light/dark theme tokens and visual style used by the current breakdown card. The component must support the same inputs as the existing bar chart: invested, earned, optional total, and optional label overrides; it must also handle empty/zero values by showing the existing empty-state message in a card.",
+      "id": "IF-57",
+      "title": "Glossary backup & restore UI panel",
+      "synonyms": [
+        "GlossaryBackupRestorePanel",
+        "Glossary export/import"
+      ],
+      "description": "Adds a glossary backup/restore panel in the frontend for exporting and re-importing glossary content, leveraging the app’s storage client tooling for file-based backup flows (intended for admin/maintenance operations).",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-58",
+      "title": "Glossary stable persistence across canister upgrades (preupgrade/postupgrade)",
+      "synonyms": [
+        "Stable storage glossary persistence",
+        "Upgrade-safe glossary storage"
+      ],
+      "description": "Motoko canister now persists glossary terms (and related glossary backup/restore metadata such as snapshot version and last backup/restore timestamps) into stable memory during preupgrade and restores them during postupgrade, preventing glossary data loss on redeploy/upgrade.",
+      "reqIds": [
+        "AR-1",
+        "AR-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-59",
+      "title": "Glossary recovery UX + restore flow reflects immediately in UI",
+      "synonyms": [
+        "Empty glossary guidance",
+        "Backup/restore immediate refresh"
+      ],
+      "description": "When the glossary is empty, the UI provides clearer English guidance: admins are instructed to use the on-page Admin: Glossary Backup & Restore panel to restore a snapshot; non-admin users are instructed to contact an administrator. Restoring a snapshot updates glossary search and alphabetical grouping immediately (via query refresh/invalidation).",
+      "reqIds": [
+        "AR-3",
+        "AR-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-60",
+      "title": "Custom domain setup guide page",
+      "synonyms": [
+        "DomainNamePage",
+        "CustomDomainGuide",
+        "CustomDomainFaq"
+      ],
+      "description": "Adds a dedicated Domain Name page with guide/FAQ content explaining custom domain setup and related considerations, implemented via new domain-focused UI components and a routed page.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "feature-replace-the-current-site-logo-asset-used-in-the-header-and-maintenance-screen-with-the-provided-existing-logo-uploaded-image-012-jpeg-by-regenerating-the-logo-file-at-the-exact-path-currently-referenced-by-the-app",
+      "title": "Replace the current site logo asset used in the Header and Maintenance screen with the provided existing logo (uploaded image `012.jpeg`) by regenerating the logo file at the exact path currently referenced by the app.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-replace-usage-of-the-existing-resultbreakdownbarchart-with-the-new-pie-donut-chart-component-in-all-calculator-pages-that-currently-render-the-bar-chart-breakdown-at-minimum-sip-lump-sum-and-ppf-keeping-the-placement-directly-below-the-numeric-results-summary-and-preserving-the-existing-labels-and-displayed-values",
-      "title": "Replace usage of the existing ResultBreakdownBarChart with the new pie/donut chart component in all calculator pages that currently render the bar chart breakdown (at minimum: SIP, Lump Sum, and PPF), keeping the placement directly below the numeric results summary and preserving the existing labels and displayed values.",
+      "id": "feature-update-the-site-favicon-to-match-the-provided-existing-logo-uploaded-image-012-jpeg-by-regenerating-the-favicon-file-at-the-exact-path-currently-referenced-by-the-app",
+      "title": "Update the site favicon to match the provided existing logo (uploaded image `012.jpeg`) by regenerating the favicon file at the exact path currently referenced by the app.",
       "reqIds": [
         "REQ-2"
       ],
@@ -607,8 +658,8 @@
   ],
   "new_feature_requests": [
     {
-      "id": "AR-1",
-      "summary": "Replace the bar chart in calculators with a pie chart (e.g., invested amount vs interest earned / total corpus breakdown).",
+      "id": "AR-5",
+      "summary": "Replace the current site logo with an existing logo asset (swap in the requested existing logo across header/branding where used).",
       "reqIds": [],
       "status": "pending"
     }
@@ -630,14 +681,29 @@
     "“Use Web Sources” toggle exists in the chat widget UI but is disabled; backend does not yet return internetResult sources from real outcalls.",
     "Backend getMarketStatus() and isMarketOpen() are stubbed to always return false; frontend relies on client-side IST market-hours logic for “Live/Closed” labeling.",
     "Backend does not fetch live NIFTY 50 prices; stock data must be populated/updated via admin calls, so the ticker may be empty or stale.",
-    "Frontend has nested QueryClientProviders (one in src/main.tsx and another in App.tsx) with different QueryClient instances, which can cause confusion and inconsistent caching behavior.",
     "submitFeedback on the backend requires the caller to have the #user role; ContactPage does not enforce login, so unauthenticated users will fail to submit feedback.",
     "Blog timestamps are likely incorrect: addBlog/updateBlog set lastUpdatedAt to publishedAt (not current time), and updateBlogUpdatedTime uses a forced timestamp rather than Time.now().",
     "Blogs list ordering is unspecified (Map iteration order); UI may show posts in non-chronological order unless sorted client-side or server-side.",
     "Several calculators use simplified assumptions (e.g., FD assumes quarterly compounding; RD uses a simplified accumulation approach; APY uses an approximate matrix), so results may differ from official/bank-specific rules.",
-    "XIRR uses a basic Newton–Raphson approximation without robust handling for derivative≈0/non-convergence; some cashflow patterns may yield unstable results."
+    "XIRR uses a basic Newton–Raphson approximation without robust handling for derivative≈0/non-convergence; some cashflow patterns may yield unstable results.",
+    "Admin page direct path '/admin' on icp0 can fail with gateway 'couldn't determine the destination canister' error; app may require hash-based routing (e.g., '#/admin') or proper canister-aware routing configuration."
   ],
   "isFixRequest": false,
+  "imageRequirements": "## Required Images\n- Logo mark on transparent background, centered with comfortable padding (logo-finance-ki-sharan-transparent.dim_200x100.png)\n- Square favicon version derived from the logo, simplified/cropped for legibility (favicon-logo.dim_32x32.png)",
+  "generatedImages": [
+    {
+      "filename": "logo-finance-ki-sharan-transparent.dim_200x100.png",
+      "description": "Logo mark on transparent background, centered with comfortable padding",
+      "targetWidth": 200,
+      "targetHeight": 100
+    },
+    {
+      "filename": "favicon-logo.dim_32x32.png",
+      "description": "Square favicon version derived from the logo, simplified/cropped for legibility",
+      "targetWidth": 32,
+      "targetHeight": 32
+    }
+  ],
   "gameProjectType": "none",
   "projectName": "Finance Ki Sharan",
   "clarification_mode": "instant",

@@ -1,59 +1,67 @@
 {
   "kind": "build_request",
-  "title": "Replace calculator result bar chart with pie chart breakdown",
+  "title": "Replace site logo with the provided existing logo image",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Create a new reusable calculator visualization component that renders the invested vs earned breakdown as a pie/donut chart, matching the existing light/dark theme tokens and visual style used by the current breakdown card. The component must support the same inputs as the existing bar chart: invested, earned, optional total, and optional label overrides; it must also handle empty/zero values by showing the existing empty-state message in a card.",
+      "text": "Replace the current site logo asset used in the Header and Maintenance screen with the provided existing logo (uploaded image `012.jpeg`) by regenerating the logo file at the exact path currently referenced by the app.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3"
+          "msg-1"
         ],
         "quotes": [
-          "replace with pie chart in calculators"
+          "that logo ko replace kar do existing se"
         ]
       },
       "acceptanceCriteria": [
-        "A new pie/donut breakdown component exists under frontend/src/components/calculators (new file) and can be imported by calculator pages.",
-        "Given invested > 0 or earned > 0, the chart renders slices for invested and earned with correct proportions based on invested + earned.",
-        "Given invested=0 and earned=0 (and total absent or 0), the component renders the same kind of card-based empty state prompting the user to enter valid inputs.",
-        "The component uses existing theme color tokens (e.g., chart variables) and remains legible in both light and dark mode.",
-        "The component includes a legend that shows the label + exact INR-formatted value for each slice (and uses the same label override behavior as the current bar chart component)."
+        "`frontend/src/components/Header.tsx` and `frontend/src/components/MaintenanceScreen.tsx` continue to reference `/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png` with no broken images.",
+        "The displayed logo in the header (height ~40px) and maintenance screen (height ~80px) visually matches the uploaded logo design from `012.jpeg`.",
+        "The generated logo has a clean, transparent background (or a background that blends seamlessly with both light and dark themes)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Replace usage of the existing ResultBreakdownBarChart with the new pie/donut chart component in all calculator pages that currently render the bar chart breakdown (at minimum: SIP, Lump Sum, and PPF), keeping the placement directly below the numeric results summary and preserving the existing labels and displayed values.",
+      "text": "Update the site favicon to match the provided existing logo (uploaded image `012.jpeg`) by regenerating the favicon file at the exact path currently referenced by the app.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3"
+          "msg-1"
         ],
         "quotes": [
-          "replace with pie chart in calculators"
+          "that logo ko replace kar do existing se"
         ]
       },
       "acceptanceCriteria": [
-        "frontend/src/pages/SIPCalculatorPage.tsx no longer renders ResultBreakdownBarChart and instead renders the pie/donut breakdown with the same invested/earned/total inputs and labels.",
-        "frontend/src/pages/LumpSumCalculatorPage.tsx no longer renders ResultBreakdownBarChart and instead renders the pie/donut breakdown with the same invested/earned/total inputs and labels.",
-        "frontend/src/pages/PPFCalculatorPage.tsx no longer renders ResultBreakdownBarChart and instead renders the pie/donut breakdown with the same invested/earned/total inputs and labels.",
-        "All updated calculator pages compile without unused-import warnings and render the breakdown correctly."
+        "`frontend/index.html` continues to reference `/assets/generated/favicon-logo.dim_32x32.png` with no broken favicon.",
+        "Browser tab favicon visually matches the uploaded logo design from `012.jpeg` and remains legible at 32×32."
       ]
     }
   ],
   "constraints": [
-    "Do not modify files under frontend/src/components/ui (shadcn components are read-only and must only be composed).",
-    "Keep the existing single-page routing and calculator page layouts intact; only replace the breakdown visualization."
+    "Do not change any files under `frontend/src/components/ui` or other immutable paths listed in SYSTEM_CONTEXT.",
+    "Keep the app’s existing logo and favicon URL paths unchanged; update by replacing the underlying static assets so no routing/code refactor is required."
   ],
   "nonGoals": [
-    "Do not change calculator formulas or numeric result outputs.",
-    "Do not add backend APIs or persist calculator inputs/results.",
-    "Do not add a new charting library dependency unless strictly necessary."
+    "Creating a new brand identity, changing site name/tagline text, or redesigning the header layout.",
+    "Fixing admin routing / canister gateway issues (not part of this request)."
   ],
   "imageRequirements": {
-    "required": [],
+    "required": [
+      "Logo mark on transparent background, centered with comfortable padding (logo-finance-ki-sharan-transparent.dim_200x100.png)",
+      "Square favicon version derived from the logo, simplified/cropped for legibility (favicon-logo.dim_32x32.png)"
+    ],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

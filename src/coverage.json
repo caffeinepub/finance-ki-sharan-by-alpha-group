@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T05:50:51.041Z",
+  "generatedAt": "2026-02-05T09:59:15.437Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -12,42 +12,39 @@
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Create a new reusable calculator visualization component that renders the invested vs earned breakdown as a pie/donut chart, matching the existing light/dark theme tokens and visual style used by the current breakdown card. The component must support the same inputs as the existing bar chart: invested, earned, optional total, and optional label overrides; it must also handle empty/zero values by showing the existing empty-state message in a card.",
+        "summary": "Replace the current site logo asset used in the Header and Maintenance screen with the provided existing logo (uploaded image `012.jpeg`) by regenerating the logo file at the exact path currently referenced by the app.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/calculators/ResultBreakdownPieChart.tsx"
+          "frontend/public/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png",
+          "frontend/src/components/Header.tsx",
+          "frontend/src/components/MaintenanceScreen.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/calculators/ResultBreakdownPieChart.tsx"
+          "frontend/public/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Replace usage of the existing ResultBreakdownBarChart with the new pie/donut chart component in all calculator pages that currently render the bar chart breakdown (at minimum: SIP, Lump Sum, and PPF), keeping the placement directly below the numeric results summary and preserving the existing labels and displayed values.",
+        "summary": "Update the site favicon to match the provided existing logo (uploaded image `012.jpeg`) by regenerating the favicon file at the exact path currently referenced by the app.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/SIPCalculatorPage.tsx",
-          "frontend/src/pages/LumpSumCalculatorPage.tsx",
-          "frontend/src/pages/PPFCalculatorPage.tsx"
+          "frontend/public/assets/generated/favicon-logo.dim_32x32.png",
+          "frontend/index.html"
         ],
         "matchedFiles": [
-          "frontend/src/pages/SIPCalculatorPage.tsx",
-          "frontend/src/pages/LumpSumCalculatorPage.tsx",
-          "frontend/src/pages/PPFCalculatorPage.tsx"
+          "frontend/public/assets/generated/favicon-logo.dim_32x32.png"
         ]
       }
     ]
   },
   "changedFiles": [
     "build-request.json",
+    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/calculators/ResultBreakdownBarChart.tsx",
-    "frontend/src/components/calculators/ResultBreakdownPieChart.tsx",
-    "frontend/src/pages/LumpSumCalculatorPage.tsx",
-    "frontend/src/pages/PPFCalculatorPage.tsx",
-    "frontend/src/pages/SIPCalculatorPage.tsx",
+    "frontend/public/assets/generated/favicon-logo.dim_32x32.png",
+    "frontend/public/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

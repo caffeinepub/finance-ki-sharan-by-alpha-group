@@ -329,20 +329,22 @@ export function useGetBlog(id: bigint | null) {
   });
 }
 
-// Feedback Mutation
+// Feedback Mutation - Updated for guest user support
 export function useSubmitFeedback() {
   const { actor } = useActor();
 
   return useMutation({
     mutationFn: async ({ name, email, message }: { name: string; email: string; message: string }) => {
-      if (!actor) throw new Error('Actor not initialized');
+      if (!actor) throw new Error('Service is initializing. Please wait a moment and try again.');
       return actor.submitFeedback(name, email, message);
     },
     onSuccess: () => {
       toast.success('Feedback submitted successfully');
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to submit feedback');
+      // Provide user-friendly error messages for guest users
+      const errorMessage = error.message || 'Unable to submit feedback. Please try again.';
+      toast.error(errorMessage);
     },
   });
 }

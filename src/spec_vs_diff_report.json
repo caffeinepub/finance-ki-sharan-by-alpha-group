@@ -1,27 +1,41 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T05:50:50.992Z",
-  "summary": "Diff adds a new ResultBreakdownPieChart component and updates SIP/Lump Sum/PPF calculator pages to import/use it instead of the bar chart. However, key REQ-1 acceptance criteria (legend with INR-formatted values and label-override behavior) are not verifiably implemented from the truncated diff content.",
+  "generatedAt": "2026-02-05T09:59:15.397Z",
+  "summary": "The diff only shows updates to metadata/documentation-style files (frontend-file-summaries.txt and project_state.json). There is no evidence that the underlying static logo and favicon assets at the existing referenced paths were replaced, nor that the specific referencing files were preserved as required.",
   "missing_requirements": [
     {
       "id": "REQ-1",
-      "requirement": "Component includes a legend that shows the label + exact INR-formatted value for each slice and uses the same label override behavior as the current bar chart component.",
-      "reason": "The new component defines label override props and imports formatINR, but the provided diff content is truncated before any legend rendering is shown. Therefore, the legend behavior (including INR formatting and label overrides) cannot be confirmed from the evidence.",
+      "requirement": "Replace the current site logo asset used in the Header and Maintenance screen with the provided existing logo (uploaded image `012.jpeg`) by regenerating the logo file at the exact path currently referenced by the app (`/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png`).",
+      "reason": "No static asset replacement is shown in the diff summary, and no change indicates the logo image file at the required path was regenerated/replaced while keeping references unchanged.",
       "evidence": [
-        "frontend/src/components/calculators/ResultBreakdownPieChart.tsx (truncated)"
+        "frontend-file-summaries.txt",
+        "project_state.json"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "Update the site favicon to match the provided existing logo (uploaded image `012.jpeg`) by regenerating the favicon file at the exact path currently referenced by the app (`/assets/generated/favicon-logo.dim_32x32.png`).",
+      "reason": "No static asset replacement is shown in the diff summary, and no change indicates the favicon file at the required path was regenerated/replaced while keeping references unchanged.",
+      "evidence": [
+        "frontend-file-summaries.txt",
+        "project_state.json"
       ]
     }
   ],
-  "hallucinated_features": [],
-  "confidence": 0.63,
+  "hallucinated_features": [
+    {
+      "description": "Large set of unrelated frontend feature/code changes (routing changes, removal of a nav item, new pages, styling updates, chat widget, NIFTY 50 ticker, etc.).",
+      "reason": "The BuildRequest is narrowly scoped to replacing existing logo and favicon static assets without changing referenced paths or doing routing/code refactors. The diff summary text describes many unrelated modifications not requested.",
+      "evidence": [
+        "frontend-file-summaries.txt",
+        "project_state.json"
+      ]
+    }
+  ],
+  "confidence": 0.74,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/components/calculators/ResultBreakdownBarChart.tsx",
-    "frontend/src/components/calculators/ResultBreakdownPieChart.tsx",
-    "frontend/src/pages/LumpSumCalculatorPage.tsx",
-    "frontend/src/pages/PPFCalculatorPage.tsx",
-    "frontend/src/pages/SIPCalculatorPage.tsx",
     "project_state.json"
   ]
 }

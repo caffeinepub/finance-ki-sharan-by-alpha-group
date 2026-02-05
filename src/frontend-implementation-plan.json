@@ -1,50 +1,51 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Replace calculator breakdown bar chart with reusable pie/donut chart",
+  "title": "Replace existing logo and favicon assets with provided logo image (no URL/path changes)",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add a reusable invested-vs-earned pie/donut breakdown component that matches existing theme tokens and preserves the current empty-state card behavior.",
+      "summary": "Regenerate the existing logo image file at the exact path referenced by Header and Maintenance screen using uploaded `012.jpeg`, preserving transparency/compatibility with light and dark themes.",
       "acceptanceCriteria": [
-        "A new pie/donut breakdown component exists under frontend/src/components/calculators (new file) and can be imported by calculator pages.",
-        "Given invested > 0 or earned > 0, the chart renders slices for invested and earned with correct proportions based on invested + earned.",
-        "Given invested=0 and earned=0 (and total absent or 0), the component renders the same kind of card-based empty state prompting the user to enter valid inputs.",
-        "The component uses existing theme color tokens (e.g., chart variables) and remains legible in both light and dark mode.",
-        "The component includes a legend that shows the label + exact INR-formatted value for each slice (and uses the same label override behavior as the current bar chart component)."
+        "`frontend/src/components/Header.tsx` and `frontend/src/components/MaintenanceScreen.tsx` continue to reference `/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png` with no broken images.",
+        "The displayed logo in the header (height ~40px) and maintenance screen (height ~80px) visually matches the uploaded logo design from `012.jpeg`.",
+        "The generated logo has a clean, transparent background (or a background that blends seamlessly with both light and dark themes)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/calculators/ResultBreakdownPieChart.tsx",
-          "operation": "create",
-          "description": "Create a new reusable ResultBreakdownPieChart component (pie/donut) using existing Card UI composition and existing theme tokens (e.g., bg-chart-1/bg-chart-2 and related foreground tokens). Match the current breakdown card structure (title, border style) and reuse the same empty-state message when invested/earned/total are all zero/absent. Support props parity with ResultBreakdownBarChart (invested, earned, optional total, and optional label overrides), render invested+earned proportions based on invested+earned, and include a legend that displays each slice label plus INR-formatted value via formatINR. Avoid adding any new charting library dependency."
+          "path": "frontend/public/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png",
+          "operation": "modify",
+          "description": "Replace/regenerate this static logo PNG (200×100) using the design from uploaded `012.jpeg`, ensuring clean transparency (or a theme-friendly background) and comfortable padding so it renders well at ~40px and ~80px heights. Keep the filename and location unchanged so existing references continue to work."
+        },
+        {
+          "path": "frontend/src/components/Header.tsx",
+          "operation": "modify",
+          "description": "Verify (without changing the referenced path) that the header continues to use `/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png` and that sizing remains ~40px tall with no broken image."
+        },
+        {
+          "path": "frontend/src/components/MaintenanceScreen.tsx",
+          "operation": "modify",
+          "description": "Verify (without changing the referenced path) that the maintenance screen continues to use `/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png` and that sizing remains ~80px tall with no broken image."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Replace ResultBreakdownBarChart usage with the new pie/donut component in SIP, Lump Sum, and PPF calculator pages without changing layout or displayed values.",
+      "summary": "Regenerate the existing favicon image file at the exact path referenced by the app using uploaded `012.jpeg`, optimized for legibility at 32×32.",
       "acceptanceCriteria": [
-        "frontend/src/pages/SIPCalculatorPage.tsx no longer renders ResultBreakdownBarChart and instead renders the pie/donut breakdown with the same invested/earned/total inputs and labels.",
-        "frontend/src/pages/LumpSumCalculatorPage.tsx no longer renders ResultBreakdownBarChart and instead renders the pie/donut breakdown with the same invested/earned/total inputs and labels.",
-        "frontend/src/pages/PPFCalculatorPage.tsx no longer renders ResultBreakdownBarChart and instead renders the pie/donut breakdown with the same invested/earned/total inputs and labels.",
-        "All updated calculator pages compile without unused-import warnings and render the breakdown correctly."
+        "`frontend/index.html` continues to reference `/assets/generated/favicon-logo.dim_32x32.png` with no broken favicon.",
+        "Browser tab favicon visually matches the uploaded logo design from `012.jpeg` and remains legible at 32×32."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/SIPCalculatorPage.tsx",
+          "path": "frontend/public/assets/generated/favicon-logo.dim_32x32.png",
           "operation": "modify",
-          "description": "Replace the ResultBreakdownBarChart import and usage with ResultBreakdownPieChart, keeping the component placement directly below the numeric results summary. Preserve the exact invested/earned/total values and label overrides currently passed (Total Invested / Estimated Returns / Maturity Value), and ensure no unused imports remain."
+          "description": "Replace/regenerate this static favicon PNG (32×32) derived from `012.jpeg`, simplified/cropped for legibility at small size. Keep the filename and location unchanged so the existing reference remains valid."
         },
         {
-          "path": "frontend/src/pages/LumpSumCalculatorPage.tsx",
+          "path": "frontend/index.html",
           "operation": "modify",
-          "description": "Replace the ResultBreakdownBarChart import and usage with ResultBreakdownPieChart, keeping the component placement directly below the numeric results summary. Preserve the exact invested/earned/total values and label overrides currently passed (Investment Amount / Total Gain / Maturity Value), and ensure no unused imports remain."
-        },
-        {
-          "path": "frontend/src/pages/PPFCalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Replace the ResultBreakdownBarChart import and usage with ResultBreakdownPieChart, keeping the component placement directly below the numeric results summary. Preserve the exact invested/earned/total values and label overrides currently passed (Total Invested / Interest Earned / Maturity Value), and ensure no unused imports remain."
+          "description": "Verify (without changing the referenced path) that the favicon link continues to reference `/assets/generated/favicon-logo.dim_32x32.png` and loads without errors."
         }
       ]
     }

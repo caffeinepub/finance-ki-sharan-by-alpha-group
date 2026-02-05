@@ -1,10 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Replace the calculators’ invested-vs-earned result breakdown visualization from a bar chart to a pie/donut chart while preserving existing styling, labels, and values.
+**Goal:** Replace the app’s existing logo and favicon with assets derived from the uploaded logo image (`012.jpeg`) while keeping all referenced URL paths unchanged.
 
 **Planned changes:**
-- Add a new reusable pie/donut breakdown component under `frontend/src/components/calculators` that accepts the same inputs as the current bar chart (invested, earned, optional total, optional label overrides), supports light/dark theme tokens, shows a legend with INR-formatted values, and renders the existing empty-state card when values are zero/empty.
-- Update calculator pages that currently use `ResultBreakdownBarChart` (at minimum SIP, Lump Sum, and PPF) to use the new pie/donut breakdown component in the same placement below the numeric results summary, preserving labels and displayed values.
+- Regenerate/replace the existing logo asset at `/assets/generated/logo-finance-ki-sharan-transparent.dim_200x100.png` to visually match `012.jpeg` and work on light/dark themes.
+- Regenerate/replace the existing favicon asset at `/assets/generated/favicon-logo.dim_32x32.png` to match `012.jpeg` and remain legible at 32×32.
+- Keep existing code references unchanged in `frontend/src/components/Header.tsx`, `frontend/src/components/MaintenanceScreen.tsx`, and `frontend/index.html`.
 
-**User-visible outcome:** On SIP, Lump Sum, and PPF calculators, users see a pie/donut chart (with legend and INR values) breaking down invested vs earned, with the same empty-state prompt when inputs are not valid.
+**User-visible outcome:** The header and maintenance screen display the new provided logo, and the browser tab shows a matching favicon, with no broken image links.

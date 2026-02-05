@@ -1,4 +1,3 @@
-
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
 import Map "mo:core/Map";
@@ -15,7 +14,6 @@ import Bool "mo:core/Bool";
 import Runtime "mo:core/Runtime";
 import Time "mo:core/Time";
 import Int "mo:core/Int";
-
 
 actor {
   type InternalTime = Int;
@@ -125,7 +123,6 @@ actor {
     terms : [GlossaryBatchTerm];
   };
 
-  // NEW Blogs Management
   public type BlogPost = {
     id : Nat;
     title : Text;
@@ -138,7 +135,6 @@ actor {
     isPublished : Bool;
   };
 
-  // For backup and restore
   public type GlossarySnapshot = {
     terms : [(Text, GlossaryTerm)];
     createdAt : Int;
@@ -175,16 +171,12 @@ actor {
   var lastRestoreTimestamp : ?InternalTime = null;
   var lastSnapshotVersion = 0;
 
-  // ============================================
-  // Helper function to check maintenance mode
-  // ============================================
   func checkMaintenanceAccess(caller : Principal) {
     if (maintenanceMode and not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Service under maintenance. Please check back soon.");
     };
   };
 
-  // ========== Extended Chat Workflow with Internet Reference Results ==========
   public query ({ caller }) func transform(input : OutCall.TransformationInput) : async OutCall.TransformationOutput {
     OutCall.transform(input);
   };
@@ -243,9 +235,6 @@ actor {
     "Introducing 'Application Pathways' feature soon. Stay tuned for streamlined application process insights and guidance!";
   };
 
-  // ============================================
-  // User Profile Management
-  // ============================================
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     checkMaintenanceAccess(caller);
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
@@ -270,11 +259,7 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // ============================================
-  // Maintenance Mode
-  // ============================================
   public query ({ caller }) func getMaintenanceStatus() : async Bool {
-    // If caller is admin, they can bypass maintenance mode
     if (AccessControl.isAdmin(accessControlState, caller)) {
       return false;
     };
@@ -288,9 +273,6 @@ actor {
     maintenanceMode := enabled;
   };
 
-  // ============================================
-  // Glossary Management with Backup & Restore
-  // ============================================
   public query ({ caller }) func getGlossaryTerms() : async [(Text, GlossaryTerm)] {
     checkMaintenanceAccess(caller);
     glossary.entries().toArray();
@@ -358,8 +340,6 @@ actor {
     };
   };
 
-  // == Glossary Backup/Restore New Functions ==
-
   public query ({ caller }) func getGlossarySnapshotStats() : async GlossaryStats {
     if (not (AccessControl.isAdmin(accessControlState, caller))) {
       Runtime.trap("Unauthorized: Only admins can view stats");
@@ -420,9 +400,6 @@ actor {
     lastSnapshotVersion := snapshot.version;
   };
 
-  // ============================================
-  // Articles Management
-  // ============================================
   public query ({ caller }) func getArticles() : async [Article] {
     checkMaintenanceAccess(caller);
     articles.entries().map(func((_, article) : (Nat, Article)) : Article { article }).toArray();
@@ -477,9 +454,6 @@ actor {
     articles.remove(id);
   };
 
-  // ============================================
-  // Research Papers Management
-  // ============================================
   public query ({ caller }) func getResearchPapers() : async [ResearchPaper] {
     checkMaintenanceAccess(caller);
     researchPapers.entries().map(func((_, paper) : (Nat, ResearchPaper)) : ResearchPaper { paper }).toArray();
@@ -513,15 +487,11 @@ actor {
     researchPapers.remove(id);
   };
 
-  // ============================================
-  // Blog Posts Management (NEW)
-  // ============================================
   public query ({ caller }) func getBlog(id : Nat) : async ?BlogPost {
     checkMaintenanceAccess(caller);
 
     let blog = blogs.get(id);
 
-    // If blog is unpublished, only admins can view it
     switch (blog) {
       case (?b) {
         if (not b.isPublished and not AccessControl.isAdmin(accessControlState, caller)) {
@@ -536,7 +506,6 @@ actor {
   public query ({ caller }) func getBlogs(includeUnpublished : Bool) : async [BlogPost] {
     checkMaintenanceAccess(caller);
 
-    // Only admins can request unpublished blogs
     let shouldIncludeUnpublished = includeUnpublished and AccessControl.isAdmin(accessControlState, caller);
 
     var filteredEntries = blogs.entries().toArray().map(
@@ -555,7 +524,6 @@ actor {
   public query ({ caller }) func getBlogsByCategory(category : Text, includeUnpublished : Bool) : async [BlogPost] {
     checkMaintenanceAccess(caller);
 
-    // Only admins can request unpublished blogs
     let shouldIncludeUnpublished = includeUnpublished and AccessControl.isAdmin(accessControlState, caller);
 
     var filteredEntries = blogs.entries().toArray().map(
@@ -664,9 +632,6 @@ actor {
     blogs.remove(id);
   };
 
-  // ============================================
-  // Learning Sections Management
-  // ============================================
   public query ({ caller }) func getLearningSections() : async [(Text, LearningSection)] {
     checkMaintenanceAccess(caller);
     learningSections.entries().toArray();
@@ -698,14 +663,8 @@ actor {
     learningSections.remove(key);
   };
 
-  // ============================================
-  // Feedback Management
-  // ============================================
   public shared ({ caller }) func submitFeedback(name : Text, email : Text, message : Text) : async Nat {
     checkMaintenanceAccess(caller);
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can submit feedback");
-    };
     let id = nextFeedbackId;
     let feedback : Feedback = {
       name = name;
@@ -731,9 +690,6 @@ actor {
     feedbackList.remove(id);
   };
 
-  // ============================================
-  // Market Data Management
-  // ============================================
   public query ({ caller }) func getMarketStatus() : async Bool {
     checkMaintenanceAccess(caller);
     false;
@@ -865,3 +821,4 @@ actor {
     ];
   };
 };
+

@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useSubmitFeedback } from '../hooks/useQueries';
+import { useActor } from '../hooks/useActor';
 
 export default function ContactPage() {
   const [name, setName] = useState('');
@@ -13,10 +14,17 @@ export default function ContactPage() {
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
+  const { actor, isFetching: actorLoading } = useActor();
   const { mutate: submitFeedback, isPending } = useSubmitFeedback();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Ensure actor is ready before submitting
+    if (!actor) {
+      return;
+    }
+
     submitFeedback(
       { name, email, message },
       {
@@ -30,6 +38,9 @@ export default function ContactPage() {
       }
     );
   };
+
+  // Disable form while actor is initializing or during submission
+  const isFormDisabled = actorLoading || !actor || isPending;
 
   return (
     <div className="w-full">
@@ -60,12 +71,20 @@ export default function ContactPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <a 
-                  href="mailto:contact@financekisharan.com" 
-                  className="text-primary hover:underline font-medium"
-                >
-                  contact@financekisharan.com
-                </a>
+                <div className="space-y-2">
+                  <a 
+                    href="mailto:contact@financekisharan.com" 
+                    className="text-primary hover:underline font-medium block"
+                  >
+                    contact@financekisharan.com
+                  </a>
+                  <a 
+                    href="mailto:financekisharan@gmail.com" 
+                    className="text-primary hover:underline font-medium block"
+                  >
+                    financekisharan@gmail.com
+                  </a>
+                </div>
               </CardContent>
             </Card>
 
@@ -80,9 +99,20 @@ export default function ContactPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Use the form to share your thoughts, suggestions, or report any issues.
-                </p>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    Use the form to share your thoughts, suggestions, or report any issues.
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Or email us directly at{' '}
+                    <a 
+                      href="mailto:financekisharan@gmail.com" 
+                      className="text-primary hover:underline font-medium"
+                    >
+                      financekisharan@gmail.com
+                    </a>
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -91,7 +121,13 @@ export default function ContactPage() {
             <CardHeader>
               <CardTitle>Send Us a Message</CardTitle>
               <CardDescription>
-                Fill out the form below and we'll respond to your inquiry.
+                Fill out the form below and we'll respond to your inquiry. You can also reach us at{' '}
+                <a 
+                  href="mailto:financekisharan@gmail.com" 
+                  className="text-primary hover:underline font-medium"
+                >
+                  financekisharan@gmail.com
+                </a>
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -113,6 +149,7 @@ export default function ContactPage() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required
+                      disabled={isFormDisabled}
                     />
                   </div>
                   <div className="space-y-2">
@@ -124,6 +161,7 @@ export default function ContactPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
+                      disabled={isFormDisabled}
                     />
                   </div>
                   <div className="space-y-2">
@@ -135,10 +173,13 @@ export default function ContactPage() {
                       onChange={(e) => setMessage(e.target.value)}
                       required
                       rows={6}
+                      disabled={isFormDisabled}
                     />
                   </div>
-                  <Button type="submit" className="w-full gap-2" disabled={isPending}>
-                    {isPending ? (
+                  <Button type="submit" className="w-full gap-2" disabled={isFormDisabled}>
+                    {actorLoading ? (
+                      <>Loading...</>
+                    ) : isPending ? (
                       <>Sending...</>
                     ) : (
                       <>

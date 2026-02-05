@@ -2,11 +2,9 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-create-a-new-reusable-calculator-visualization-component-that-renders-the-invested-vs-earned-breakdown-as-a-pie-donut-chart-matching-the-existing-light-dark-theme-tokens-and-visual-style-used-by-the-current-breakdown-card-the-component-must-support-the-same-inputs-as-the-existing-bar-chart-invested-earned-optional-total-and-optional-label-overrides-it-must-also-handle-empty-zero-values-by-showing-the-existing-empty-state-message-in-a-card",
-      "featureTitle": "Create a new reusable calculator visualization component that renders the invested vs earned breakdown as a pie/donut chart, matching the existing light/dark theme tokens and visual style used by the current breakdown card. The component must support the same inputs as the existing bar chart: invested, earned, optional total, and optional label overrides; it must also handle empty/zero values by showing the existing empty-state message in a card.",
-      "files": [
-        "frontend/src/components/calculators/ResultBreakdownPieChart.tsx"
-      ],
+      "featureId": "feature-replace-the-current-site-logo-asset-used-in-the-header-and-maintenance-screen-with-the-provided-existing-logo-uploaded-image-012-jpeg-by-regenerating-the-logo-file-at-the-exact-path-currently-referenced-by-the-app",
+      "featureTitle": "Replace the current site logo asset used in the Header and Maintenance screen with the provided existing logo (uploaded image `012.jpeg`) by regenerating the logo file at the exact path currently referenced by the app.",
+      "files": [],
       "components": [
         "core-infrastructure@1.0.2",
         "shadcn-ui@1.0.0",
@@ -23,13 +21,9 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-replace-usage-of-the-existing-resultbreakdownbarchart-with-the-new-pie-donut-chart-component-in-all-calculator-pages-that-currently-render-the-bar-chart-breakdown-at-minimum-sip-lump-sum-and-ppf-keeping-the-placement-directly-below-the-numeric-results-summary-and-preserving-the-existing-labels-and-displayed-values",
-      "featureTitle": "Replace usage of the existing ResultBreakdownBarChart with the new pie/donut chart component in all calculator pages that currently render the bar chart breakdown (at minimum: SIP, Lump Sum, and PPF), keeping the placement directly below the numeric results summary and preserving the existing labels and displayed values.",
-      "files": [
-        "frontend/src/pages/LumpSumCalculatorPage.tsx",
-        "frontend/src/pages/PPFCalculatorPage.tsx",
-        "frontend/src/pages/SIPCalculatorPage.tsx"
-      ],
+      "featureId": "feature-update-the-site-favicon-to-match-the-provided-existing-logo-uploaded-image-012-jpeg-by-regenerating-the-favicon-file-at-the-exact-path-currently-referenced-by-the-app",
+      "featureTitle": "Update the site favicon to match the provided existing logo (uploaded image `012.jpeg`) by regenerating the favicon file at the exact path currently referenced by the app.",
+      "files": [],
       "components": [
         "core-infrastructure@1.0.2",
         "shadcn-ui@1.0.0",
