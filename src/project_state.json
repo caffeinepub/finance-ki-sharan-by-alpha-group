@@ -1,0 +1,563 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Finance Ki Sharan (By Alpha Group) is a React (TypeScript) + Motoko (Internet Computer) financial education platform. It offers a public learning hub (accordion lessons), a searchable finance glossary with cross-references, categorized educational articles, downloadable research papers, regulations/fraud-awareness content, a contact/feedback system with an admin-only feedback viewer, an NIFTY 50 ticker in the footer, and a suite of India-focused financial calculators (investments, deposits, retirement schemes, loans, and taxes). Authentication uses DFINITY Internet Identity; backend operations are gated by role-based access control and an optional maintenance mode that blocks non-admin users. A floating in-app chat widget (“ArthSaathi”) provides educational, content-sourced responses with strict refusal of personalized advice and legal/tax advice.",
+  "existing_features": [
+    {
+      "id": "IF-1",
+      "title": "SPA routing with global layout and maintenance wrapper",
+      "synonyms": [
+        "TanStack Router app shell",
+        "Maintenance-gated layout"
+      ],
+      "description": "Implements routed pages using TanStack Router with a shared layout (Header, Footer, Toaster, floating ChatAssistantWidget). A MaintenanceWrapper checks backend maintenance status and admin status, showing a full-page MaintenanceScreen to non-admin users when maintenance mode is enabled.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-2",
+      "title": "Dark/light theme support",
+      "synonyms": [
+        "Theme toggle",
+        "next-themes"
+      ],
+      "description": "Provides dark/light mode switching via next-themes, with Tailwind CSS variables (OKLCH tokens) controlling the color system across components.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-3",
+      "title": "Internet Identity authentication (frontend)",
+      "synonyms": [
+        "II login",
+        "AuthClient provider"
+      ],
+      "description": "Provides an InternetIdentityProvider that initializes AuthClient, restores persisted identities, performs login/logout, and exposes detailed login status flags to the app.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-4",
+      "title": "Backend actor bootstrap with access-control initialization",
+      "synonyms": [
+        "useActor hook",
+        "Actor initialization"
+      ],
+      "description": "Creates anonymous or authenticated backend actors based on the current Internet Identity. For authenticated users, calls _initializeAccessControlWithSecret using a secret token extracted from the URL hash and persisted to session storage.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-5",
+      "title": "Role-based access control in Motoko canister",
+      "synonyms": [
+        "Admin/user/guest roles",
+        "Authorization layer"
+      ],
+      "description": "Implements role assignment and checks in Motoko. The first caller providing the correct secret becomes admin; other authenticated principals become users; anonymous principals are guests. Admin-only APIs are enforced server-side.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-6",
+      "title": "Maintenance mode gating (admin bypass)",
+      "synonyms": [
+        "Service downtime mode"
+      ],
+      "description": "Backend supports maintenance mode and traps most calls for non-admins when enabled. Frontend queries maintenance/admin status and swaps UI to a maintenance page when appropriate.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-7",
+      "title": "User profile storage for authenticated users",
+      "synonyms": [
+        "User profile CRUD"
+      ],
+      "description": "Backend stores per-caller user profiles (name, email) with role checks. Frontend includes React Query hooks for reading/saving with cache invalidation and toast notifications.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-8",
+      "title": "Glossary term retrieval, search, and admin CRUD APIs",
+      "synonyms": [
+        "Finance glossary",
+        "Glossary management"
+      ],
+      "description": "Backend supports getGlossaryTerms and searchGlossary, plus admin-only add/update/delete. Frontend provides React Query hooks with normalized search input and aggressive refetch policies for glossary reliability.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-9",
+      "title": "Glossary diagnostics and batch publishing (admin-only)",
+      "synonyms": [
+        "Glossary prefix diagnostics",
+        "Glossary batch upsert"
+      ],
+      "description": "Backend exposes admin-only getGlossaryDiagnosticsByPrefix to inspect stored keys/terms by prefix, and publishGlossaryBatch to add/update many terms in one call.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-10",
+      "title": "Glossary UI with alphabetical grouping and cross-references",
+      "synonyms": [
+        "Also-read parsing",
+        "Glossary formatting utilities"
+      ],
+      "description": "Glossary page groups results by first letter, parses definition text to extract “Also read:” references, and enables clickable cross-reference search when referenced terms exist.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-11",
+      "title": "Learning sections listing (accordion UI)",
+      "synonyms": [
+        "Learning hub"
+      ],
+      "description": "Fetches learning sections from backend and displays them in an accordion with paragraph splitting and loading/empty states.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-12",
+      "title": "Articles by category (tabbed UI)",
+      "synonyms": [
+        "Educational articles"
+      ],
+      "description": "Displays categorized articles using tabs; articles are fetched per category from backend queries with loading and empty states.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-13",
+      "title": "Research papers listing and PDF download",
+      "synonyms": [
+        "Research library",
+        "ExternalBlob download"
+      ],
+      "description": "Lists research papers and opens each paper’s ExternalBlob direct URL to download/view the PDF in a new tab.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-14",
+      "title": "Contact page with feedback submission",
+      "synonyms": [
+        "Feedback form",
+        "Contact us"
+      ],
+      "description": "Public contact page provides an email link and a feedback form that submits to backend and shows a temporary success state.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-15",
+      "title": "Admin-only feedback viewer",
+      "synonyms": [
+        "Feedback admin panel"
+      ],
+      "description": "Admin page requiring Internet Identity login and admin role. Shows feedback in a table with search filtering and optional sorting by name/email, with access denied and error states.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-16",
+      "title": "NIFTY 50 footer ticker with market-hours labeling",
+      "synonyms": [
+        "Live market ticker",
+        "Stock ticker"
+      ],
+      "description": "Footer displays a scrollable NIFTY 50 ticker. A client-side IST market-hours function switches labels between LTP (market open) and Close (market closed). Data is polled via React Query on a 30-second interval.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-17",
+      "title": "Backend stock data storage and admin update APIs",
+      "synonyms": [
+        "NIFTY stock cache"
+      ],
+      "description": "Motoko canister stores NIFTY 50 stock objects and separate per-symbol data caches, with admin-only update functions and read queries for the frontend ticker.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-18",
+      "title": "Regulations & awareness content page",
+      "synonyms": [
+        "Investor protection page"
+      ],
+      "description": "Provides a tabbed page with SEBI guidelines, RBI guidelines, and fraud awareness content and an emphasized SEBI risk disclaimer banner.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-19",
+      "title": "Site disclaimer page",
+      "synonyms": [
+        "No-advice disclaimer"
+      ],
+      "description": "Static page communicating educational-only intent, no investment/tax/legal advice, risk warnings, accuracy limitations, liability limitations, and external links notice.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-20",
+      "title": "About page",
+      "synonyms": [
+        "Mission/vision page"
+      ],
+      "description": "Static about page describing the platform mission, vision, education-first philosophy, Alpha Group background, and live ticker integration concept.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-21",
+      "title": "Calculators directory page (categorized)",
+      "synonyms": [
+        "Calculator hub"
+      ],
+      "description": "Lists all available calculators grouped into categories (Investments, retirement, govt schemes, deposits/interest, loans, tax/salary) with navigation to each calculator route.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-22",
+      "title": "SIP Calculator",
+      "synonyms": [
+        "Systematic Investment Plan calculator"
+      ],
+      "description": "Computes SIP future value using the standard SIP future value formula from monthly contribution, annual return rate, and duration; shows invested amount, estimated returns, and maturity value.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-23",
+      "title": "Lump Sum Calculator",
+      "synonyms": [
+        "One-time investment calculator"
+      ],
+      "description": "Computes compounded future value for a one-time investment (annual compounding assumption) and shows maturity value and total gain.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-24",
+      "title": "Step-Up Calculator (amount and percentage)",
+      "synonyms": [
+        "Increasing SIP calculator"
+      ],
+      "description": "Calculates projected corpus for a SIP where monthly investment increases yearly by either a fixed amount or a percentage, via a tabbed UI and month-remaining compounding approximation.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-25",
+      "title": "SWP Calculator",
+      "synonyms": [
+        "Systematic Withdrawal Plan calculator"
+      ],
+      "description": "Simulates month-by-month withdrawals from an initial corpus while applying monthly returns; outputs total withdrawn, final balance, and overall growth/loss.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-26",
+      "title": "SSY Calculator (Sukanya Samriddhi Yojana)",
+      "synonyms": [
+        "Sukanya Samriddhi calculator"
+      ],
+      "description": "Calculates SSY maturity value using a fixed interest rate (8.2%) and scheme constraints (deposits up to 15 years or until age 21). Outputs total investment, interest earned, and maturity value.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-27",
+      "title": "PPF Calculator",
+      "synonyms": [
+        "Public Provident Fund calculator"
+      ],
+      "description": "Projects PPF maturity by iterating yearly deposits and applying annual interest; outputs total invested, interest earned, and maturity value.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-28",
+      "title": "EPF Calculator",
+      "synonyms": [
+        "Employees' Provident Fund calculator"
+      ],
+      "description": "Simulates monthly employee and employer contributions and applies monthly interest over tenure; outputs total employee contribution, total employer contribution, total interest, and maturity balance.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-29",
+      "title": "FD Calculator (simple vs compound)",
+      "synonyms": [
+        "Fixed Deposit calculator"
+      ],
+      "description": "Computes FD maturity using either simple interest or compound interest (quarterly compounding). Outputs maturity amount and interest earned.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-30",
+      "title": "RD Calculator",
+      "synonyms": [
+        "Recurring Deposit calculator"
+      ],
+      "description": "Estimates RD maturity by summing compounded value of each monthly deposit over the remaining tenure; outputs total deposited, interest earned, and maturity value.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-31",
+      "title": "EMI Calculator",
+      "synonyms": [
+        "Loan EMI calculator"
+      ],
+      "description": "Computes EMI using the standard amortizing loan formula and outputs monthly EMI, total interest, and total repayment.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-32",
+      "title": "Home Loan EMI Calculator",
+      "synonyms": [
+        "Housing loan EMI",
+        "Amortization percentage breakdown"
+      ],
+      "description": "Computes home-loan EMI and totals (principal, interest, total repayment) and shows principal vs interest percentage of total repayment.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-33",
+      "title": "Fixed vs Reducing Loan Calculator",
+      "synonyms": [
+        "Flat rate vs reducing balance comparison"
+      ],
+      "description": "Compares total interest and repayment between flat-rate interest on principal and reducing-balance EMI method; shows interest difference.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-34",
+      "title": "GST Calculator",
+      "synonyms": [
+        "Goods and Services Tax calculator"
+      ],
+      "description": "Calculates GST on a base amount with CGST/SGST split and outputs total tax and after-tax amount (rounded to 2 decimals).",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-35",
+      "title": "HRA Calculator",
+      "synonyms": [
+        "House Rent Allowance exemption calculator"
+      ],
+      "description": "Computes tax-exempt and taxable HRA using the minimum-of-three rule with metro/non-metro selection (with an HRA-received assumption in the UI logic).",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-36",
+      "title": "NPS Calculator",
+      "synonyms": [
+        "National Pension System calculator"
+      ],
+      "description": "Projects NPS corpus from monthly contributions until retirement and estimates pension assuming 40% annuitization and a 6% annuity rate; outputs total corpus, annuity amount, and monthly pension.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-37",
+      "title": "Atal Pension Yojana (APY) Calculator",
+      "synonyms": [
+        "APY contribution calculator"
+      ],
+      "description": "Estimates required monthly contribution based on an approximate contribution matrix for age and desired pension, and computes total contribution until age 60 plus an estimated corpus.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-38",
+      "title": "Gratuity Calculator",
+      "synonyms": [
+        "Indian gratuity formula"
+      ],
+      "description": "Calculates gratuity using (Last drawn salary × 15 × Years of service) / 26 with eligibility check for >= 5 years of service.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-39",
+      "title": "XIRR Calculator",
+      "synonyms": [
+        "Extended IRR calculator"
+      ],
+      "description": "Allows adding/removing irregular cashflows with dates and estimates annualized return using a Newton–Raphson approximation to find the rate where NPV≈0.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-40",
+      "title": "CAGR Calculator",
+      "synonyms": [
+        "Compound Annual Growth Rate calculator"
+      ],
+      "description": "Calculates CAGR from initial value, final value, and period and displays the annualized growth percentage.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-41",
+      "title": "Simple Interest Calculator",
+      "synonyms": [
+        "SI calculator"
+      ],
+      "description": "Computes simple interest and total amount from principal, annual rate, and time and displays rounded results.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-42",
+      "title": "Simple vs Compound Interest Calculator",
+      "synonyms": [
+        "Interest comparison tool"
+      ],
+      "description": "Compares simple vs compound interest side-by-side with selectable compounding frequency; outputs interest earned, maturity values, and difference.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-43",
+      "title": "Embedded chat assistant widget (ArthSaathi)",
+      "synonyms": [
+        "ChatAssistantWidget",
+        "Finance education assistant"
+      ],
+      "description": "Floating chat UI that supports Hinglish/English preference detection, refuses personalized investment recommendations and legal/tax advice, provides calculator guidance, appends educational disclaimers, and renders clickable sources (glossary/learning/articles; internet results supported in UI if ever returned).",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-44",
+      "title": "Backend chatAsk sources API",
+      "synonyms": [
+        "Chat content aggregation"
+      ],
+      "description": "Motoko chatAsk query aggregates all glossary terms, learning sections, and articles into a unified ChatAskResponsePayload containing typed sources suitable for the frontend chat widget.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-45",
+      "title": "Blob storage gateway tooling and GC support (canister mixin)",
+      "synonyms": [
+        "Storage mixin",
+        "Dead blob pruning"
+      ],
+      "description": "Includes canister methods to update authorized gateway principals, list dead blobs for deletion, confirm deletion and trigger GC, refill the cashier canister with cycles, and return a simple upload certificate response.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-46",
+      "title": "Motoko HTTP outcall utility module",
+      "synonyms": [
+        "IC http_request helper"
+      ],
+      "description": "Provides reusable httpGetRequest/httpPostRequest wrappers over the IC management canister http_request with a transform function stripping headers and fixed cycle budgeting.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-47",
+      "title": "Secure URL-hash secret parameter handling (frontend)",
+      "synonyms": [
+        "Hash secret extraction",
+        "Session-persisted token"
+      ],
+      "description": "Utilities read sensitive params from the URL hash fragment (not sent to servers), persist them to sessionStorage, and remove them from the URL via replaceState to reduce history leakage.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-public-blogs-ui-section-with-routing-implement-a-blogspage-at-route-blogs-that-displays-a-list-of-blog-posts-and-implement-a-blog-detail-page-at-route-blogs-id-that-renders-a-single-blog-post-by-id-with-appropriate-loading-empty-error-states",
+      "title": "Add a new public Blogs UI section with routing: implement a `BlogsPage` at route `/blogs` that displays a list of blog posts, and implement a blog detail page at route `/blogs/$id` that renders a single blog post by id with appropriate loading/empty/error states.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-global-navigation-to-include-the-new-blogs-section-add-a-top-level-nav-item-labeled-blogs-that-routes-to-blogs-matching-the-existing-header-navigation-behavior-on-both-desktop-and-mobile-menus",
+      "title": "Update the global navigation to include the new Blogs section: add a top-level nav item labeled \"Blogs\" that routes to `/blogs`, matching the existing Header navigation behavior on both desktop and mobile menus.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-react-query-hooks-for-blogs-in-frontend-src-hooks-usequeries-ts-to-fetch-the-blog-list-and-individual-blog-posts-by-id-following-the-existing-patterns-used-for-articles-and-research-papers",
+      "title": "Add React Query hooks for Blogs in `frontend/src/hooks/useQueries.ts` to fetch the blog list and individual blog posts by id, following the existing patterns used for articles and research papers.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Add a dedicated Blogs section/page (separate from or alongside Articles) for educational finance blog posts.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add backend support for a dedicated Blogs feature that is separate from existing Articles: define a new `BlogPost` type and implement public query APIs to list blog posts and fetch a single blog post by id, plus admin-only CRUD APIs to create, update, and delete blog posts.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "status": "pending"
+    }
+  ],
+  "architectural_notes": [
+    "Frontend is a single-page app built with TanStack Router for routing and TanStack React Query for backend data fetching/caching/mutations.",
+    "UI is built with TailwindCSS + shadcn-style component primitives; theming uses CSS variables (OKLCH tokens) and next-themes for dark/light switching.",
+    "Authentication uses Internet Identity (AuthClient + DelegationIdentity); identity is loaded from storage and login/logout state is exposed via a context provider.",
+    "Backend actor creation is encapsulated in a hook (useActor) that creates anonymous/authenticated actors and invalidates/refetches dependent React Query queries when identity changes.",
+    "Motoko backend stores application state in in-memory Maps (profiles, glossary, articles, learning sections, research papers, feedback, stock data).",
+    "Role-based access control (admin/user/guest) is implemented in Motoko; admin bootstrap is based on an environment variable token compared against a caller-provided secret.",
+    "Maintenance mode is enforced server-side (trap for non-admins) and client-side (MaintenanceWrapper shows a maintenance screen).",
+    "Research paper files are stored as ExternalBlob references; blob-storage mixin exposes gateway authorization refresh, dead-blob listing/deletion confirmation, and cashier refill.",
+    "NIFTY 50 ticker is polled from backend on a timer; market-hours (IST) open/closed labeling is decided client-side.",
+    "Chat assistant UX does intent detection client-side (recommendations, calculator, legal/tax) to refuse early; otherwise it calls a backend chatAsk API and renders returned sources with deep links."
+  ],
+  "known_issues": [
+    "Backend chatAsk ignores the user question and currently returns *all* glossary/learning/article sources, which can be large and leads to low-quality chat answers and heavy payloads.",
+    "Backend market status APIs (getMarketStatus, isMarketOpen) are stubbed to always return false; the UI relies on client-side IST hours logic instead.",
+    "Backend does not fetch live NIFTY 50 prices; stock data must be populated/updated via admin calls, so the ticker may show empty or stale data.",
+    "Access control initialization can trap if CAFFEINE_ADMIN_TOKEN is not set in canister env; authenticated actor creation calls initialization and may fail hard.",
+    "Storage cashier env var appears misspelled (CAFFFEINE_STORAGE_CASHIER_PRINCIPAL), which can cause runtime traps/misconfiguration in blob-storage features.",
+    "Glossary UI does not show a browse-all view when search is empty (it prompts users to start searching), even though getGlossaryTerms exists and is fetched.",
+    "Chat “Use Web Sources” toggle is present but disabled; internet search mode is not implemented end-to-end.",
+    "Several calculator implementations use simplified assumptions (e.g., RD/PPF/EPF/APY approximations, FD compounding assumption), so results may differ from institution-specific rules.",
+    "There are two different global CSS files in the repo (frontend/index.css and frontend/src/index.css); only src/index.css is imported, but duplication can cause confusion/maintenance risk.",
+    "XIRR calculation uses a basic Newton–Raphson approximation without robust non-convergence/derivative≈0 handling; some cashflow patterns may yield unstable results."
+  ],
+  "isFixRequest": false,
+  "gameProjectType": "none",
+  "projectName": "Finance Ki Sharan",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

@@ -1,0 +1,75 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Dedicated Blogs section (UI + queries + navigation)",
+  "requirements": [
+    {
+      "id": "REQ-7",
+      "summary": "Add public Blogs routes and pages for listing blog posts and viewing a single blog post by id with loading/empty/error states.",
+      "acceptanceCriteria": [
+        "Navigating to `/blogs` shows a blog list UI that loads from the backend and handles loading and empty states.",
+        "Navigating to `/blogs/<id>` shows a detail view for that blog post (title + content) and handles missing ids (not found state).",
+        "Routes are wired into `frontend/src/App.tsx` using the existing TanStack Router pattern used for `/articles`, `/research`, etc."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/BlogsPage.tsx",
+          "operation": "create",
+          "description": "Create `BlogsPage` to render a public list of blog posts using the Blogs React Query hook, including loading state, empty state, and a list UI that navigates to `/blogs/$id` for an item. Use composed shadcn/ui components (e.g., Card) and lucide icons as needed; do not modify any `frontend/src/components/ui/*` files. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/BlogDetailPage.tsx",
+          "operation": "create",
+          "description": "Create blog detail page for route `/blogs/$id` that reads the route param, fetches the blog post by id via the single-blog query hook, and renders title + content with appropriate loading, error, and not-found states (including invalid id parsing). Use composed shadcn/ui components as needed; do not modify any `frontend/src/components/ui/*` files. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Register TanStack Router routes for `/blogs` and `/blogs/$id` alongside existing routes, importing and wiring `BlogsPage` and `BlogDetailPage` into the routeTree so the pages are navigable."
+        }
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "summary": "Add a top-level \"Blogs\" navigation item in the global Header for both desktop and mobile menus with correct active-route styling for `/blogs` and `/blogs/$id`.",
+      "acceptanceCriteria": [
+        "Header shows a \"Blogs\" nav item alongside existing items (Home, Learn Finance, Glossary, Articles, etc.).",
+        "The mobile sheet navigation also includes \"Blogs\".",
+        "Active-route styling works consistently when the current path is `/blogs` or a blog detail route."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/Header.tsx",
+          "operation": "modify",
+          "description": "Add a new nav item `{ label: 'Blogs', path: '/blogs' }` to the top-level navigation used for both desktop and mobile menus. Update active-route logic so the Blogs item is treated as active when `currentPath` starts with `/blogs` (covering both `/blogs` and `/blogs/$id`), while preserving existing behavior for other items and calculator highlighting. Use composed shadcn/ui components only; do not modify any `frontend/src/components/ui/*` files. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "summary": "Add React Query hooks for fetching blog lists and individual blog posts by id, following existing actor-gated query patterns.",
+      "acceptanceCriteria": [
+        "A query hook exists to fetch the blog list from the backend and is used by `/blogs`.",
+        "A query hook exists to fetch a single blog post by id and is used by `/blogs/$id`.",
+        "Hooks are disabled until the backend actor is available, consistent with existing hooks."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add Blogs query hooks that call backend actor methods exposed in `frontend/src/backend.d.ts`: (1) a list hook that fetches public blogs (ensure unpublished are excluded for public UI), and (2) a detail hook that fetches a single blog post by id. Follow existing patterns: return safe defaults when actor is unavailable and set `enabled: !!actor && !isFetching` (and also guard by presence/validity of id for the detail hook)."
+        },
+        {
+          "path": "frontend/src/pages/BlogsPage.tsx",
+          "operation": "modify",
+          "description": "Wire `BlogsPage` to use the newly added blog list query hook from `frontend/src/hooks/useQueries.ts`, ensuring the hook drives loading/empty states and the displayed list."
+        },
+        {
+          "path": "frontend/src/pages/BlogDetailPage.tsx",
+          "operation": "modify",
+          "description": "Wire `BlogDetailPage` to use the newly added single-blog query hook from `frontend/src/hooks/useQueries.ts`, ensuring the hook drives loading/error/not-found states and the rendered blog content."
+        }
+      ]
+    }
+  ]
+}

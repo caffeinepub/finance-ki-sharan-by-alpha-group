@@ -1,0 +1,87 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-04T17:05:51.578Z",
+  "summary": "Blogs UI pages, routes, and navigation appear to be added, and frontend query hooks reference blog APIs. Backend adds a BlogPost type and storage, but the diff summary does not show the required public/admin blog API methods, so REQ-6 cannot be fully verified. Additionally, the diff summary indicates multiple unrelated UI/feature changes beyond the requested Blogs section.",
+  "missing_requirements": [
+    {
+      "id": "REQ-6",
+      "requirement": "Backend exposes public query methods to list blog posts and fetch a single blog post by id (maintenance-gated like other public content).",
+      "reason": "backend/main.mo shows the new BlogPost type, blogs map, nextBlogId, and maintenance gating helper, but the diff summary is truncated and does not show any new blog list/get query methods being implemented.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "requirement": "Backend exposes admin-only CRUD methods to add, update, and delete blog posts using the same admin authorization pattern as addArticle/updateArticle/deleteArticle.",
+      "reason": "No admin-only blog CRUD functions are visible in the provided backend/main.mo excerpt; only type/state additions are shown.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "requirement": "Blog post ids are generated on the backend monotonically increasing similar to other content types.",
+      "reason": "A nextBlogId variable is shown, but the diff summary does not include any create/add method that uses it, so monotonic id generation is not verifiable from the provided diff excerpt.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Added/updated Footer with a live NIFTY 50 stock ticker UI and related market-hours behavior.",
+      "reason": "Not requested by the Blogs feature requirements (REQ-6 to REQ-9).",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/components/Footer.tsx)"
+      ]
+    },
+    {
+      "description": "Global style/theme changes (enhanced OKLCH dark finance theme).",
+      "reason": "Not requested as part of adding a Blogs section.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/index.css)"
+      ]
+    },
+    {
+      "description": "Homepage changes (hero with three CTAs, expanded features grid, new CTA section).",
+      "reason": "Not requested by the Blogs requirements.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/pages/HomePage.tsx)"
+      ]
+    },
+    {
+      "description": "Glossary page behavior changes (normalized search, new error state rendering, \"Also read\" references behavior).",
+      "reason": "Not requested by the Blogs requirements.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/pages/GlossaryPage.tsx)"
+      ]
+    },
+    {
+      "description": "About page content/feature additions referencing a live market integration feature.",
+      "reason": "Not requested by the Blogs requirements.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/pages/AboutPage.tsx)"
+      ]
+    },
+    {
+      "description": "Calculators overview page expanded/organized into 22 calculators across multiple categories with additional UI/disclaimer content.",
+      "reason": "Not requested by the Blogs requirements.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/pages/CalculatorsPage.tsx)"
+      ]
+    }
+  ],
+  "confidence": 0.66,
+  "changed_files": [
+    "backend/main.mo",
+    "frontend-file-summaries.txt",
+    "frontend/src/App.tsx",
+    "frontend/src/components/Header.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/BlogDetailPage.tsx",
+    "frontend/src/pages/BlogsPage.tsx",
+    "project_state.json"
+  ]
+}

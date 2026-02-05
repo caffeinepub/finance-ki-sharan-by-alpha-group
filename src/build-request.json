@@ -1,0 +1,95 @@
+{
+  "kind": "build_request",
+  "title": "Add dedicated Blogs section (backend + UI)",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-6",
+      "text": "Add backend support for a dedicated Blogs feature that is separate from existing Articles: define a new `BlogPost` type and implement public query APIs to list blog posts and fetch a single blog post by id, plus admin-only CRUD APIs to create, update, and delete blog posts.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-7"
+        ],
+        "quotes": [
+          "add blogs section"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend exposes a new `BlogPost` record type distinct from `Article`.",
+        "Backend exposes query methods to: (1) list blog posts, (2) get a blog post by id; both are maintenance-gated like other public content.",
+        "Backend exposes admin-only methods to: add, update, and delete blog posts, following the same admin authorization pattern as `addArticle/updateArticle/deleteArticle`.",
+        "Blog post ids are generated on the backend (monotonically increasing) similar to Articles/ResearchPapers/Feedback."
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Add a new public Blogs UI section with routing: implement a `BlogsPage` at route `/blogs` that displays a list of blog posts, and implement a blog detail page at route `/blogs/$id` that renders a single blog post by id with appropriate loading/empty/error states.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-7"
+        ],
+        "quotes": [
+          "add blogs section"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Navigating to `/blogs` shows a blog list UI that loads from the backend and handles loading and empty states.",
+        "Navigating to `/blogs/<id>` shows a detail view for that blog post (title + content) and handles missing ids (not found state).",
+        "Routes are wired into `frontend/src/App.tsx` using the existing TanStack Router pattern used for `/articles`, `/research`, etc."
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "text": "Update the global navigation to include the new Blogs section: add a top-level nav item labeled \"Blogs\" that routes to `/blogs`, matching the existing Header navigation behavior on both desktop and mobile menus.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-7"
+        ],
+        "quotes": [
+          "add blogs section"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Header shows a \"Blogs\" nav item alongside existing items (Home, Learn Finance, Glossary, Articles, etc.).",
+        "The mobile sheet navigation also includes \"Blogs\".",
+        "Active-route styling works consistently when the current path is `/blogs` or a blog detail route."
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "text": "Add React Query hooks for Blogs in `frontend/src/hooks/useQueries.ts` to fetch the blog list and individual blog posts by id, following the existing patterns used for articles and research papers.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-7"
+        ],
+        "quotes": [
+          "add blogs section"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A query hook exists to fetch the blog list from the backend and is used by `/blogs`.",
+        "A query hook exists to fetch a single blog post by id and is used by `/blogs/$id`.",
+        "Hooks are disabled until the backend actor is available, consistent with existing hooks."
+      ]
+    }
+  ],
+  "constraints": [
+    "Backend must remain a single-actor Motoko canister; all Motoko logic must live in `backend/main.mo`.",
+    "Do not edit any files under `frontend/src/components/ui` (shadcn components must be composed, not modified).",
+    "Do not modify immutable frontend paths listed in SYSTEM_CONTEXT (e.g., `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`).",
+    "Use English for any user-facing text added in the Blogs UI."
+  ],
+  "nonGoals": [
+    "Do not replace or redesign the existing Articles section; Blogs must be a separate content type and route.",
+    "Do not add third-party CMS integrations or external databases.",
+    "Do not implement real-time features (e.g., live comments) for blogs."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}
