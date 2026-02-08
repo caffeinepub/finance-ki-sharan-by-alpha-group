@@ -1,49 +1,48 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-08T12:12:33.294Z",
+  "generatedAt": "2026-02-08T13:16:59.510Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 2,
-    "implemented": 1,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Implement backend support to fetch share prices from the NSE India website (https://www.nseindia.com/) using HTTP outcalls, and expose a query method that returns the latest available stock price data (at minimum: symbol, companyName, ltp, dayClose) for the frontend market ticker.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "summary": "Update the Contact page so that the existing \"Feedback\" card embeds the provided Google Form directly inside the card (iframe embed), instead of only offering a button/link to open it in a new tab.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/ContactPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/ContactPage.tsx"
+        ]
       },
       {
         "id": "REQ-2",
-        "summary": "Ensure the frontend market ticker uses backend-provided NSE-sourced stock data and has appropriate loading, empty, and error states in the ticker UI.",
+        "summary": "Centralize the embedded-form URL derivation in the existing feedback form utility so the Contact page embed stays consistent with the already-shared Google Form constant.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/Footer.tsx"
+          "frontend/src/utils/feedbackForm.ts",
+          "frontend/src/pages/ContactPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/Footer.tsx"
+          "frontend/src/utils/feedbackForm.ts",
+          "frontend/src/pages/ContactPage.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/components/Footer.tsx",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/ContactPage.tsx",
+    "frontend/src/utils/feedbackForm.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

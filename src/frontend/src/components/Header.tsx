@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Moon, Sun, Menu, LogIn, LogOut, ChevronDown } from 'lucide-react';
+import { Moon, Sun, Menu, LogIn, LogOut, ChevronDown, MessageSquare } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
@@ -17,6 +17,7 @@ import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import BrandLogo from './BrandLogo';
 import { BRAND_NAME, BRAND_TAGLINE } from '@/utils/assetPaths';
 import { NAV_STRUCTURE } from '@/utils/navStructure';
+import { openFeedbackForm } from '@/utils/feedbackForm';
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
@@ -95,6 +96,11 @@ export default function Header() {
         }
       }
     }
+  };
+
+  const handleFeedbackClick = () => {
+    openFeedbackForm();
+    setIsOpen(false);
   };
 
   const isCalculatorPath = currentPath.startsWith('/calculators');
@@ -177,6 +183,17 @@ export default function Header() {
               </ScrollArea>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Feedback Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleFeedbackClick}
+            className="gap-2"
+          >
+            <MessageSquare className="h-4 w-4" />
+            Feedback
+          </Button>
 
           {isAuthenticated && adminItems.map((item) => (
             <button
@@ -279,6 +296,18 @@ export default function Header() {
                       ))}
                     </div>
                   </div>
+
+                  <Separator className="my-2" />
+
+                  {/* Feedback Button in Mobile Menu */}
+                  <Button
+                    variant="outline"
+                    onClick={handleFeedbackClick}
+                    className="w-full gap-2"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    Feedback
+                  </Button>
 
                   {isAuthenticated && (
                     <>

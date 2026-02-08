@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useSubmitFeedback } from '../hooks/useQueries';
 import { useActor } from '../hooks/useActor';
+import { getFeedbackFormEmbedUrl } from '@/utils/feedbackForm';
 
 export default function ContactPage() {
   const [name, setName] = useState('');
@@ -126,19 +127,19 @@ export default function ContactPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">
-                    Use the form to share your thoughts, suggestions, or report any issues.
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Or email us directly at{' '}
-                    <a 
-                      href="mailto:financekisharan@gmail.com" 
-                      className="text-primary hover:underline font-medium"
-                    >
-                      financekisharan@gmail.com
-                    </a>
-                  </p>
+                <div className="w-full overflow-hidden rounded-lg border border-border bg-background">
+                  <iframe
+                    src={getFeedbackFormEmbedUrl()}
+                    width="100%"
+                    height="600"
+                    frameBorder="0"
+                    marginHeight={0}
+                    marginWidth={0}
+                    className="w-full"
+                    title="Feedback Form"
+                  >
+                    Loading feedback form...
+                  </iframe>
                 </div>
               </CardContent>
             </Card>

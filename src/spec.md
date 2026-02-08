@@ -1,11 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Fetch and display live share prices sourced from NSE India in the frontend Market Ticker.
+**Goal:** Embed the shared Google Feedback Form directly inside the Contact page’s existing “Feedback” card in a responsive, card-style layout.
 
 **Planned changes:**
-- Add backend HTTP outcall logic to retrieve the latest available stock price data from https://www.nseindia.com/ and expose a query method returning stock records with: symbol, companyName, ltp, dayClose.
-- Add backend-side caching/throttling so outcalls are not excessive while still providing reasonably fresh data, and handle upstream errors gracefully without trapping.
-- Update the frontend footer market ticker to use the backend-provided NSE data and show clear loading, empty, and non-crashing error states.
+- Update the Contact page “Feedback” card to render the Google Form in an embedded iframe within the card content area.
+- Remove the current “Open Feedback Form” button/link from the Contact page card.
+- Centralize the iframe embed URL derivation in the existing feedback form utility so Contact uses the shared constant (no duplicated hardcoded URL).
 
-**User-visible outcome:** The Market Ticker displays NSE-sourced stock information (company name, symbol, and price), shows a loading indicator while fetching, and provides a clear “data unavailable/empty” experience if data cannot be loaded.
+**User-visible outcome:** On the Contact page, users can fill out the Feedback Google Form directly inside the “Feedback” card without being redirected to a new tab.

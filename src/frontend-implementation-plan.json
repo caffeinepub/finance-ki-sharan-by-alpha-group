@@ -1,26 +1,42 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Use backend-provided NSE stock data in footer Market Ticker with loading/empty/error states",
+  "title": "Embed Google Form in Contact Feedback card",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Update the footer market ticker to fetch NSE-sourced stock data from the backend and render robust loading, empty, and error states while displaying LTP vs closing price appropriately.",
+      "id": "REQ-1",
+      "summary": "Embed the provided Google Form inside the existing Contact > Feedback card and remove the open-in-new-tab button.",
       "acceptanceCriteria": [
-        "The footer market ticker renders a loading state while fetching, renders stock cards when data is available, and renders a clear empty state when no data is available.",
-        "If fetching fails, the UI shows a non-crashing error/empty experience (e.g., a message indicating data is unavailable) and does not break the rest of the page.",
-        "The data shown in the ticker matches the backend fields: company name, symbol, and the displayed price (LTP during market hours; closing price when market is closed)."
+        "On the Contact page, the \"Feedback\" card renders an embedded Google Form (iframe) within the card content area.",
+        "The current \"Open Feedback Form\" button is removed (no dedicated feedback button interaction is required).",
+        "The embedded form uses the provided Google Form URL: https://docs.google.com/forms/d/e/1FAIpQLScqZU_oBmXqsYR-sS69AifMXRb10D6kLxFhBOXzELqk0aOb5w/viewform?usp=publish-editor (adapted to Google’s supported embed format if needed, while preserving the same form).",
+        "The embed is presented in a card-style layout consistent with existing Card UI (responsive sizing; no horizontal overflow on mobile)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/pages/ContactPage.tsx",
           "operation": "modify",
-          "description": "Add/adjust React Query hooks for the Market Ticker to rely on backend capabilities: (1) ensure the existing stock query uses the backend actor to fetch Stock[] (symbol, companyName, ltp, dayClose) and exposes error state without throwing UI-breaking errors; (2) introduce a dedicated query hook for backend market-open status (e.g., via the backend market-status capability) so the ticker can choose LTP vs dayClose based on backend truth rather than client time. Use core-infrastructure actor wiring via useActor. Verify the component's usage instructions before implementing."
+          "description": "Update the existing \"Feedback\" CardContent to render an iframe embed of the Google Form within the card; remove the current Button that calls openFeedbackForm and remove any now-unused imports (e.g., ExternalLink, Button, openFeedbackForm) while keeping all user-facing text in English. Ensure responsive sizing (full-width iframe container, fixed/min height, overflow-hidden to prevent horizontal scrolling on mobile)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Centralize Google Form embed URL derivation in the shared feedback form utility and consume it from ContactPage.",
+      "acceptanceCriteria": [
+        "The Contact page iframe src is built from the shared constant in frontend/src/utils/feedbackForm.ts (no hardcoded duplicate URL in ContactPage).",
+        "Existing behavior elsewhere that opens the form in a new tab via the shared constant remains unchanged."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/feedbackForm.ts",
+          "operation": "modify",
+          "description": "Add a small utility (e.g., getFeedbackFormEmbedUrl()) that derives the Google-supported iframe embed URL from GOOGLE_FEEDBACK_FORM_URL (preserving the same form), without changing openFeedbackForm behavior."
         },
         {
-          "path": "frontend/src/components/Footer.tsx",
+          "path": "frontend/src/pages/ContactPage.tsx",
           "operation": "modify",
-          "description": "Update the Market Ticker section to use backend-provided market status and stock data, and add explicit error and empty UI states: show a clear message when data cannot be loaded, keep the rest of the footer/page stable, and keep the existing loading spinner. Replace or de-emphasize the current client-side market-hours detection in favor of backend market-open status for deciding whether to display LTP or dayClose. Continue using the existing shadcn-ui ScrollArea/ScrollBar for horizontal scrolling. Verify the component's usage instructions before implementing."
+          "description": "Import and use the new embed-URL utility from frontend/src/utils/feedbackForm.ts to set the iframe src, ensuring no duplicate hardcoded Google Form URL exists in this page."
         }
       ]
     }

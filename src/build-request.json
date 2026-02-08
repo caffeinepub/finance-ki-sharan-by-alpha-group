@@ -1,58 +1,73 @@
 {
   "kind": "build_request",
-  "title": "Fetch and display live share prices from NSE India in the Market Ticker",
-  "priority": "normal",
+  "title": "Embed Google Form inside Contact > Feedback card",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Implement backend support to fetch share prices from the NSE India website (https://www.nseindia.com/) using HTTP outcalls, and expose a query method that returns the latest available stock price data (at minimum: symbol, companyName, ltp, dayClose) for the frontend market ticker.",
-      "target": "backend",
+      "text": "Update the Contact page so that the existing \"Feedback\" card embeds the provided Google Form directly inside the card (iframe embed), instead of only offering a button/link to open it in a new tab.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4",
+          "msg-6",
+          "msg-8"
         ],
         "quotes": [
-          "market Ticker Shares price take it from NSE Web site - https://www.nseindia.com/"
+          "ha Embed kar do",
+          "No Contact ke under Feedback me",
+          "Card Style"
         ]
       },
       "acceptanceCriteria": [
-        "Backend exposes a query method that returns an array of Stock records (symbol, companyName, ltp, dayClose) sourced from https://www.nseindia.com/.",
-        "The HTTP outcall logic handles upstream failures gracefully (does not trap for transient HTTP errors; returns a clear error or an empty list consistently).",
-        "Responses are reasonably cached/throttled inside the canister to avoid excessive outcalls while still allowing fresh data when the market is open.",
-        "No additional backend actors/services are introduced; all logic remains in backend/main.mo."
+        "On the Contact page, the \"Feedback\" card renders an embedded Google Form (iframe) within the card content area.",
+        "The current \"Open Feedback Form\" button is removed (no dedicated feedback button interaction is required).",
+        "The embedded form uses the provided Google Form URL: https://docs.google.com/forms/d/e/1FAIpQLScqZU_oBmXqsYR-sS69AifMXRb10D6kLxFhBOXzELqk0aOb5w/viewform?usp=publish-editor (adapted to Google’s supported embed format if needed, while preserving the same form).",
+        "The embed is presented in a card-style layout consistent with existing Card UI (responsive sizing; no horizontal overflow on mobile)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Ensure the frontend market ticker uses backend-provided NSE-sourced stock data and has appropriate loading, empty, and error states in the ticker UI.",
+      "text": "Centralize the embedded-form URL derivation in the existing feedback form utility so the Contact page embed stays consistent with the already-shared Google Form constant.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-2",
+          "msg-4"
         ],
         "quotes": [
-          "market Ticker Shares price take it from NSE Web site - https://www.nseindia.com/"
+          "deployed link jo mene share kiya ye wala Google form ka - https://docs.google.com/forms/d/e/1FAIpQLScqZU_oBmXqsYR-sS69AifMXRb10D6kLxFhBOXzELqk0aOb5w/viewform?usp=publish-editor",
+          "Ha Embed kar do"
         ]
       },
       "acceptanceCriteria": [
-        "The footer market ticker renders a loading state while fetching, renders stock cards when data is available, and renders a clear empty state when no data is available.",
-        "If fetching fails, the UI shows a non-crashing error/empty experience (e.g., a message indicating data is unavailable) and does not break the rest of the page.",
-        "The data shown in the ticker matches the backend fields: company name, symbol, and the displayed price (LTP during market hours; closing price when market is closed)."
+        "The Contact page iframe src is built from the shared constant in frontend/src/utils/feedbackForm.ts (no hardcoded duplicate URL in ContactPage).",
+        "Existing behavior elsewhere that opens the form in a new tab via the shared constant remains unchanged."
       ]
     }
   ],
   "constraints": [
     "Use English for any user-facing text.",
-    "Backend must remain a single-actor Motoko canister (all logic in backend/main.mo).",
-    "Do not modify any files under frontend/src/components/ui or other frontend immutablePaths."
+    "Do not create a separate /feedback page and do not add a dedicated Feedback button outside the Contact > Feedback card.",
+    "Do not modify files under frontend/src/components/ui or any other frontend immutable paths listed in SYSTEM_CONTEXT."
   ],
   "nonGoals": [
-    "Adding third-party auth (other than Internet Identity).",
-    "Implementing trading, order placement, portfolios, or watchlists.",
-    "Using any external database or non-IC backend services."
+    "Changing backend storage or adding backend APIs for feedback embedding.",
+    "Replacing Internet Identity or changing authentication flows.",
+    "Adding a new navigation item or route solely for feedback."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }
