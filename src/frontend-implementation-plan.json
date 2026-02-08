@@ -1,169 +1,70 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add reusable Cash Flow schedule + CSV export to all calculator pages",
+  "title": "Admin bulk publish C-terms glossary batch into on-chain glossary",
   "requirements": [
     {
-      "id": "REQ-7",
-      "summary": "Create a reusable Cash Flow section component for calculators that renders a time-ordered cash-flow schedule with an optional running balance and a clear not-applicable state.",
+      "id": "REQ-1",
+      "summary": "Add an admin-only bulk publish action in the Glossary UI that calls the existing backend batch publish capability so C-terms (CEDEL through Custody risk) become visible and searchable.",
       "acceptanceCriteria": [
-        "A reusable calculator cash-flow UI component exists under the calculators components area and can be used by multiple calculator pages.",
-        "The component supports rendering a list of cash-flow rows with at least: period/date label and amount (negative for outflow, positive for inflow).",
-        "If no rows are available (or the calculator does not have a meaningful schedule), the UI renders a clear English message indicating cash-flow schedule is not applicable for that calculator."
+        "When an admin triggers the bulk publish action, all provided terms are added/updated in the backend glossary map via a single batch call (or an equivalent minimal number of calls).",
+        "After publishing, the Glossary page search returns these new terms (e.g., searching “CEDEL”, “CAPM”, “Cash Settlement”, “Custodian”).",
+        "Each published entry uses the exact term text and definition text as provided by the user; example and usage fields are stored as empty strings unless explicitly provided.",
+        "Keys used for insertion are deterministic and consistent (e.g., normalized to trimmed lowercase of the term) so repeated publishes update the same entries rather than creating duplicates.",
+        "If the caller is not an admin, the bulk publish UI is not shown and the backend still enforces admin-only access (traps on unauthorized)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/calculators/CashFlowSection.tsx",
+          "path": "frontend/src/data/glossaryBulkImportC.ts",
           "operation": "create",
-          "description": "Create a reusable CashFlowSection component that accepts a title, an array of time-ordered cash-flow rows (label + amount + optional runningBalance), and renders a styled table-like UI plus a clear 'not applicable' message when rows are empty. Compose existing shadcn components (e.g., Card/Button) without editing anything under frontend/src/components/ui. Verify the component's usage instructions before implementing."
+          "description": "Add a static, version-controlled list of the user-provided glossary entries (CEDEL through Custody risk) with exact term/definition text; keep example/usage as empty strings unless explicitly provided. This module will be used to construct the batch payload for the backend publishGlossaryBatch call."
         },
         {
-          "path": "frontend/src/utils/cashFlowSchedules.ts",
+          "path": "frontend/src/utils/glossaryKey.ts",
           "operation": "create",
-          "description": "Add client-side helpers to build consistent cash-flow schedules (e.g., monthly/yearly period label generators, sign conventions, optional running-balance calculation) that calculator pages can call to derive their rows from current inputs and assumptions."
+          "description": "Implement deterministic glossary key normalization (e.g., trimmed lowercase, consistent whitespace handling) used by the bulk import to prevent duplicates across repeated publishes."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add a React Query mutation hook (e.g., usePublishGlossaryBatch) that calls the backend publishGlossaryBatch capability with the constructed batch terms, and on success invalidates all glossary-related queries (including search) so newly published terms are immediately visible. Verify the component's usage instructions before implementing (authorization: useActor/useIsCallerAdmin patterns; shadcn-ui: toast via sonner is already used here)."
+        },
+        {
+          "path": "frontend/src/components/GlossaryBulkImportCTermsPanel.tsx",
+          "operation": "create",
+          "description": "Create an admin-only panel component that builds the batch payload from glossaryBulkImportC.ts (using glossaryKey normalization) and triggers the publish mutation. The UI should not render any controls for non-admin users. Verify the component's usage instructions before implementing (shadcn-ui components like Card/Button/AlertDialog)."
+        },
+        {
+          "path": "frontend/src/pages/GlossaryPage.tsx",
+          "operation": "modify",
+          "description": "Wire the new GlossaryBulkImportCTermsPanel into the existing Glossary page within the admin-only section (near the existing GlossaryBackupRestorePanel) so admins can publish the batch and see results reflected immediately. Verify the component's usage instructions before implementing (authorization via useIsCallerAdmin; shadcn-ui layout components already used on this page)."
         }
       ]
     },
     {
-      "id": "REQ-8",
-      "summary": "Embed the Cash Flow section into every calculator page and populate it with a schedule derived from each calculator’s current inputs/assumptions (including XIRR reflecting user-edited cash flows).",
+      "id": "REQ-2",
+      "summary": "Implement a minimal admin UI in the Glossary area that explains the import scope and requires explicit confirmation before publishing the bulk C-terms batch, with clear success/error messages.",
       "acceptanceCriteria": [
-        "All calculator routes listed in the existing app (SIP, Lump Sum, Step-Up, SWP, SSY, PPF, EPF, FD, RD, EMI, Home Loan EMI, Fixed vs Reducing Loan, GST, HRA, NPS, APY, Gratuity, XIRR, CAGR, Simple Interest, Simple vs Compound Interest, NSC) visibly include a “Cash Flow” section on the page.",
-        "For calculators with periodic contributions/repayments/withdrawals, the Cash Flow section shows multiple rows that match the calculator’s time step (monthly or yearly) and reflect correct signs (outflows negative, inflows positive).",
-        "For calculators that are not time-series by nature (e.g., GST/HRA/Gratuity-type one-off computations), the Cash Flow section renders either a single-row cash flow (time 0) or an English “Not applicable” message, but never appears blank or broken.",
-        "XIRR continues to work and the Cash Flow section reflects the same list the user edits (including adds/removes/updates)."
+        "The bulk import UI is only rendered when `useIsCallerAdmin()` is true.",
+        "The UI includes an explicit confirmation (e.g., dialog) before performing the publish action.",
+        "On success, show an English success message and refresh glossary queries so the new terms display immediately without a manual reload.",
+        "On error, show an English error message with the error string if available."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/SIPCalculatorPage.tsx",
+          "path": "frontend/src/components/GlossaryBulkImportCTermsPanel.tsx",
           "operation": "modify",
-          "description": "Import and render the CashFlowSection component on the page and populate it with a monthly schedule derived from the current SIP inputs (monthly investments as negative outflows over the selected months; add an optional maturity inflow at the end using the current computed maturity value). Verify the component's usage instructions before implementing."
+          "description": "Add explanatory copy (English) describing what will be imported (term range and count), include a confirmation step using an AlertDialog before publishing, and show English success/error messaging (e.g., via sonner toast or inline Alert) including the error string when available. Verify the component's usage instructions before implementing (shadcn-ui AlertDialog/Alert/Button)."
         },
         {
-          "path": "frontend/src/pages/LumpSumCalculatorPage.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Import and render the CashFlowSection component and populate it with a simple two-row schedule: a single negative outflow at start (principal) and a single positive inflow at maturity (current computed maturity value). Verify the component's usage instructions before implementing."
+          "description": "Ensure the publish mutation surfaces errors in a way the UI can display (preserve error.message), and that success handling triggers glossary query invalidation/refetch so results appear immediately without reload. Verify the component's usage instructions before implementing (authorization patterns and sonner toast usage)."
         },
         {
-          "path": "frontend/src/pages/StepUpCalculatorPage.tsx",
+          "path": "frontend/src/pages/GlossaryPage.tsx",
           "operation": "modify",
-          "description": "Import and render the CashFlowSection component (for both tabs) and populate it with a monthly schedule reflecting the active tab's step-up logic: monthly contributions as negative outflows per month for the duration, with contribution amount changing per year; optionally include a maturity inflow at the end based on the computed total value. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/SWPCalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and populate it with a month-by-month schedule that mirrors the calculator simulation: initial investment as a positive inflow at time 0, monthly withdrawals as negative outflows, and include a running balance column using the simulated balance after each step. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/SSYCalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and populate it with a yearly schedule: yearly deposits as negative outflows for the computed deposit years; optionally add a maturity inflow row at maturity using the computed maturity value. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/PPFCalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and populate it with a yearly schedule: yearly investments as negative outflows for the tenure; optionally add a maturity inflow row using the computed maturity value. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/EPFCalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and populate it with a monthly schedule: employee+employer combined monthly contributions as negative outflows for the selected tenure; optionally add a maturity inflow row equal to the computed maturity balance. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/FDCalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and populate it with a two-row schedule: principal as negative outflow at start and maturity amount as positive inflow at end (based on the current interest type/inputs). Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/RDCalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and populate it with a monthly schedule: monthly deposits as negative outflows over the computed months; optionally add a maturity inflow row using the computed maturity value. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/EMICalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and populate it with a monthly schedule: loan disbursal as positive inflow at time 0 and EMI payments as negative outflows over the loan tenure months. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/HomeLoanEMICalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and populate it with a monthly schedule: principal disbursal as positive inflow at time 0 and EMI payments as negative outflows over the loan tenure months. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/FixedVsReducingLoanCalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and populate it with a not-applicable message or a minimal single-row schedule (time 0) since this calculator is a comparison view rather than a single time-series schedule. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/GSTCalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and show a not-applicable message or a single-row schedule (time 0) representing a one-off computation (e.g., base amount outflow and after-tax amount outflow/inflow if you choose a single-row representation), ensuring it never renders blank. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/HRACalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and show a not-applicable message or a single-row schedule (time 0) since HRA is a one-off tax exemption computation, ensuring it never renders blank. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/NPSCalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and populate it with a monthly schedule: monthly contributions as negative outflows until retirement; optionally add a retirement inflow row equal to the computed total corpus. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/AtalPensionYojanaCalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and populate it with a monthly schedule using the computed monthly contribution from the matrix: monthly contributions as negative outflows until age 60; optionally add a maturity inflow row using the estimated maturity corpus. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/GratuityCalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and show a not-applicable message or a single-row schedule (time 0) representing the computed gratuity as a one-off inflow, ensuring it never renders blank. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/XIRRCalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and populate it directly from the same cashFlows state the user edits (date label uses the entered date; amount uses the entered numeric value), keeping the section in sync with add/remove/update actions. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/CAGRCalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and populate it with a two-row schedule: initial value as negative outflow at start and final value as positive inflow at end of the period, reflecting current inputs. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/SimpleInterestCalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and populate it with a two-row schedule: principal as negative outflow at start and total amount as positive inflow at end of the period, reflecting current inputs. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/SimpleVsCompoundInterestCalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and populate it with a not-applicable message or a minimal schedule (e.g., two-row for the selected method only) to avoid implying two simultaneous real cash-flow tracks; ensure the section never renders blank. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/NSCCalculatorPage.tsx",
-          "operation": "modify",
-          "description": "Import and render the CashFlowSection component and populate it with a two-row schedule: investment as negative outflow at start and maturity value as positive inflow at end, reflecting current inputs. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-9",
-      "summary": "Add a client-side CSV export action in the Cash Flow section that downloads the currently rendered schedule.",
-      "acceptanceCriteria": [
-        "The Cash Flow section provides a user-visible action labeled in English (e.g., “Download CSV”).",
-        "Clicking the action downloads a CSV representing exactly the currently rendered cash-flow rows (including header row).",
-        "The export works fully client-side without requiring backend changes."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/calculators/CashFlowSection.tsx",
-          "operation": "modify",
-          "description": "Add a user-visible action (e.g., a Button labeled “Download CSV”) that exports exactly the rows currently being rendered (including header row) via client-side CSV creation + browser download. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/utils/csv.ts",
-          "operation": "create",
-          "description": "Add small client-side utilities to build CSV content (with proper escaping) and trigger a browser download from the CashFlowSection without backend changes."
+          "description": "Confirm the bulk import admin UI is conditionally rendered only when useIsCallerAdmin() is true and remains minimal (no broader Glossary redesign). Verify the component's usage instructions before implementing (authorization hook usage; existing shadcn-ui layout)."
         }
       ]
     }

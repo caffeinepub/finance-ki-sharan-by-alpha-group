@@ -1,88 +1,60 @@
 {
   "kind": "build_request",
-  "title": "Add cash-flow schedules to all calculator pages",
+  "title": "Bulk add provided finance terms to Glossary (C-terms list)",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-7",
-      "text": "Add a reusable “Cash Flow” section/component for calculators that can render a time-ordered cash-flow schedule (date/period label, cash flow amount, and optional running balance) and can be embedded into every calculator page.",
-      "target": "frontend",
+      "id": "REQ-1",
+      "text": "Add an admin-only bulk action to publish the user-provided glossary entries (starting from “CEDEL” through “Custody risk”) into the on-chain glossary using the existing backend batch API, so the terms become visible and searchable in the Glossary page.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-4",
-          "msg-6"
+          "user-last"
         ],
         "quotes": [
-          "add cash flow in all calculators"
+          "Add these in Glossary - CEDEL ... Custody risk"
         ]
       },
       "acceptanceCriteria": [
-        "A reusable calculator cash-flow UI component exists under the calculators components area and can be used by multiple calculator pages.",
-        "The component supports rendering a list of cash-flow rows with at least: period/date label and amount (negative for outflow, positive for inflow).",
-        "If no rows are available (or the calculator does not have a meaningful schedule), the UI renders a clear English message indicating cash-flow schedule is not applicable for that calculator."
+        "When an admin triggers the bulk publish action, all provided terms are added/updated in the backend glossary map via a single batch call (or an equivalent minimal number of calls).",
+        "After publishing, the Glossary page search returns these new terms (e.g., searching “CEDEL”, “CAPM”, “Cash Settlement”, “Custodian”).",
+        "Each published entry uses the exact term text and definition text as provided by the user; example and usage fields are stored as empty strings unless explicitly provided.",
+        "Keys used for insertion are deterministic and consistent (e.g., normalized to trimmed lowercase of the term) so repeated publishes update the same entries rather than creating duplicates.",
+        "If the caller is not an admin, the bulk publish UI is not shown and the backend still enforces admin-only access (traps on unauthorized)."
       ]
     },
     {
-      "id": "REQ-8",
-      "text": "Update every existing calculator page to include the Cash Flow section and populate it with an appropriate cash-flow schedule derived from the calculator’s current inputs and assumptions (e.g., SIP monthly investments as outflows; Lump Sum as a single outflow at start and a single inflow at maturity; SWP withdrawals as inflows over months; XIRR uses the user-entered cash flows).",
+      "id": "REQ-2",
+      "text": "Implement a small admin UI in the Glossary area that explains what will be imported and provides a confirmation step before publishing the bulk glossary entries.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4",
-          "msg-6"
+          "user-last"
         ],
         "quotes": [
-          "add cash flow in calculators",
-          "add cash flow in all calculators"
+          "Add these in Glossary - CEDEL ..."
         ]
       },
       "acceptanceCriteria": [
-        "All calculator routes listed in the existing app (SIP, Lump Sum, Step-Up, SWP, SSY, PPF, EPF, FD, RD, EMI, Home Loan EMI, Fixed vs Reducing Loan, GST, HRA, NPS, APY, Gratuity, XIRR, CAGR, Simple Interest, Simple vs Compound Interest, NSC) visibly include a “Cash Flow” section on the page.",
-        "For calculators with periodic contributions/repayments/withdrawals, the Cash Flow section shows multiple rows that match the calculator’s time step (monthly or yearly) and reflect correct signs (outflows negative, inflows positive).",
-        "For calculators that are not time-series by nature (e.g., GST/HRA/Gratuity-type one-off computations), the Cash Flow section renders either a single-row cash flow (time 0) or an English “Not applicable” message, but never appears blank or broken.",
-        "XIRR continues to work and the Cash Flow section reflects the same list the user edits (including adds/removes/updates)."
-      ]
-    },
-    {
-      "id": "REQ-9",
-      "text": "Add a simple export option in the Cash Flow section to download the currently displayed cash-flow schedule as a CSV file.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "add cash flow in all calculators"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The Cash Flow section provides a user-visible action labeled in English (e.g., “Download CSV”).",
-        "Clicking the action downloads a CSV representing exactly the currently rendered cash-flow rows (including header row).",
-        "The export works fully client-side without requiring backend changes."
+        "The bulk import UI is only rendered when `useIsCallerAdmin()` is true.",
+        "The UI includes an explicit confirmation (e.g., dialog) before performing the publish action.",
+        "On success, show an English success message and refresh glossary queries so the new terms display immediately without a manual reload.",
+        "On error, show an English error message with the error string if available."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/components/ui (shadcn components are read-only and must be composed).",
-    "Do not edit any frontend immutablePaths listed in SYSTEM_CONTEXT; implement changes via other modules/components/pages."
+    "Use English for any user-facing text in the build request and resulting UI.",
+    "Backend must remain a single-actor Motoko canister (all logic in backend/main.mo).",
+    "Do not edit files under frontend/src/components/ui or any frontend immutablePaths listed in SYSTEM_CONTEXT."
   ],
   "nonGoals": [
-    "Do not change the backend canister APIs for calculators (keep all cash-flow generation client-side).",
-    "Do not introduce new calculator types or new routes beyond adding the Cash Flow section to existing calculators.",
-    "Do not add third-party analytics or external data sources for cash-flow calculations."
+    "Do not add third-party CMS/DB integrations or external storage for glossary.",
+    "Do not change the glossary data model fields (term/definition/example/usage) beyond populating the provided terms.",
+    "Do not redesign the entire Glossary page UI beyond adding the minimal admin import controls."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

@@ -149,6 +149,12 @@ actor {
     lastSnapshotVersion : ?Nat;
   };
 
+  public type PersistentGlossaryEntry = {
+    key : Text;
+    term : GlossaryTerm;
+    approved : Bool;
+  };
+
   let userProfiles = Map.empty<Principal, UserProfile>();
   let glossary = Map.empty<Text, GlossaryTerm>();
   let articles = Map.empty<Nat, Article>();
@@ -159,6 +165,7 @@ actor {
   let nifty50Stocks = Map.empty<Text, Stock>();
   let nifty50DataCache = Map.empty<Text, Nifty50StockData>();
   let blogs = Map.empty<Nat, BlogPost>();
+  let persistentGlossaryEntries = Map.empty<Text, PersistentGlossaryEntry>();
 
   var nextArticleId = 1;
   var nextResearchPaperId = 1;
@@ -398,6 +405,53 @@ actor {
 
     lastRestoreTimestamp := ?Time.now();
     lastSnapshotVersion := snapshot.version;
+  };
+
+  public shared ({ caller }) func addPersistentGlossaryEntries(entries : [PersistentGlossaryEntry]) : async () {
+    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized: Only admin can persist entries");
+    };
+
+    for (entry in entries.values()) {
+      persistentGlossaryEntries.add(entry.key, entry);
+    };
+  };
+
+  public shared ({ caller }) func approvePersistentGlossaryEntry(key : Text) : async () {
+    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized: Only admin can approve entries");
+    };
+
+    switch (persistentGlossaryEntries.get(key)) {
+      case (null) { Runtime.trap("Entry not found") };
+      case (?entry) {
+        let approvedEntry = {
+          key = entry.key;
+          term = entry.term;
+          approved = true;
+        };
+        persistentGlossaryEntries.add(key, approvedEntry);
+        glossary.add(key, entry.term);
+      };
+    };
+  };
+
+  public shared ({ caller }) func approveAllPersistentGlossaryEntries() : async () {
+    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized: Only admin can approve entries");
+    };
+
+    let entriesArray = persistentGlossaryEntries.entries().toArray();
+
+    for ((key, entry) in entriesArray.values()) {
+      let approvedEntry = {
+        key = entry.key;
+        term = entry.term;
+        approved = true;
+      };
+      persistentGlossaryEntries.add(key, approvedEntry);
+      glossary.add(key, entry.term);
+    };
   };
 
   public query ({ caller }) func getArticles() : async [Article] {
@@ -821,4 +875,3 @@ actor {
     ];
   };
 };
-

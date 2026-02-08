@@ -1,28 +1,88 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T14:44:38.763Z",
-  "summary": "A reusable CashFlowSection component with CSV export and an empty-state message was added, along with CSV/schedule utilities. However, only the SIP and Lump Sum calculator pages were updated to include the Cash Flow section; the diff does not show updates to the rest of the required calculator pages (including XIRR-specific syncing).",
+  "generatedAt": "2026-02-08T05:16:40.179Z",
+  "summary": "Diff adds a new admin bulk import panel for glossary C-terms, a static C-terms dataset, and a key-normalization utility, and wires the panel into GlossaryPage behind an isAdmin check. It also changes various unrelated pages/styles and adds a new publish-batch mutation hook (per summary), but the backend-side admin enforcement/batch handling cannot be confirmed from the truncated backend diff.",
   "missing_requirements": [
     {
-      "id": "REQ-8",
-      "requirement": "Update every existing calculator page to include the Cash Flow section and populate it with an appropriate cash-flow schedule derived from the calculator’s current inputs and assumptions (including XIRR reflecting the user-edited cash flows).",
-      "reason": "The diff shows CashFlowSection integrated only in SIPCalculatorPage and LumpSumCalculatorPage. There is no evidence that the other listed calculator pages/routes (Step-Up, SWP, SSY, PPF, EPF, FD, RD, EMI, Home Loan EMI, Fixed vs Reducing Loan, GST, HRA, NPS, APY, Gratuity, XIRR, CAGR, Simple Interest, Simple vs Compound Interest, NSC) were updated to display a Cash Flow section or generate schedules appropriate to their inputs. No XIRR page changes are shown to ensure the cash-flow list mirrors user edits.",
+      "id": "REQ-1",
+      "requirement": "Backend enforces admin-only access for the bulk publish action (traps on unauthorized) while using the existing backend batch API to add/update all provided terms.",
+      "reason": "The diff summary shows frontend-side admin gating and a new mutation hook, but does not provide visible evidence (in the truncated backend/main.mo snippet) of an admin-guarded batch publish endpoint being added/used, nor that unauthorized callers trap.",
       "evidence": [
-        "frontend/src/pages/SIPCalculatorPage.tsx",
-        "frontend/src/pages/LumpSumCalculatorPage.tsx"
+        "backend/main.mo (truncated)",
+        "frontend/src/hooks/useQueries.ts (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-1",
+      "requirement": "Bulk publish imports the complete provided list from “CEDEL” through “Custody risk” with exact term/definition text; example and usage stored as empty strings unless explicitly provided.",
+      "reason": "The provided C-terms data file is truncated before the end, so it is not verifiable that the list includes the full range through “Custody risk”. Also, the mutation code constructing the batch payload is not shown, so it cannot be confirmed that example/usage are persisted as empty strings when omitted.",
+      "evidence": [
+        "frontend/src/data/glossaryBulkImportC.ts (truncated)",
+        "frontend/src/hooks/useQueries.ts (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-1",
+      "requirement": "Keys used for insertion are deterministic/consistent so repeated publishes update the same entries rather than creating duplicates.",
+      "reason": "A frontend normalization utility is added, but the actual batch payload creation and backend keying behavior are not visible in the truncated hook/backend snippets, so end-to-end deterministic key usage cannot be confirmed.",
+      "evidence": [
+        "frontend/src/utils/glossaryKey.ts",
+        "frontend/src/hooks/useQueries.ts (truncated)",
+        "backend/main.mo (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "On error, show an English error message with the error string if available.",
+      "reason": "The panel shows an error message, but the confirmation dialog and the rest of the component are truncated, so it’s not fully verifiable that error handling always includes the error string when available for all failure cases (e.g., backend trap strings).",
+      "evidence": [
+        "frontend/src/components/GlossaryBulkImportCTermsPanel.tsx (truncated)"
       ]
     }
   ],
-  "hallucinated_features": [],
-  "confidence": 0.72,
+  "hallucinated_features": [
+    {
+      "description": "Changes to Blog detail page UI/logic (loading states, error UI, formatting) unrelated to glossary bulk import.",
+      "reason": "BuildRequest is limited to glossary bulk import admin action/UI; blog page changes are not requested.",
+      "evidence": [
+        "frontend/src/pages/BlogDetailPage.tsx"
+      ]
+    },
+    {
+      "description": "Changes to Learning page content presentation and hook import correction.",
+      "reason": "Not requested by REQ-1/REQ-2 and outside glossary bulk import scope.",
+      "evidence": [
+        "frontend/src/pages/LearningPage.tsx"
+      ]
+    },
+    {
+      "description": "Changes to Research papers page (download handling/UI).",
+      "reason": "Not requested by REQ-1/REQ-2 and outside glossary bulk import scope.",
+      "evidence": [
+        "frontend/src/pages/ResearchPapersPage.tsx"
+      ]
+    },
+    {
+      "description": "Glossary query behavior changes (e.g., aggressive refetch policies, search normalization behavior).",
+      "reason": "REQ-1/REQ-2 do not ask to change glossary fetching/refetch semantics beyond refreshing after a successful publish.",
+      "evidence": [
+        "frontend/src/hooks/useQueries.ts (truncated)"
+      ]
+    }
+  ],
+  "confidence": 0.62,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/calculators/CashFlowSection.tsx",
-    "frontend/src/pages/LumpSumCalculatorPage.tsx",
-    "frontend/src/pages/SIPCalculatorPage.tsx",
-    "frontend/src/utils/cashFlowSchedules.ts",
-    "frontend/src/utils/csv.ts",
+    "frontend/src/components/GlossaryBulkImportCTermsPanel.tsx",
+    "frontend/src/data/glossaryBulkImportC.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/BlogDetailPage.tsx",
+    "frontend/src/pages/GlossaryPage.tsx",
+    "frontend/src/pages/LearningPage.tsx",
+    "frontend/src/pages/ResearchPapersPage.tsx",
+    "frontend/src/utils/glossaryKey.ts",
     "project_state.json"
   ]
 }

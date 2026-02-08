@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { parseGlossaryDefinition, findTermByReference } from '../utils/glossaryFormatting';
 import GlossaryBackupRestorePanel from '../components/GlossaryBackupRestorePanel';
+import GlossaryBulkImportCTermsPanel from '../components/GlossaryBulkImportCTermsPanel';
 
 export default function GlossaryPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -62,10 +63,11 @@ export default function GlossaryPage() {
             </p>
           </div>
 
-          {/* Admin Backup/Restore Panel */}
+          {/* Admin Panels */}
           {isAdmin && (
-            <div className="max-w-2xl mx-auto mb-8">
+            <div className="max-w-2xl mx-auto mb-8 space-y-4">
               <GlossaryBackupRestorePanel />
+              <GlossaryBulkImportCTermsPanel />
             </div>
           )}
 

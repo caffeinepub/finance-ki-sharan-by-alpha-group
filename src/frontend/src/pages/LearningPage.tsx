@@ -2,10 +2,10 @@ import { useEffect } from 'react';
 import { BookOpen, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { useGetAllLearningSections } from '../hooks/useQueries';
+import { useGetLearningSections } from '../hooks/useQueries';
 
 export default function LearningPage() {
-  const { data: sections = [], isLoading } = useGetAllLearningSections();
+  const { data: sections = [], isLoading } = useGetLearningSections();
 
   return (
     <div className="w-full">

@@ -12,7 +12,7 @@ export default function BlogDetailPage() {
   
   // Parse the blog ID from params
   const blogIdStr = params.id as string;
-  const blogId = blogIdStr ? BigInt(blogIdStr) : null;
+  const blogId = blogIdStr ? Number(blogIdStr) : 0;
 
   const { data: blog, isLoading, error } = useGetBlog(blogId);
 

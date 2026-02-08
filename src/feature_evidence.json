@@ -2,11 +2,14 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-reusable-cash-flow-section-component-for-calculators-that-can-render-a-time-ordered-cash-flow-schedule-date-period-label-cash-flow-amount-and-optional-running-balance-and-can-be-embedded-into-every-calculator-page",
-      "featureTitle": "Add a reusable “Cash Flow” section/component for calculators that can render a time-ordered cash-flow schedule (date/period label, cash flow amount, and optional running balance) and can be embedded into every calculator page.",
+      "featureId": "feature-add-an-admin-only-bulk-action-to-publish-the-user-provided-glossary-entries-starting-from-cedel-through-custody-risk-into-the-on-chain-glossary-using-the-existing-backend-batch-api-so-the-terms-become-visible-and-searchable-in-the-glossary-page",
+      "featureTitle": "Add an admin-only bulk action to publish the user-provided glossary entries (starting from “CEDEL” through “Custody risk”) into the on-chain glossary using the existing backend batch API, so the terms become visible and searchable in the Glossary page.",
       "files": [
-        "frontend/src/components/calculators/CashFlowSection.tsx",
-        "frontend/src/utils/cashFlowSchedules.ts"
+        "frontend/src/components/GlossaryBulkImportCTermsPanel.tsx",
+        "frontend/src/data/glossaryBulkImportC.ts",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/GlossaryPage.tsx",
+        "frontend/src/utils/glossaryKey.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -19,16 +22,17 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-7"
+        "REQ-1"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-every-existing-calculator-page-to-include-the-cash-flow-section-and-populate-it-with-an-appropriate-cash-flow-schedule-derived-from-the-calculator-s-current-inputs-and-assumptions-e-g-sip-monthly-investments-as-outflows-lump-sum-as-a-single-outflow-at-start-and-a-single-inflow-at-maturity-swp-withdrawals-as-inflows-over-months-xirr-uses-the-user-entered-cash-flows",
-      "featureTitle": "Update every existing calculator page to include the Cash Flow section and populate it with an appropriate cash-flow schedule derived from the calculator’s current inputs and assumptions (e.g., SIP monthly investments as outflows; Lump Sum as a single outflow at start and a single inflow at maturity; SWP withdrawals as inflows over months; XIRR uses the user-entered cash flows).",
+      "featureId": "feature-implement-a-small-admin-ui-in-the-glossary-area-that-explains-what-will-be-imported-and-provides-a-confirmation-step-before-publishing-the-bulk-glossary-entries",
+      "featureTitle": "Implement a small admin UI in the Glossary area that explains what will be imported and provides a confirmation step before publishing the bulk glossary entries.",
       "files": [
-        "frontend/src/pages/LumpSumCalculatorPage.tsx",
-        "frontend/src/pages/SIPCalculatorPage.tsx"
+        "frontend/src/components/GlossaryBulkImportCTermsPanel.tsx",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/GlossaryPage.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -41,29 +45,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-8"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-simple-export-option-in-the-cash-flow-section-to-download-the-currently-displayed-cash-flow-schedule-as-a-csv-file",
-      "featureTitle": "Add a simple export option in the Cash Flow section to download the currently displayed cash-flow schedule as a CSV file.",
-      "files": [
-        "frontend/src/components/calculators/CashFlowSection.tsx",
-        "frontend/src/utils/csv.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "authorization@4.0.0",
-        "http-outcalls@3.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-9"
+        "REQ-2"
       ],
       "confidence": "high"
     }

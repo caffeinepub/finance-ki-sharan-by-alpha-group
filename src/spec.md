@@ -1,11 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Add a reusable Cash Flow schedule section to every calculator page, with CSV export.
+**Goal:** Let admins bulk publish the provided glossary terms (CEDEL through Custody risk) into the on-chain glossary so they become visible and searchable.
 
 **Planned changes:**
-- Create a reusable “Cash Flow” UI component under the calculators components area that renders a time-ordered schedule (period/date label, cash-flow amount, optional running balance) and shows an English “Not applicable” message when a schedule doesn’t apply.
-- Update all existing calculator pages to include the Cash Flow section and generate an appropriate cash-flow schedule from each calculator’s current inputs/assumptions (including using the user-edited list for XIRR).
-- Add a client-side “Download CSV” action in the Cash Flow section that exports exactly the currently displayed rows (with a header row).
+- Add an admin-only bulk publish action that submits the provided C-terms to the existing backend batch API, using deterministic normalized keys to avoid duplicates and update existing entries.
+- Ensure each entry stores the exact provided term and definition text; set example/usage to empty strings unless explicitly provided.
+- Add minimal admin UI within the Glossary area describing what will be imported and requiring an explicit confirmation before publishing.
+- On publish success, show an English success message and refresh glossary queries so new terms appear immediately; on error, show an English error message including the error string when available.
+- Enforce admin-only access both in the UI (hidden for non-admins) and in the backend (reject/trap unauthorized calls).
 
-**User-visible outcome:** Every calculator page shows a “Cash Flow” section with a clear schedule (or a clear “Not applicable” message), and users can download the displayed cash-flow schedule as a CSV.
+**User-visible outcome:** Admins can confirm and bulk publish the provided C-terms into the glossary, and then immediately search and view them on the Glossary page; non-admin users will not see the bulk publish controls.

@@ -1,86 +1,70 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T14:44:38.807Z",
+  "generatedAt": "2026-02-08T05:16:40.182Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 2,
+    "implemented": 2,
     "items": [
       {
-        "id": "REQ-7",
-        "summary": "Add a reusable “Cash Flow” section/component for calculators that can render a time-ordered cash-flow schedule (date/period label, cash flow amount, and optional running balance) and can be embedded into every calculator page.",
+        "id": "REQ-1",
+        "summary": "Add an admin-only bulk action to publish the user-provided glossary entries (starting from “CEDEL” through “Custody risk”) into the on-chain glossary using the existing backend batch API, so the terms become visible and searchable in the Glossary page.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/calculators/CashFlowSection.tsx",
-          "frontend/src/utils/cashFlowSchedules.ts"
+          "frontend/src/data/glossaryBulkImportC.ts",
+          "frontend/src/utils/glossaryKey.ts",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/GlossaryBulkImportCTermsPanel.tsx",
+          "frontend/src/pages/GlossaryPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/calculators/CashFlowSection.tsx",
-          "frontend/src/utils/cashFlowSchedules.ts"
+          "frontend/src/data/glossaryBulkImportC.ts",
+          "frontend/src/utils/glossaryKey.ts",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/GlossaryBulkImportCTermsPanel.tsx",
+          "frontend/src/pages/GlossaryPage.tsx"
         ]
       },
       {
-        "id": "REQ-8",
-        "summary": "Update every existing calculator page to include the Cash Flow section and populate it with an appropriate cash-flow schedule derived from the calculator’s current inputs and assumptions (e.g., SIP monthly investments as outflows; Lump Sum as a single outflow at start and a single inflow at maturity; SWP withdrawals as inflows over months; XIRR uses the user-entered cash flows).",
+        "id": "REQ-2",
+        "summary": "Implement a small admin UI in the Glossary area that explains what will be imported and provides a confirmation step before publishing the bulk glossary entries.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/SIPCalculatorPage.tsx",
-          "frontend/src/pages/LumpSumCalculatorPage.tsx",
-          "frontend/src/pages/StepUpCalculatorPage.tsx",
-          "frontend/src/pages/SWPCalculatorPage.tsx",
-          "frontend/src/pages/SSYCalculatorPage.tsx",
-          "frontend/src/pages/PPFCalculatorPage.tsx",
-          "frontend/src/pages/EPFCalculatorPage.tsx",
-          "frontend/src/pages/FDCalculatorPage.tsx",
-          "frontend/src/pages/RDCalculatorPage.tsx",
-          "frontend/src/pages/EMICalculatorPage.tsx",
-          "frontend/src/pages/HomeLoanEMICalculatorPage.tsx",
-          "frontend/src/pages/FixedVsReducingLoanCalculatorPage.tsx",
-          "frontend/src/pages/GSTCalculatorPage.tsx",
-          "frontend/src/pages/HRACalculatorPage.tsx",
-          "frontend/src/pages/NPSCalculatorPage.tsx",
-          "frontend/src/pages/AtalPensionYojanaCalculatorPage.tsx",
-          "frontend/src/pages/GratuityCalculatorPage.tsx",
-          "frontend/src/pages/XIRRCalculatorPage.tsx",
-          "frontend/src/pages/CAGRCalculatorPage.tsx",
-          "frontend/src/pages/SimpleInterestCalculatorPage.tsx",
-          "frontend/src/pages/SimpleVsCompoundInterestCalculatorPage.tsx",
-          "frontend/src/pages/NSCCalculatorPage.tsx"
+          "frontend/src/components/GlossaryBulkImportCTermsPanel.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/GlossaryPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/SIPCalculatorPage.tsx",
-          "frontend/src/pages/LumpSumCalculatorPage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-9",
-        "summary": "Add a simple export option in the Cash Flow section to download the currently displayed cash-flow schedule as a CSV file.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/calculators/CashFlowSection.tsx",
-          "frontend/src/utils/csv.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/calculators/CashFlowSection.tsx",
-          "frontend/src/utils/csv.ts"
+          "frontend/src/components/GlossaryBulkImportCTermsPanel.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/GlossaryPage.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
+    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/calculators/CashFlowSection.tsx",
-    "frontend/src/pages/LumpSumCalculatorPage.tsx",
-    "frontend/src/pages/SIPCalculatorPage.tsx",
-    "frontend/src/utils/cashFlowSchedules.ts",
-    "frontend/src/utils/csv.ts",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/GlossaryBulkImportCTermsPanel.tsx",
+    "frontend/src/data/glossaryBulkImportC.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/BlogDetailPage.tsx",
+    "frontend/src/pages/GlossaryPage.tsx",
+    "frontend/src/pages/LearningPage.tsx",
+    "frontend/src/pages/ResearchPapersPage.tsx",
+    "frontend/src/utils/glossaryKey.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

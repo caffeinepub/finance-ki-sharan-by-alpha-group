@@ -29,6 +29,11 @@ export const LearningSection = IDL.Record({
   'title' : IDL.Text,
   'content' : IDL.Text,
 });
+export const PersistentGlossaryEntry = IDL.Record({
+  'key' : IDL.Text,
+  'term' : GlossaryTerm,
+  'approved' : IDL.Bool,
+});
 export const ExternalBlob = IDL.Vec(IDL.Nat8);
 export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
@@ -191,11 +196,18 @@ export const idlService = IDL.Service({
     ),
   'addGlossaryTerm' : IDL.Func([IDL.Text, GlossaryTerm], [], []),
   'addLearningSection' : IDL.Func([IDL.Text, LearningSection], [], []),
+  'addPersistentGlossaryEntries' : IDL.Func(
+      [IDL.Vec(PersistentGlossaryEntry)],
+      [],
+      [],
+    ),
   'addResearchPaper' : IDL.Func(
       [IDL.Text, IDL.Text, ExternalBlob],
       [IDL.Nat],
       [],
     ),
+  'approveAllPersistentGlossaryEntries' : IDL.Func([], [], []),
+  'approvePersistentGlossaryEntry' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'chatAsk' : IDL.Func([IDL.Text], [ChatAskResponsePayload], ['query']),
   'deleteArticle' : IDL.Func([IDL.Nat], [], []),
@@ -336,6 +348,11 @@ export const idlFactory = ({ IDL }) => {
   const LearningSection = IDL.Record({
     'title' : IDL.Text,
     'content' : IDL.Text,
+  });
+  const PersistentGlossaryEntry = IDL.Record({
+    'key' : IDL.Text,
+    'term' : GlossaryTerm,
+    'approved' : IDL.Bool,
   });
   const ExternalBlob = IDL.Vec(IDL.Nat8);
   const UserRole = IDL.Variant({
@@ -491,11 +508,18 @@ export const idlFactory = ({ IDL }) => {
       ),
     'addGlossaryTerm' : IDL.Func([IDL.Text, GlossaryTerm], [], []),
     'addLearningSection' : IDL.Func([IDL.Text, LearningSection], [], []),
+    'addPersistentGlossaryEntries' : IDL.Func(
+        [IDL.Vec(PersistentGlossaryEntry)],
+        [],
+        [],
+      ),
     'addResearchPaper' : IDL.Func(
         [IDL.Text, IDL.Text, ExternalBlob],
         [IDL.Nat],
         [],
       ),
+    'approveAllPersistentGlossaryEntries' : IDL.Func([], [], []),
+    'approvePersistentGlossaryEntry' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'chatAsk' : IDL.Func([IDL.Text], [ChatAskResponsePayload], ['query']),
     'deleteArticle' : IDL.Func([IDL.Nat], [], []),

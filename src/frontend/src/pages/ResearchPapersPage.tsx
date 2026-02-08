@@ -1,10 +1,10 @@
 import { Download, FileText, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useGetAllResearchPapers } from '../hooks/useQueries';
+import { useGetResearchPapers } from '../hooks/useQueries';
 
 export default function ResearchPapersPage() {
-  const { data: papers = [], isLoading } = useGetAllResearchPapers();
+  const { data: papers = [], isLoading } = useGetResearchPapers();
 
   const handleDownload = (paper: typeof papers[0]) => {
     const url = paper.file.getDirectURL();

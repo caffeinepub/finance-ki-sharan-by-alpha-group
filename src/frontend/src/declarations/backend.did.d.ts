@@ -82,6 +82,11 @@ export interface MarketHour {
   'openHour' : bigint,
 }
 export interface Nifty50StockData { 'ltp' : number, 'dayClose' : number }
+export interface PersistentGlossaryEntry {
+  'key' : string,
+  'term' : GlossaryTerm,
+  'approved' : boolean,
+}
 export interface ResearchPaper {
   'id' : bigint,
   'title' : string,
@@ -148,7 +153,13 @@ export interface _SERVICE {
   >,
   'addGlossaryTerm' : ActorMethod<[string, GlossaryTerm], undefined>,
   'addLearningSection' : ActorMethod<[string, LearningSection], undefined>,
+  'addPersistentGlossaryEntries' : ActorMethod<
+    [Array<PersistentGlossaryEntry>],
+    undefined
+  >,
   'addResearchPaper' : ActorMethod<[string, string, ExternalBlob], bigint>,
+  'approveAllPersistentGlossaryEntries' : ActorMethod<[], undefined>,
+  'approvePersistentGlossaryEntry' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'chatAsk' : ActorMethod<[string], ChatAskResponsePayload>,
   'deleteArticle' : ActorMethod<[bigint], undefined>,

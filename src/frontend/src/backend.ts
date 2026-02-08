@@ -133,6 +133,11 @@ export interface GlossarySnapshot {
     createdAt: bigint;
     version: bigint;
 }
+export interface PersistentGlossaryEntry {
+    key: string;
+    term: GlossaryTerm;
+    approved: boolean;
+}
 export interface ResearchPaper {
     id: bigint;
     title: string;
@@ -238,7 +243,10 @@ export interface backendInterface {
     addBlog(title: string, content: string, author: string, tags: Array<string>, category: string, publishedAt: bigint, isPublished: boolean): Promise<bigint>;
     addGlossaryTerm(key: string, term: GlossaryTerm): Promise<void>;
     addLearningSection(key: string, section: LearningSection): Promise<void>;
+    addPersistentGlossaryEntries(entries: Array<PersistentGlossaryEntry>): Promise<void>;
     addResearchPaper(title: string, description: string, file: ExternalBlob): Promise<bigint>;
+    approveAllPersistentGlossaryEntries(): Promise<void>;
+    approvePersistentGlossaryEntry(key: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     chatAsk(_question: string): Promise<ChatAskResponsePayload>;
     deleteArticle(id: bigint): Promise<void>;
@@ -451,6 +459,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async addPersistentGlossaryEntries(arg0: Array<PersistentGlossaryEntry>): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addPersistentGlossaryEntries(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addPersistentGlossaryEntries(arg0);
+            return result;
+        }
+    }
     async addResearchPaper(arg0: string, arg1: string, arg2: ExternalBlob): Promise<bigint> {
         if (this.processError) {
             try {
@@ -462,6 +484,34 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.addResearchPaper(arg0, arg1, await to_candid_ExternalBlob_n8(this._uploadFile, this._downloadFile, arg2));
+            return result;
+        }
+    }
+    async approveAllPersistentGlossaryEntries(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.approveAllPersistentGlossaryEntries();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.approveAllPersistentGlossaryEntries();
+            return result;
+        }
+    }
+    async approvePersistentGlossaryEntry(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.approvePersistentGlossaryEntry(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.approvePersistentGlossaryEntry(arg0);
             return result;
         }
     }
