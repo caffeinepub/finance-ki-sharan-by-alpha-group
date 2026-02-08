@@ -1,37 +1,74 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-08T13:16:59.510Z",
+  "generatedAt": "2026-02-08T14:14:48.099Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 5,
+    "implemented": 5,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Update the Contact page so that the existing \"Feedback\" card embeds the provided Google Form directly inside the card (iframe embed), instead of only offering a button/link to open it in a new tab.",
+        "summary": "Reduce initial JavaScript bundle size by code-splitting route components so that non-home pages (learning, glossary, articles, research, blogs, calculators, admin, etc.) are loaded lazily only when the user navigates to them.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/ContactPage.tsx"
+          "frontend/src/App.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/ContactPage.tsx"
+          "frontend/src/App.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Centralize the embedded-form URL derivation in the existing feedback form utility so the Contact page embed stays consistent with the already-shared Google Form constant.",
+        "summary": "Add a consistent route-level loading UI (e.g., a minimal skeleton/spinner) for lazy-loaded routes so the app provides immediate feedback during chunk download and canister query latency.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/utils/feedbackForm.ts",
-          "frontend/src/pages/ContactPage.tsx"
+          "frontend/src/components/RouteLoadingFallback.tsx",
+          "frontend/src/App.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/utils/feedbackForm.ts",
-          "frontend/src/pages/ContactPage.tsx"
+          "frontend/src/components/RouteLoadingFallback.tsx",
+          "frontend/src/App.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Defer non-critical UI and network work on first paint by loading the ChatAssistantWidget asynchronously (do not block initial render on its code or initialization).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/AsyncChatAssistantWidget.tsx",
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/AsyncChatAssistantWidget.tsx",
+          "frontend/src/App.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Optimize above-the-fold image loading on the home page by ensuring the hero image does not block first render and minimizes layout shift (use explicit dimensions and appropriate loading behavior).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/HomePage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/HomePage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Reduce redundant backend queries during app startup by tuning React Query settings for global/initial checks and always-on components (e.g., maintenance/admin checks and footer market ticker) to avoid aggressive refetching and to cache results appropriately.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/hooks/useQueries.ts"
         ]
       }
     ]
@@ -41,8 +78,12 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/pages/ContactPage.tsx",
-    "frontend/src/utils/feedbackForm.ts",
+    "frontend/src/App.tsx",
+    "frontend/src/components/AsyncChatAssistantWidget.tsx",
+    "frontend/src/components/GlossaryBackupRestorePanel.tsx",
+    "frontend/src/components/RouteLoadingFallback.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/HomePage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

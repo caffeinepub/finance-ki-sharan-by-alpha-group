@@ -15,7 +15,7 @@ export interface SystemInfoStorageUsage {
   researchPapersBytes: bigint;
 }
 
-// Maintenance Mode Query
+// Maintenance Mode Query - optimized caching
 export function useIsMaintenanceMode() {
   const { actor, isFetching } = useActor();
 
@@ -26,11 +26,12 @@ export function useIsMaintenanceMode() {
       return actor.getMaintenanceStatus();
     },
     enabled: !!actor && !isFetching,
+    staleTime: 2 * 60 * 1000, // 2 minutes
     retry: false,
   });
 }
 
-// Admin Check Query
+// Admin Check Query - optimized caching
 export function useIsCallerAdmin() {
   const { actor, isFetching } = useActor();
 
@@ -41,6 +42,7 @@ export function useIsCallerAdmin() {
       return actor.isCallerAdmin();
     },
     enabled: !!actor && !isFetching,
+    staleTime: 5 * 60 * 1000, // 5 minutes
     retry: false,
   });
 }
@@ -118,9 +120,7 @@ export function useGetAllTerms() {
       return result;
     },
     enabled: !!actor && !actorFetching,
-    staleTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 2,
   });
 
@@ -165,9 +165,7 @@ export function useSearchTerms(searchText: string) {
       return result;
     },
     enabled: !!actor && !actorFetching,
-    staleTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    staleTime: 2 * 60 * 1000, // 2 minutes
     retry: 2,
   });
 
@@ -263,9 +261,10 @@ export function useDeleteTerm() {
   });
 }
 
-// Glossary Backup/Restore Queries and Mutations
-export function useGetGlossarySnapshotStats() {
+// Glossary Backup/Restore Queries
+export function useGetGlossaryStats() {
   const { actor, isFetching } = useActor();
+  const { data: isAdmin = false } = useIsCallerAdmin();
 
   return useQuery<GlossaryStats>({
     queryKey: ['glossaryStats'],
@@ -273,13 +272,14 @@ export function useGetGlossarySnapshotStats() {
       if (!actor) throw new Error('Actor not available');
       return actor.getGlossarySnapshotStats();
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !isFetching && isAdmin,
     retry: false,
   });
 }
 
 export function useExportGlossarySnapshot() {
   const { actor } = useActor();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
@@ -287,10 +287,11 @@ export function useExportGlossarySnapshot() {
       return actor.exportGlossarySnapshot();
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['glossaryStats'] });
       toast.success('Glossary snapshot exported successfully');
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to export glossary snapshot');
+      toast.error(error.message || 'Failed to export snapshot');
     },
   });
 }
@@ -308,10 +309,10 @@ export function useRestoreGlossaryFromSnapshot() {
       queryClient.invalidateQueries({ queryKey: ['glossaryTerms'] });
       queryClient.invalidateQueries({ queryKey: ['glossaryStats'] });
       queryClient.invalidateQueries({ queryKey: ['glossaryDiagnostics'] });
-      toast.success('Glossary restored successfully (merge mode)');
+      toast.success('Glossary restored successfully (merged with existing terms)');
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to restore glossary');
+      toast.error(error.message || 'Failed to restore snapshot');
     },
   });
 }
@@ -337,34 +338,17 @@ export function useReplaceGlossaryWithSnapshot() {
   });
 }
 
-// Glossary Bulk Import C-Terms Mutation
-export function usePublishGlossaryBatch() {
+// Glossary Bulk Import C-Terms
+export function usePublishCTermsBatch() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (batch: GlossaryBatch) => {
-      if (!actor) throw new Error('Actor not initialized');
-      return actor.publishGlossaryBatch(batch);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['glossaryTerms'] });
-      queryClient.invalidateQueries({ queryKey: ['glossaryDiagnostics'] });
-      toast.success('Glossary batch published successfully');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Failed to publish glossary batch');
-    },
-  });
-}
-
-export function usePublishCTermsBatch() {
-  const publishBatch = usePublishGlossaryBatch();
-
-  return useMutation({
     mutationFn: async () => {
+      if (!actor) throw new Error('Actor not initialized');
+      
       const batch: GlossaryBatch = {
-        terms: cTermsBatch.map((entry) => ({
+        terms: cTermsBatch.map(entry => ({
           key: termToKey(entry.term),
           term: {
             term: entry.term,
@@ -374,7 +358,16 @@ export function usePublishCTermsBatch() {
           },
         })),
       };
-      return publishBatch.mutateAsync(batch);
+
+      return actor.publishGlossaryBatch(batch);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['glossaryTerms'] });
+      queryClient.invalidateQueries({ queryKey: ['glossaryDiagnostics'] });
+      toast.success(`Successfully published ${cTermsBatch.length} C-terms`);
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to publish C-terms batch');
     },
   });
 }
@@ -406,19 +399,6 @@ export function useGetArticlesByCategory(category: string) {
   });
 }
 
-export function useGetArticle(id: number) {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<Article | null>({
-    queryKey: ['article', id],
-    queryFn: async () => {
-      if (!actor) return null;
-      return actor.getArticle(BigInt(id));
-    },
-    enabled: !!actor && !isFetching && id > 0,
-  });
-}
-
 export function useAddArticle() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
@@ -443,9 +423,9 @@ export function useUpdateArticle() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, title, content, category }: { id: number; title: string; content: string; category: string }) => {
+    mutationFn: async ({ id, title, content, category }: { id: bigint; title: string; content: string; category: string }) => {
       if (!actor) throw new Error('Actor not initialized');
-      return actor.updateArticle(BigInt(id), title, content, category);
+      return actor.updateArticle(id, title, content, category);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['articles'] });
@@ -462,9 +442,9 @@ export function useDeleteArticle() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: bigint) => {
       if (!actor) throw new Error('Actor not initialized');
-      return actor.deleteArticle(BigInt(id));
+      return actor.deleteArticle(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['articles'] });
@@ -490,44 +470,6 @@ export function useGetResearchPapers() {
   });
 }
 
-export function useAddResearchPaper() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ title, description, file }: { title: string; description: string; file: any }) => {
-      if (!actor) throw new Error('Actor not initialized');
-      return actor.addResearchPaper(title, description, file);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['researchPapers'] });
-      toast.success('Research paper added successfully');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Failed to add research paper');
-    },
-  });
-}
-
-export function useDeleteResearchPaper() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (id: number) => {
-      if (!actor) throw new Error('Actor not initialized');
-      return actor.deleteResearchPaper(BigInt(id));
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['researchPapers'] });
-      toast.success('Research paper deleted successfully');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Failed to delete research paper');
-    },
-  });
-}
-
 // Learning Section Queries
 export function useGetLearningSections() {
   const { actor, isFetching } = useActor();
@@ -539,76 +481,6 @@ export function useGetLearningSections() {
       return actor.getLearningSections();
     },
     enabled: !!actor && !isFetching,
-  });
-}
-
-export function useGetLearningSection(key: string) {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<LearningSection | null>({
-    queryKey: ['learningSection', key],
-    queryFn: async () => {
-      if (!actor) return null;
-      return actor.getLearningSection(key);
-    },
-    enabled: !!actor && !isFetching && key.length > 0,
-  });
-}
-
-export function useAddLearningSection() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ key, section }: { key: string; section: LearningSection }) => {
-      if (!actor) throw new Error('Actor not initialized');
-      return actor.addLearningSection(key, section);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['learningSections'] });
-      toast.success('Learning section added successfully');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Failed to add learning section');
-    },
-  });
-}
-
-export function useUpdateLearningSection() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ key, section }: { key: string; section: LearningSection }) => {
-      if (!actor) throw new Error('Actor not initialized');
-      return actor.updateLearningSection(key, section);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['learningSections'] });
-      toast.success('Learning section updated successfully');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Failed to update learning section');
-    },
-  });
-}
-
-export function useDeleteLearningSection() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (key: string) => {
-      if (!actor) throw new Error('Actor not initialized');
-      return actor.deleteLearningSection(key);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['learningSections'] });
-      toast.success('Learning section deleted successfully');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Failed to delete learning section');
-    },
   });
 }
 
@@ -632,6 +504,7 @@ export function useSubmitFeedback() {
 
 export function useGetAllFeedback() {
   const { actor, isFetching } = useActor();
+  const { data: isAdmin = false } = useIsCallerAdmin();
 
   return useQuery<Array<[bigint, Feedback]>>({
     queryKey: ['feedback'],
@@ -639,7 +512,7 @@ export function useGetAllFeedback() {
       if (!actor) return [];
       return actor.getAllFeedback();
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !isFetching && isAdmin,
   });
 }
 
@@ -659,6 +532,38 @@ export function useDeleteFeedback() {
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to delete feedback');
     },
+  });
+}
+
+// Market Data Queries - optimized with longer stale times
+export function useIsMarketOpen() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<boolean>({
+    queryKey: ['marketOpen'],
+    queryFn: async () => {
+      if (!actor) return false;
+      return actor.isMarketOpen();
+    },
+    enabled: !!actor && !isFetching,
+    staleTime: 60 * 1000, // 1 minute
+    refetchInterval: 60 * 1000, // Refetch every minute
+  });
+}
+
+export function useGetNifty50Stocks() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<Stock[]>({
+    queryKey: ['nifty50Stocks'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getNifty50Stocks();
+    },
+    enabled: !!actor && !isFetching,
+    staleTime: 30 * 1000, // 30 seconds
+    refetchInterval: 30 * 1000, // Refetch every 30 seconds
+    placeholderData: [], // Keep previous data while refetching
   });
 }
 
@@ -689,157 +594,50 @@ export function useGetBlog(id: number) {
   });
 }
 
-export function useGetBlogsByCategory(category: string, includeUnpublished: boolean = false) {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<BlogPost[]>({
-    queryKey: ['blogs', 'category', category, includeUnpublished],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getBlogsByCategory(category, includeUnpublished);
-    },
-    enabled: !!actor && !isFetching,
-  });
-}
-
-export function useAddBlog() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      title,
-      content,
-      author,
-      tags,
-      category,
-      publishedAt,
-      isPublished,
-    }: {
-      title: string;
-      content: string;
-      author: string;
-      tags: string[];
-      category: string;
-      publishedAt: bigint;
-      isPublished: boolean;
-    }) => {
-      if (!actor) throw new Error('Actor not initialized');
-      return actor.addBlog(title, content, author, tags, category, publishedAt, isPublished);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['blogs'] });
-      toast.success('Blog added successfully');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Failed to add blog');
-    },
-  });
-}
-
-export function useUpdateBlog() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      id,
-      title,
-      content,
-      author,
-      tags,
-      category,
-      publishedAt,
-      isPublished,
-    }: {
-      id: number;
-      title: string;
-      content: string;
-      author: string;
-      tags: string[];
-      category: string;
-      publishedAt: bigint;
-      isPublished: boolean;
-    }) => {
-      if (!actor) throw new Error('Actor not initialized');
-      return actor.updateBlog(BigInt(id), title, content, author, tags, category, publishedAt, isPublished);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['blogs'] });
-      toast.success('Blog updated successfully');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Failed to update blog');
-    },
-  });
-}
-
-export function useDeleteBlog() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (id: number) => {
-      if (!actor) throw new Error('Actor not initialized');
-      return actor.deleteBlog(BigInt(id));
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['blogs'] });
-      toast.success('Blog deleted successfully');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Failed to delete blog');
-    },
-  });
-}
-
-// Market Data Queries
-export function useIsMarketOpen() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<boolean>({
-    queryKey: ['marketOpen'],
-    queryFn: async () => {
-      if (!actor) return false;
-      return actor.isMarketOpen();
-    },
-    enabled: !!actor && !isFetching,
-    staleTime: 60000, // Cache for 1 minute
-    refetchInterval: 60000, // Refetch every minute
-    retry: false,
-  });
-}
-
-export function useGetNifty50Stocks() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<Stock[]>({
-    queryKey: ['nifty50Stocks'],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getNifty50Stocks();
-    },
-    enabled: !!actor && !isFetching,
-    staleTime: 30000, // Cache for 30 seconds
-    refetchInterval: 30000, // Refetch every 30 seconds
-    retry: 2,
-  });
-}
-
-// System Info Query (with graceful handling for unimplemented backend method)
+// System Info Query (for admin page)
 export function useGetSystemInfoStorageUsage() {
   const { actor, isFetching } = useActor();
+  const { data: isAdmin = false } = useIsCallerAdmin();
 
   return useQuery<SystemInfoStorageUsage | null>({
     queryKey: ['systemInfoStorageUsage'],
     queryFn: async () => {
       if (!actor) return null;
       
-      // Backend method not yet implemented - return null
-      console.warn('getSystemInfoStorageUsage method not yet implemented in backend');
-      return null;
+      // Backend method not yet implemented, return null gracefully
+      try {
+        // @ts-ignore - method may not exist yet
+        if (typeof actor.getSystemInfoStorageUsage === 'function') {
+          // @ts-ignore
+          return await actor.getSystemInfoStorageUsage();
+        }
+        return null;
+      } catch (error) {
+        console.log('System info storage usage not yet implemented');
+        return null;
+      }
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !isFetching && isAdmin,
     retry: false,
+  });
+}
+
+// Maintenance Mode Mutation
+export function useSetMaintenanceMode() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (enabled: boolean) => {
+      if (!actor) throw new Error('Actor not initialized');
+      return actor.setMaintenanceMode(enabled);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['maintenanceMode'] });
+      toast.success('Maintenance mode updated');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to update maintenance mode');
+    },
   });
 }

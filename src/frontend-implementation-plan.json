@@ -1,42 +1,96 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Embed Google Form in Contact Feedback card",
+  "title": "Frontend performance optimizations: route code-splitting, loading fallbacks, deferred chat widget, image tuning, and React Query caching",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Embed the provided Google Form inside the existing Contact > Feedback card and remove the open-in-new-tab button.",
+      "summary": "Code-split route components so non-home pages are lazily loaded on navigation instead of being bundled into the initial '/' load.",
       "acceptanceCriteria": [
-        "On the Contact page, the \"Feedback\" card renders an embedded Google Form (iframe) within the card content area.",
-        "The current \"Open Feedback Form\" button is removed (no dedicated feedback button interaction is required).",
-        "The embedded form uses the provided Google Form URL: https://docs.google.com/forms/d/e/1FAIpQLScqZU_oBmXqsYR-sS69AifMXRb10D6kLxFhBOXzELqk0aOb5w/viewform?usp=publish-editor (adapted to Google’s supported embed format if needed, while preserving the same form).",
-        "The embed is presented in a card-style layout consistent with existing Card UI (responsive sizing; no horizontal overflow on mobile)."
+        "Opening the home route ('/') does not eagerly include code for all other page components in the initial bundle (verify via build output/chunking or bundle analyzer).",
+        "Navigation to a lazily-loaded route still works and shows a loading fallback while the chunk downloads."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/ContactPage.tsx",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Update the existing \"Feedback\" CardContent to render an iframe embed of the Google Form within the card; remove the current Button that calls openFeedbackForm and remove any now-unused imports (e.g., ExternalLink, Button, openFeedbackForm) while keeping all user-facing text in English. Ensure responsive sizing (full-width iframe container, fixed/min height, overflow-hidden to prevent horizontal scrolling on mobile)."
+          "description": "Replace eager page imports with route-level lazy loading (e.g., dynamic imports / TanStack Router lazy route components) so only the home route is included in the initial bundle; ensure all existing routes are still registered and navigable."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Centralize Google Form embed URL derivation in the shared feedback form utility and consume it from ContactPage.",
+      "summary": "Add a consistent route-level loading UI for lazy-loaded routes (chunk download + initial query latency feedback).",
       "acceptanceCriteria": [
-        "The Contact page iframe src is built from the shared constant in frontend/src/utils/feedbackForm.ts (no hardcoded duplicate URL in ContactPage).",
-        "Existing behavior elsewhere that opens the form in a new tab via the shared constant remains unchanged."
+        "When navigating to any lazy-loaded route on a cold load, the user sees a loading state within 100ms of navigation.",
+        "Loading UI uses English text (e.g., \"Loading...\")."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/utils/feedbackForm.ts",
-          "operation": "modify",
-          "description": "Add a small utility (e.g., getFeedbackFormEmbedUrl()) that derives the Google-supported iframe embed URL from GOOGLE_FEEDBACK_FORM_URL (preserving the same form), without changing openFeedbackForm behavior."
+          "path": "frontend/src/components/RouteLoadingFallback.tsx",
+          "operation": "create",
+          "description": "Create a minimal, consistent route-level loading UI component (spinner/skeleton + English \"Loading...\") to be used as the fallback during lazy route loading and initial data fetches; compose from existing primitives (do not edit files in frontend/src/components/ui)."
         },
         {
-          "path": "frontend/src/pages/ContactPage.tsx",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Import and use the new embed-URL utility from frontend/src/utils/feedbackForm.ts to set the iframe src, ensuring no duplicate hardcoded Google Form URL exists in this page."
+          "description": "Wire the RouteLoadingFallback into the router configuration as the default/pending component for lazily-loaded routes so navigation immediately shows a loading state while code and queries resolve."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Defer the ChatAssistantWidget so its bundle and initialization do not block first paint; load it asynchronously after initial render or on first interaction.",
+      "acceptanceCriteria": [
+        "On initial page load, the main content (Header + current route content) renders before the chat widget bundle is fetched/initialized.",
+        "Chat widget still becomes available shortly after load or on first user interaction without breaking existing behavior."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/AsyncChatAssistantWidget.tsx",
+          "operation": "create",
+          "description": "Introduce an async loader wrapper that dynamically imports ChatAssistantWidget after first paint (e.g., idle callback / short timeout) and/or on first user interaction, ensuring the widget does not block initial render."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Stop importing ChatAssistantWidget eagerly; render AsyncChatAssistantWidget instead so the chat code is fetched/initialized asynchronously while preserving existing widget behavior."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Optimize above-the-fold home hero image loading to prevent layout shift and avoid delaying interactivity.",
+      "acceptanceCriteria": [
+        "Home page hero image element includes explicit sizing to prevent layout shift.",
+        "Hero image loading behavior is optimized so it does not delay interactivity (e.g., uses modern loading attributes and avoids unnecessary reflows)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/HomePage.tsx",
+          "operation": "modify",
+          "description": "Update the hero <img> to include explicit width/height (matching the intended hero asset dimensions), plus modern attributes (e.g., decoding behavior and appropriate loading/fetch priority) and/or a stable aspect ratio to minimize CLS and avoid unnecessary reflows."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Tune React Query caching/refetch behavior for startup/global checks and always-on components (maintenance/admin checks and footer market ticker) to reduce redundant queries and avoid aggressive refetching.",
+      "acceptanceCriteria": [
+        "Repeated reloads/navigation within a short window do not trigger unnecessary refetch loops for maintenance/admin checks.",
+        "Refetch-on-focus/mount behavior is adjusted so that the app feels faster on first load while still remaining correct (no incorrect maintenance gating).",
+        "Footer ticker does not cause the entire app to appear “stuck” on a spinner during initial load."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Configure QueryClient default query options (stale time, GC time, refetchOnWindowFocus/refetchOnMount, retry) to reduce startup refetch churn while keeping correctness for maintenance gating."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Adjust React Query options for maintenance/admin checks (and market/ticker queries) to cache results appropriately and avoid aggressive refetching; ensure footer ticker queries use sensible staleTime/refetch settings (and keep/initial data where appropriate) so they don't contribute to perceived app-wide loading stalls."
         }
       ]
     }

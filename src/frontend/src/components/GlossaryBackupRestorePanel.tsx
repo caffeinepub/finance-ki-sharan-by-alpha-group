@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { useExportGlossarySnapshot, useRestoreGlossaryFromSnapshot, useReplaceGlossaryWithSnapshot, useGetGlossarySnapshotStats } from '../hooks/useQueries';
+import { useExportGlossarySnapshot, useRestoreGlossaryFromSnapshot, useReplaceGlossaryWithSnapshot, useGetGlossaryStats } from '../hooks/useQueries';
 import type { GlossarySnapshot } from '../backend';
 
 export default function GlossaryBackupRestorePanel() {
@@ -17,7 +17,7 @@ export default function GlossaryBackupRestorePanel() {
   const [showReplaceConfirm, setShowReplaceConfirm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: stats } = useGetGlossarySnapshotStats();
+  const { data: stats } = useGetGlossaryStats();
   const exportMutation = useExportGlossarySnapshot();
   const restoreMergeMutation = useRestoreGlossaryFromSnapshot();
   const restoreReplaceMutation = useReplaceGlossaryWithSnapshot();

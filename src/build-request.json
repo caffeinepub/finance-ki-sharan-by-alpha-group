@@ -1,60 +1,113 @@
 {
   "kind": "build_request",
-  "title": "Embed Google Form inside Contact > Feedback card",
-  "priority": "high",
+  "title": "Optimize Draft and Live page load performance (code splitting, deferred widgets, query caching)",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the Contact page so that the existing \"Feedback\" card embeds the provided Google Form directly inside the card (iframe embed), instead of only offering a button/link to open it in a new tab.",
+      "text": "Reduce initial JavaScript bundle size by code-splitting route components so that non-home pages (learning, glossary, articles, research, blogs, calculators, admin, etc.) are loaded lazily only when the user navigates to them.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4",
-          "msg-6",
-          "msg-8"
+          "msg-1",
+          "msg-2"
         ],
         "quotes": [
-          "ha Embed kar do",
-          "No Contact ke under Feedback me",
-          "Card Style"
+          "Draft and Live page taking too much time",
+          "do it"
         ]
       },
       "acceptanceCriteria": [
-        "On the Contact page, the \"Feedback\" card renders an embedded Google Form (iframe) within the card content area.",
-        "The current \"Open Feedback Form\" button is removed (no dedicated feedback button interaction is required).",
-        "The embedded form uses the provided Google Form URL: https://docs.google.com/forms/d/e/1FAIpQLScqZU_oBmXqsYR-sS69AifMXRb10D6kLxFhBOXzELqk0aOb5w/viewform?usp=publish-editor (adapted to Google’s supported embed format if needed, while preserving the same form).",
-        "The embed is presented in a card-style layout consistent with existing Card UI (responsive sizing; no horizontal overflow on mobile)."
+        "Opening the home route ('/') does not eagerly include code for all other page components in the initial bundle (verify via build output/chunking or bundle analyzer).",
+        "Navigation to a lazily-loaded route still works and shows a loading fallback while the chunk downloads."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Centralize the embedded-form URL derivation in the existing feedback form utility so the Contact page embed stays consistent with the already-shared Google Form constant.",
+      "text": "Add a consistent route-level loading UI (e.g., a minimal skeleton/spinner) for lazy-loaded routes so the app provides immediate feedback during chunk download and canister query latency.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-2",
-          "msg-4"
+          "msg-1",
+          "msg-2"
         ],
         "quotes": [
-          "deployed link jo mene share kiya ye wala Google form ka - https://docs.google.com/forms/d/e/1FAIpQLScqZU_oBmXqsYR-sS69AifMXRb10D6kLxFhBOXzELqk0aOb5w/viewform?usp=publish-editor",
-          "Ha Embed kar do"
+          "Draft and Live page taking too much time",
+          "do it"
         ]
       },
       "acceptanceCriteria": [
-        "The Contact page iframe src is built from the shared constant in frontend/src/utils/feedbackForm.ts (no hardcoded duplicate URL in ContactPage).",
-        "Existing behavior elsewhere that opens the form in a new tab via the shared constant remains unchanged."
+        "When navigating to any lazy-loaded route on a cold load, the user sees a loading state within 100ms of navigation.",
+        "Loading UI uses English text (e.g., \"Loading...\")."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Defer non-critical UI and network work on first paint by loading the ChatAssistantWidget asynchronously (do not block initial render on its code or initialization).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1",
+          "msg-2"
+        ],
+        "quotes": [
+          "Draft and Live page taking too much time",
+          "do it"
+        ]
+      },
+      "acceptanceCriteria": [
+        "On initial page load, the main content (Header + current route content) renders before the chat widget bundle is fetched/initialized.",
+        "Chat widget still becomes available shortly after load or on first user interaction without breaking existing behavior."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Optimize above-the-fold image loading on the home page by ensuring the hero image does not block first render and minimizes layout shift (use explicit dimensions and appropriate loading behavior).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1",
+          "msg-2"
+        ],
+        "quotes": [
+          "Draft and Live page taking too much time",
+          "do it"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Home page hero image element includes explicit sizing to prevent layout shift.",
+        "Hero image loading behavior is optimized so it does not delay interactivity (e.g., uses modern loading attributes and avoids unnecessary reflows)."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Reduce redundant backend queries during app startup by tuning React Query settings for global/initial checks and always-on components (e.g., maintenance/admin checks and footer market ticker) to avoid aggressive refetching and to cache results appropriately.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1",
+          "msg-2"
+        ],
+        "quotes": [
+          "Draft and Live page taking too much time",
+          "do it"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Repeated reloads/navigation within a short window do not trigger unnecessary refetch loops for maintenance/admin checks.",
+        "Refetch-on-focus/mount behavior is adjusted so that the app feels faster on first load while still remaining correct (no incorrect maintenance gating).",
+        "Footer ticker does not cause the entire app to appear “stuck” on a spinner during initial load."
       ]
     }
   ],
   "constraints": [
-    "Use English for any user-facing text.",
-    "Do not create a separate /feedback page and do not add a dedicated Feedback button outside the Contact > Feedback card.",
-    "Do not modify files under frontend/src/components/ui or any other frontend immutable paths listed in SYSTEM_CONTEXT."
+    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or any files in frontend/src/components/ui (compose instead).",
+    "Keep backend architecture as a single Motoko actor in backend/main.mo; only add migration.mo if a state upgrade is required."
   ],
   "nonGoals": [
-    "Changing backend storage or adding backend APIs for feedback embedding.",
-    "Replacing Internet Identity or changing authentication flows.",
-    "Adding a new navigation item or route solely for feedback."
+    "Implementing new product features unrelated to performance (new pages, new calculators, new content).",
+    "Adding third-party performance monitoring/analytics services.",
+    "Changing authentication providers (Internet Identity remains the only auth method)."
   ],
   "imageRequirements": {
     "required": [],

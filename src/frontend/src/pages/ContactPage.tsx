@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useSubmitFeedback } from '../hooks/useQueries';
 import { useActor } from '../hooks/useActor';
-import { getFeedbackFormEmbedUrl } from '@/utils/feedbackForm';
 
 export default function ContactPage() {
   const [name, setName] = useState('');
@@ -60,7 +59,7 @@ export default function ContactPage() {
             </p>
           </div>
 
-          <div className="max-w-5xl mx-auto grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="max-w-5xl mx-auto grid gap-8 md:grid-cols-2">
             <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
               <CardHeader>
                 <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
@@ -115,39 +114,10 @@ export default function ContactPage() {
                 </div>
               </CardContent>
             </Card>
-
-            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent md:col-span-2 lg:col-span-1">
-              <CardHeader>
-                <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                  <MessageSquare className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle>Feedback</CardTitle>
-                <CardDescription>
-                  Your feedback helps us improve our educational content and services.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="w-full overflow-hidden rounded-lg border border-border bg-background">
-                  <iframe
-                    src={getFeedbackFormEmbedUrl()}
-                    width="100%"
-                    height="600"
-                    frameBorder="0"
-                    marginHeight={0}
-                    marginWidth={0}
-                    className="w-full"
-                    title="Feedback Form"
-                  >
-                    Loading feedback form...
-                  </iframe>
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
           <Card className="max-w-2xl mx-auto mt-8">
             <CardHeader>
-              <CardTitle>Send Us a Message</CardTitle>
               <CardDescription>
                 Fill out the form below and we'll respond to your inquiry. You can also reach us at{' '}
                 <a 
