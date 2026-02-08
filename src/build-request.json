@@ -1,57 +1,70 @@
 {
   "kind": "build_request",
-  "title": "Bulk add provided finance terms to Glossary (C-terms list)",
-  "priority": "normal",
+  "title": "Fix Draft Glossary showing empty and prevent misleading empty-state when backend actor is unavailable",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add an admin-only bulk action to publish the user-provided glossary entries (starting from “CEDEL” through “Custody risk”) into the on-chain glossary using the existing backend batch API, so the terms become visible and searchable in the Glossary page.",
-      "target": "both",
+      "text": "Persist glossary terms in the Motoko backend across canister upgrades so glossary data does not reset to empty after draft deployments.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "user-last"
+          "msg-7"
         ],
         "quotes": [
-          "Add these in Glossary - CEDEL ... Custody risk"
+          "draft wale me Glossary me kuch bhi show nhi ho raha"
         ]
       },
       "acceptanceCriteria": [
-        "When an admin triggers the bulk publish action, all provided terms are added/updated in the backend glossary map via a single batch call (or an equivalent minimal number of calls).",
-        "After publishing, the Glossary page search returns these new terms (e.g., searching “CEDEL”, “CAPM”, “Cash Settlement”, “Custodian”).",
-        "Each published entry uses the exact term text and definition text as provided by the user; example and usage fields are stored as empty strings unless explicitly provided.",
-        "Keys used for insertion are deterministic and consistent (e.g., normalized to trimmed lowercase of the term) so repeated publishes update the same entries rather than creating duplicates.",
-        "If the caller is not an admin, the bulk publish UI is not shown and the backend still enforces admin-only access (traps on unauthorized)."
+        "After deploying/upgrading the canister, previously added glossary terms are still returned by getGlossaryTerms().",
+        "A canister upgrade that previously caused an empty glossary no longer clears glossary terms.",
+        "Glossary backup/restore and batch publish endpoints continue to function and reflect the persisted glossary state."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Implement a small admin UI in the Glossary area that explains what will be imported and provides a confirmation step before publishing the bulk glossary entries.",
+      "text": "Update the Glossary page empty-state logic so it only shows “Glossary is Empty” after glossary queries have actually fetched from the backend; if the backend actor is not yet available (e.g., draft config/connection issue), show a non-empty error/loading state instead of an empty glossary message.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "user-last"
+          "msg-7"
         ],
         "quotes": [
-          "Add these in Glossary - CEDEL ..."
+          "draft wale me Glossary me kuch bhi show nhi ho raha"
         ]
       },
       "acceptanceCriteria": [
-        "The bulk import UI is only rendered when `useIsCallerAdmin()` is true.",
-        "The UI includes an explicit confirmation (e.g., dialog) before performing the publish action.",
-        "On success, show an English success message and refresh glossary queries so the new terms display immediately without a manual reload.",
-        "On error, show an English error message with the error string if available."
+        "When the backend actor is unavailable (or glossary queries are not enabled yet), the UI does not show “Glossary is Empty”.",
+        "Once the glossary query successfully fetches and returns 0 terms (and search box is empty), the UI shows the existing “Glossary is Empty” message.",
+        "When the glossary query fails (network/canister error), the UI shows the existing error alert, not the empty-state alert."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Add lightweight diagnostics (developer-facing console logging is sufficient) in the Glossary data-fetch path to help differentiate between: (a) actor not initialized, (b) query disabled due to actor state, (c) successful fetch returning 0 terms, and (d) fetch error—so draft environment issues can be identified quickly.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-7"
+        ],
+        "quotes": [
+          "draft wale me Glossary me kuch bhi show nhi ho raha"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When running the app, the browser console clearly indicates which of the four states occurred when opening the Glossary page.",
+        "No user-facing text is changed to Hindi; any user-facing additions remain in English."
       ]
     }
   ],
   "constraints": [
-    "Use English for any user-facing text in the build request and resulting UI.",
-    "Backend must remain a single-actor Motoko canister (all logic in backend/main.mo).",
-    "Do not edit files under frontend/src/components/ui or any frontend immutablePaths listed in SYSTEM_CONTEXT."
+    "Do not edit any files under frontend/src/components/ui or any paths listed as immutable in SYSTEM_CONTEXT (e.g., frontend/src/hooks/useActor.ts and frontend/src/hooks/useInternetIdentity.ts).",
+    "Keep all backend logic in the single Motoko actor at backend/main.mo; only introduce migration logic if strictly required for preserving existing stable state."
   ],
   "nonGoals": [
-    "Do not add third-party CMS/DB integrations or external storage for glossary.",
-    "Do not change the glossary data model fields (term/definition/example/usage) beyond populating the provided terms.",
-    "Do not redesign the entire Glossary page UI beyond adding the minimal admin import controls."
+    "Do not change the glossary grouping/sorting behavior (A/B/C sections) unless required to fix the empty glossary issue.",
+    "Do not introduce any external database or third-party backend services.",
+    "Do not add new authentication providers beyond Internet Identity."
   ],
   "imageRequirements": {
     "required": [],

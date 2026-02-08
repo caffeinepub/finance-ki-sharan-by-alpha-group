@@ -2,35 +2,9 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-an-admin-only-bulk-action-to-publish-the-user-provided-glossary-entries-starting-from-cedel-through-custody-risk-into-the-on-chain-glossary-using-the-existing-backend-batch-api-so-the-terms-become-visible-and-searchable-in-the-glossary-page",
-      "featureTitle": "Add an admin-only bulk action to publish the user-provided glossary entries (starting from “CEDEL” through “Custody risk”) into the on-chain glossary using the existing backend batch API, so the terms become visible and searchable in the Glossary page.",
+      "featureId": "feature-update-the-glossary-page-empty-state-logic-so-it-only-shows-glossary-is-empty-after-glossary-queries-have-actually-fetched-from-the-backend-if-the-backend-actor-is-not-yet-available-e-g-draft-config-connection-issue-show-a-non-empty-error-loading-state-instead-of-an-empty-glossary-message",
+      "featureTitle": "Update the Glossary page empty-state logic so it only shows “Glossary is Empty” after glossary queries have actually fetched from the backend; if the backend actor is not yet available (e.g., draft config/connection issue), show a non-empty error/loading state instead of an empty glossary message.",
       "files": [
-        "frontend/src/components/GlossaryBulkImportCTermsPanel.tsx",
-        "frontend/src/data/glossaryBulkImportC.ts",
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/GlossaryPage.tsx",
-        "frontend/src/utils/glossaryKey.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "authorization@4.0.0",
-        "http-outcalls@3.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-implement-a-small-admin-ui-in-the-glossary-area-that-explains-what-will-be-imported-and-provides-a-confirmation-step-before-publishing-the-bulk-glossary-entries",
-      "featureTitle": "Implement a small admin UI in the Glossary area that explains what will be imported and provides a confirmation step before publishing the bulk glossary entries.",
-      "files": [
-        "frontend/src/components/GlossaryBulkImportCTermsPanel.tsx",
         "frontend/src/hooks/useQueries.ts",
         "frontend/src/pages/GlossaryPage.tsx"
       ],
@@ -46,6 +20,27 @@
       ],
       "testIds": [
         "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-lightweight-diagnostics-developer-facing-console-logging-is-sufficient-in-the-glossary-data-fetch-path-to-help-differentiate-between-a-actor-not-initialized-b-query-disabled-due-to-actor-state-c-successful-fetch-returning-0-terms-and-d-fetch-error-so-draft-environment-issues-can-be-identified-quickly",
+      "featureTitle": "Add lightweight diagnostics (developer-facing console logging is sufficient) in the Glossary data-fetch path to help differentiate between: (a) actor not initialized, (b) query disabled due to actor state, (c) successful fetch returning 0 terms, and (d) fetch error—so draft environment issues can be identified quickly.",
+      "files": [
+        "frontend/src/hooks/useQueries.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "http-outcalls@3.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
       ],
       "confidence": "high"
     }

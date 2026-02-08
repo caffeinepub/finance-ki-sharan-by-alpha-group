@@ -56,6 +56,37 @@ export function normalizeTermName(term: string): string {
 }
 
 /**
+ * Normalize a term for display and sorting (trim whitespace).
+ */
+export function normalizeTermForDisplay(term: string): string {
+  return term.trim();
+}
+
+/**
+ * Get the group key (letter) for a term based on its first alphanumeric character.
+ * Returns uppercase letter A-Z, or "#" for terms starting with non-alphanumeric characters.
+ */
+export function getTermGroupKey(term: string): string {
+  const normalized = normalizeTermForDisplay(term);
+  
+  // Handle empty strings
+  if (!normalized) {
+    return '#';
+  }
+  
+  // Find first alphanumeric character
+  for (let i = 0; i < normalized.length; i++) {
+    const char = normalized[i];
+    if (/[a-zA-Z]/.test(char)) {
+      return char.toUpperCase();
+    }
+  }
+  
+  // No alphanumeric character found
+  return '#';
+}
+
+/**
  * Check if a reference term exists in the glossary dataset.
  */
 export function findTermByReference(

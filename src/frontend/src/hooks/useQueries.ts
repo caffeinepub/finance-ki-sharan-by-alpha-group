@@ -91,46 +91,84 @@ export function useChatAsk() {
   });
 }
 
-// Glossary Queries - Enhanced with aggressive refetch policies for post-deployment reliability
+// Glossary Queries - Enhanced with diagnostics and readiness signals
 export function useGetAllTerms() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
-  return useQuery<Array<[string, GlossaryTerm]>>({
+  const query = useQuery<Array<[string, GlossaryTerm]>>({
     queryKey: ['glossaryTerms'],
     queryFn: async () => {
-      if (!actor) return [];
-      return actor.getGlossaryTerms();
+      if (!actor) {
+        console.log('[Glossary] Actor not available in useGetAllTerms');
+        return [];
+      }
+      console.log('[Glossary] Fetching all terms...');
+      const result = await actor.getGlossaryTerms();
+      console.log(`[Glossary] Fetched ${result.length} terms`);
+      return result;
     },
-    enabled: !!actor && !isFetching,
-    staleTime: 0, // Always consider data stale to refetch on mount
-    refetchOnMount: true, // Refetch every time component mounts
-    refetchOnWindowFocus: true, // Refetch when user returns to tab
-    retry: 2, // Retry failed requests twice
+    enabled: !!actor && !actorFetching,
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    retry: 2,
   });
+
+  // Log query state for diagnostics
+  if (query.isError) {
+    console.error('[Glossary] Query error:', query.error);
+  }
+
+  return {
+    ...query,
+    isActorAvailable: !!actor,
+    isQueryEnabled: !!actor && !actorFetching,
+    isFetched: !!actor && !actorFetching && query.isFetched,
+  };
 }
 
 export function useSearchTerms(searchText: string) {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
   
   // Normalize search text: trim whitespace and treat whitespace-only as empty
   const normalizedSearch = searchText.trim();
 
-  return useQuery<Array<[string, GlossaryTerm]>>({
+  const query = useQuery<Array<[string, GlossaryTerm]>>({
     queryKey: ['glossaryTerms', 'search', normalizedSearch],
     queryFn: async () => {
-      if (!actor) return [];
-      if (!normalizedSearch) {
-        // Return all terms when normalized search is empty
-        return actor.getGlossaryTerms();
+      if (!actor) {
+        console.log('[Glossary] Actor not available in useSearchTerms');
+        return [];
       }
-      return actor.searchGlossary(normalizedSearch);
+      if (!normalizedSearch) {
+        console.log('[Glossary] Empty search, fetching all terms...');
+        const result = await actor.getGlossaryTerms();
+        console.log(`[Glossary] Fetched ${result.length} terms (all)`);
+        return result;
+      }
+      console.log(`[Glossary] Searching for: "${normalizedSearch}"`);
+      const result = await actor.searchGlossary(normalizedSearch);
+      console.log(`[Glossary] Search returned ${result.length} terms`);
+      return result;
     },
-    enabled: !!actor && !isFetching,
-    staleTime: 0, // Always consider data stale to refetch on mount
-    refetchOnMount: true, // Refetch every time component mounts
-    refetchOnWindowFocus: true, // Refetch when user returns to tab
-    retry: 2, // Retry failed requests twice
+    enabled: !!actor && !actorFetching,
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    retry: 2,
   });
+
+  // Log query state for diagnostics
+  if (query.isError) {
+    console.error('[Glossary] Search query error:', query.error);
+  }
+
+  return {
+    ...query,
+    isActorAvailable: !!actor,
+    isQueryEnabled: !!actor && !actorFetching,
+    isFetched: !!actor && !actorFetching && query.isFetched,
+  };
 }
 
 export function useAddTerm() {

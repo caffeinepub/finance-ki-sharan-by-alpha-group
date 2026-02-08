@@ -14,7 +14,9 @@ import Bool "mo:core/Bool";
 import Runtime "mo:core/Runtime";
 import Time "mo:core/Time";
 import Int "mo:core/Int";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   type InternalTime = Int;
 
@@ -267,10 +269,7 @@ actor {
   };
 
   public query ({ caller }) func getMaintenanceStatus() : async Bool {
-    if (AccessControl.isAdmin(accessControlState, caller)) {
-      return false;
-    };
-    return maintenanceMode;
+    maintenanceMode;
   };
 
   public shared ({ caller }) func setMaintenanceMode(enabled : Bool) : async () {
@@ -298,28 +297,32 @@ actor {
   };
 
   public shared ({ caller }) func addGlossaryTerm(key : Text, term : GlossaryTerm) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can add glossary terms");
     };
     glossary.add(key, term);
   };
 
   public shared ({ caller }) func updateGlossaryTerm(key : Text, term : GlossaryTerm) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can update glossary terms");
     };
     glossary.add(key, term);
   };
 
   public shared ({ caller }) func deleteGlossaryTerm(key : Text) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can delete glossary terms");
     };
     glossary.remove(key);
   };
 
   public query ({ caller }) func getGlossaryDiagnosticsByPrefix(prefix : Text) : async [GlossaryDiagnostic] {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can view glossary diagnostics");
     };
     let lowerPrefix = prefix.toLower();
@@ -338,7 +341,8 @@ actor {
   };
 
   public shared ({ caller }) func publishGlossaryBatch(batch : GlossaryBatch) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can publish glossary batches");
     };
 
@@ -348,7 +352,8 @@ actor {
   };
 
   public query ({ caller }) func getGlossarySnapshotStats() : async GlossaryStats {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can view stats");
     };
     {
@@ -360,7 +365,8 @@ actor {
   };
 
   public shared ({ caller }) func exportGlossarySnapshot() : async GlossarySnapshot {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can export glossary snapshot");
     };
 
@@ -378,7 +384,8 @@ actor {
   };
 
   public shared ({ caller }) func restoreGlossaryFromSnapshot(snapshot : GlossarySnapshot) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can restore glossary from snapshot");
     };
 
@@ -392,7 +399,8 @@ actor {
   };
 
   public shared ({ caller }) func replaceGlossaryWithSnapshot(snapshot : GlossarySnapshot) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can replace glossary with snapshot");
     };
 
@@ -408,7 +416,8 @@ actor {
   };
 
   public shared ({ caller }) func addPersistentGlossaryEntries(entries : [PersistentGlossaryEntry]) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admin can persist entries");
     };
 
@@ -418,7 +427,8 @@ actor {
   };
 
   public shared ({ caller }) func approvePersistentGlossaryEntry(key : Text) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admin can approve entries");
     };
 
@@ -437,7 +447,8 @@ actor {
   };
 
   public shared ({ caller }) func approveAllPersistentGlossaryEntries() : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admin can approve entries");
     };
 
@@ -473,7 +484,8 @@ actor {
   };
 
   public shared ({ caller }) func addArticle(title : Text, content : Text, category : Text) : async Nat {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can add articles");
     };
     let id = nextArticleId;
@@ -489,7 +501,8 @@ actor {
   };
 
   public shared ({ caller }) func updateArticle(id : Nat, title : Text, content : Text, category : Text) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can update articles");
     };
     let article : Article = {
@@ -502,7 +515,8 @@ actor {
   };
 
   public shared ({ caller }) func deleteArticle(id : Nat) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can delete articles");
     };
     articles.remove(id);
@@ -519,7 +533,8 @@ actor {
   };
 
   public shared ({ caller }) func addResearchPaper(title : Text, description : Text, file : ExternalBlob.ExternalBlob) : async Nat {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can add research papers");
     };
     let id = nextResearchPaperId;
@@ -535,7 +550,8 @@ actor {
   };
 
   public shared ({ caller }) func deleteResearchPaper(id : Nat) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can delete research papers");
     };
     researchPapers.remove(id);
@@ -606,7 +622,8 @@ actor {
     publishedAt : Nat,
     isPublished : Bool,
   ) : async Nat {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can add blogs");
     };
 
@@ -638,7 +655,8 @@ actor {
     publishedAt : Nat,
     isPublished : Bool,
   ) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can update blogs");
     };
 
@@ -661,7 +679,8 @@ actor {
     id : Nat,
     forcePublishedAt : Nat,
   ) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can update blogs");
     };
 
@@ -680,7 +699,8 @@ actor {
   };
 
   public shared ({ caller }) func deleteBlog(id : Nat) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can delete blogs");
     };
     blogs.remove(id);
@@ -697,21 +717,24 @@ actor {
   };
 
   public shared ({ caller }) func addLearningSection(key : Text, section : LearningSection) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can add learning sections");
     };
     learningSections.add(key, section);
   };
 
   public shared ({ caller }) func updateLearningSection(key : Text, section : LearningSection) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can update learning sections");
     };
     learningSections.add(key, section);
   };
 
   public shared ({ caller }) func deleteLearningSection(key : Text) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can delete learning sections");
     };
     learningSections.remove(key);
@@ -731,14 +754,16 @@ actor {
   };
 
   public query ({ caller }) func getAllFeedback() : async [(Nat, Feedback)] {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can view feedback");
     };
     feedbackList.entries().toArray();
   };
 
   public shared ({ caller }) func deleteFeedback(id : Nat) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can delete feedback");
     };
     feedbackList.remove(id);
@@ -760,14 +785,16 @@ actor {
   };
 
   public shared ({ caller }) func updateStock(symbol : Text, stock : Stock) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can update stock data");
     };
     nifty50Stocks.add(symbol, stock);
   };
 
   public shared ({ caller }) func initializeMarketHours() : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can initialize market hours");
     };
     if (marketHoursInitialized) {
@@ -804,7 +831,8 @@ actor {
   };
 
   public shared ({ caller }) func updateNifty50Data(symbol : Text, ltp : Float, dayClose : Float) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    checkMaintenanceAccess(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can update Nifty 50 data");
     };
     let stockData : Nifty50StockData = {

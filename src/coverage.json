@@ -1,70 +1,57 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-08T05:16:40.182Z",
+  "generatedAt": "2026-02-08T06:03:11.032Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
+    "total": 3,
     "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add an admin-only bulk action to publish the user-provided glossary entries (starting from “CEDEL” through “Custody risk”) into the on-chain glossary using the existing backend batch API, so the terms become visible and searchable in the Glossary page.",
+        "summary": "Persist glossary terms in the Motoko backend across canister upgrades so glossary data does not reset to empty after draft deployments.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Update the Glossary page empty-state logic so it only shows “Glossary is Empty” after glossary queries have actually fetched from the backend; if the backend actor is not yet available (e.g., draft config/connection issue), show a non-empty error/loading state instead of an empty glossary message.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/data/glossaryBulkImportC.ts",
-          "frontend/src/utils/glossaryKey.ts",
           "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/GlossaryBulkImportCTermsPanel.tsx",
           "frontend/src/pages/GlossaryPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/data/glossaryBulkImportC.ts",
-          "frontend/src/utils/glossaryKey.ts",
           "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/GlossaryBulkImportCTermsPanel.tsx",
           "frontend/src/pages/GlossaryPage.tsx"
         ]
       },
       {
-        "id": "REQ-2",
-        "summary": "Implement a small admin UI in the Glossary area that explains what will be imported and provides a confirmation step before publishing the bulk glossary entries.",
+        "id": "REQ-3",
+        "summary": "Add lightweight diagnostics (developer-facing console logging is sufficient) in the Glossary data-fetch path to help differentiate between: (a) actor not initialized, (b) query disabled due to actor state, (c) successful fetch returning 0 terms, and (d) fetch error—so draft environment issues can be identified quickly.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/GlossaryBulkImportCTermsPanel.tsx",
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/GlossaryPage.tsx"
+          "frontend/src/hooks/useQueries.ts"
         ],
         "matchedFiles": [
-          "frontend/src/components/GlossaryBulkImportCTermsPanel.tsx",
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/GlossaryPage.tsx"
+          "frontend/src/hooks/useQueries.ts"
         ]
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
-    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/components/GlossaryBulkImportCTermsPanel.tsx",
-    "frontend/src/data/glossaryBulkImportC.ts",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
     "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/BlogDetailPage.tsx",
     "frontend/src/pages/GlossaryPage.tsx",
-    "frontend/src/pages/LearningPage.tsx",
-    "frontend/src/pages/ResearchPapersPage.tsx",
-    "frontend/src/utils/glossaryKey.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

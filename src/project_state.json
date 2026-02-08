@@ -1,26 +1,26 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Financial learning website with Blogs and Glossary sections; needs content management workflows for publishing formatted articles and maintaining a finance glossary.",
+  "summary": "New project",
   "architectural_notes": [],
   "known_issues": [
-    "Build/deploy failed with configuration error message: \"A configuration error has occurred. Please notify the Caffeine team.\""
+    "Draft environment: Glossary shows empty (no terms displayed) and may show 'Glossary is Empty...restore from backup' message."
   ],
-  "isFixRequest": false,
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-add-an-admin-only-bulk-action-to-publish-the-user-provided-glossary-entries-starting-from-cedel-through-custody-risk-into-the-on-chain-glossary-using-the-existing-backend-batch-api-so-the-terms-become-visible-and-searchable-in-the-glossary-page",
-      "title": "Add an admin-only bulk action to publish the user-provided glossary entries (starting from “CEDEL” through “Custody risk”) into the on-chain glossary using the existing backend batch API, so the terms become visible and searchable in the Glossary page.",
+      "id": "feature-update-the-glossary-page-empty-state-logic-so-it-only-shows-glossary-is-empty-after-glossary-queries-have-actually-fetched-from-the-backend-if-the-backend-actor-is-not-yet-available-e-g-draft-config-connection-issue-show-a-non-empty-error-loading-state-instead-of-an-empty-glossary-message",
+      "title": "Update the Glossary page empty-state logic so it only shows “Glossary is Empty” after glossary queries have actually fetched from the backend; if the backend actor is not yet available (e.g., draft config/connection issue), show a non-empty error/loading state instead of an empty glossary message.",
       "reqIds": [
-        "REQ-1"
+        "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-a-small-admin-ui-in-the-glossary-area-that-explains-what-will-be-imported-and-provides-a-confirmation-step-before-publishing-the-bulk-glossary-entries",
-      "title": "Implement a small admin UI in the Glossary area that explains what will be imported and provides a confirmation step before publishing the bulk glossary entries.",
+      "id": "feature-add-lightweight-diagnostics-developer-facing-console-logging-is-sufficient-in-the-glossary-data-fetch-path-to-help-differentiate-between-a-actor-not-initialized-b-query-disabled-due-to-actor-state-c-successful-fetch-returning-0-terms-and-d-fetch-error-so-draft-environment-issues-can-be-identified-quickly",
+      "title": "Add lightweight diagnostics (developer-facing console logging is sufficient) in the Glossary data-fetch path to help differentiate between: (a) actor not initialized, (b) query disabled due to actor state, (c) successful fetch returning 0 terms, and (d) fetch error—so draft environment issues can be identified quickly.",
       "reqIds": [
-        "REQ-2"
+        "REQ-3"
       ],
       "version": 1
     }
@@ -28,18 +28,14 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Glossary: add/maintain glossary entries (bulk import) including terms like CEDEL, Calendar spread, Call Money, CAPM, etc.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Blogs: support adding/uploading blog/articles into Blogs section with consistent professional formatting (title/subhead/body rules) and image placement.",
-      "reqIds": [],
+      "summary": "Persist glossary terms in the Motoko backend across canister upgrades so glossary data does not reset to empty after draft deployments.",
+      "reqIds": [
+        "REQ-1"
+      ],
       "status": "pending"
     }
   ],
-  "projectName": "Bulk add provided finance terms to Glossary (C-terms list)",
+  "projectName": "Fix Draft Glossary showing empty and prevent misleading empty-state when backend actor is unavailable",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

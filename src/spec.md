@@ -1,13 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Let admins bulk publish the provided glossary terms (CEDEL through Custody risk) into the on-chain glossary so they become visible and searchable.
+**Goal:** Ensure Draft Glossary reliably shows saved terms after backend upgrades and avoid misleading “Glossary is Empty” UI when the backend actor is unavailable.
 
 **Planned changes:**
-- Add an admin-only bulk publish action that submits the provided C-terms to the existing backend batch API, using deterministic normalized keys to avoid duplicates and update existing entries.
-- Ensure each entry stores the exact provided term and definition text; set example/usage to empty strings unless explicitly provided.
-- Add minimal admin UI within the Glossary area describing what will be imported and requiring an explicit confirmation before publishing.
-- On publish success, show an English success message and refresh glossary queries so new terms appear immediately; on error, show an English error message including the error string when available.
-- Enforce admin-only access both in the UI (hidden for non-admins) and in the backend (reject/trap unauthorized calls).
+- Persist glossary terms in the Motoko backend across canister upgrades so previously added terms remain available after deployments.
+- Adjust Glossary page empty-state logic to only show “Glossary is Empty” after a successful fetch returns zero terms; show loading/error state instead when the actor is unavailable or the query fails.
+- Add lightweight developer-facing console diagnostics in the Glossary fetch path to distinguish actor-not-initialized, query-disabled, successful-empty result, and fetch error states.
 
-**User-visible outcome:** Admins can confirm and bulk publish the provided C-terms into the glossary, and then immediately search and view them on the Glossary page; non-admin users will not see the bulk publish controls.
+**User-visible outcome:** After draft deployments/upgrades, glossary terms remain visible, and the Glossary page no longer incorrectly shows “Glossary is Empty” when the backend connection/actor isn’t ready—while providing clearer console signals for debugging draft issues.
