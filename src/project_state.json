@@ -1,26 +1,18 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
-  "architectural_notes": [],
-  "known_issues": [
-    "Draft environment: Glossary shows empty (no terms displayed) and may show 'Glossary is Empty...restore from backup' message."
+  "summary": "Build a market ticker that shows share prices sourced from the NSE India website.",
+  "architectural_notes": [
+    "Data source for share prices: NSE India website (https://www.nseindia.com/)."
   ],
-  "isFixRequest": true,
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-update-the-glossary-page-empty-state-logic-so-it-only-shows-glossary-is-empty-after-glossary-queries-have-actually-fetched-from-the-backend-if-the-backend-actor-is-not-yet-available-e-g-draft-config-connection-issue-show-a-non-empty-error-loading-state-instead-of-an-empty-glossary-message",
-      "title": "Update the Glossary page empty-state logic so it only shows “Glossary is Empty” after glossary queries have actually fetched from the backend; if the backend actor is not yet available (e.g., draft config/connection issue), show a non-empty error/loading state instead of an empty glossary message.",
+      "id": "feature-ensure-the-frontend-market-ticker-uses-backend-provided-nse-sourced-stock-data-and-has-appropriate-loading-empty-and-error-states-in-the-ticker-ui",
+      "title": "Ensure the frontend market ticker uses backend-provided NSE-sourced stock data and has appropriate loading, empty, and error states in the ticker UI.",
       "reqIds": [
         "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-lightweight-diagnostics-developer-facing-console-logging-is-sufficient-in-the-glossary-data-fetch-path-to-help-differentiate-between-a-actor-not-initialized-b-query-disabled-due-to-actor-state-c-successful-fetch-returning-0-terms-and-d-fetch-error-so-draft-environment-issues-can-be-identified-quickly",
-      "title": "Add lightweight diagnostics (developer-facing console logging is sufficient) in the Glossary data-fetch path to help differentiate between: (a) actor not initialized, (b) query disabled due to actor state, (c) successful fetch returning 0 terms, and (d) fetch error—so draft environment issues can be identified quickly.",
-      "reqIds": [
-        "REQ-3"
       ],
       "version": 1
     }
@@ -28,14 +20,20 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Persist glossary terms in the Motoko backend across canister upgrades so glossary data does not reset to empty after draft deployments.",
+      "summary": "Add market ticker to display share prices fetched from NSE India website (https://www.nseindia.com/)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Implement backend support to fetch share prices from the NSE India website (https://www.nseindia.com/) using HTTP outcalls, and expose a query method that returns the latest available stock price data (at minimum: symbol, companyName, ltp, dayClose) for the frontend market ticker.",
       "reqIds": [
         "REQ-1"
       ],
       "status": "pending"
     }
   ],
-  "projectName": "Fix Draft Glossary showing empty and prevent misleading empty-state when backend actor is unavailable",
+  "projectName": "Fetch and display live share prices from NSE India in the Market Ticker",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

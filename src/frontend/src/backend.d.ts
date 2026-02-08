@@ -126,10 +126,6 @@ export interface InternetResultSource {
     title: string;
     snippet: string;
 }
-export interface Nifty50StockData {
-    ltp: number;
-    dayClose: number;
-}
 export interface UserProfile {
     name: string;
     email: string;
@@ -164,7 +160,6 @@ export interface backendInterface {
     deleteResearchPaper(id: bigint): Promise<void>;
     exportGlossarySnapshot(): Promise<GlossarySnapshot>;
     getAllFeedback(): Promise<Array<[bigint, Feedback]>>;
-    getAllNifty50Data(): Promise<Array<[string, Nifty50StockData]>>;
     getApplicationPaths(): Promise<string>;
     getArticle(id: bigint): Promise<Article | null>;
     getArticles(): Promise<Array<Article>>;
@@ -182,7 +177,6 @@ export interface backendInterface {
     getMaintenanceStatus(): Promise<boolean>;
     getMarketHours(): Promise<Array<[bigint, MarketHour]>>;
     getMarketStatus(): Promise<boolean>;
-    getNifty50Data(symbol: string): Promise<Nifty50StockData | null>;
     getNifty50Stocks(): Promise<Array<Stock>>;
     getNifty50Symbols(): Promise<Array<string>>;
     getResearchPaper(id: bigint): Promise<ResearchPaper | null>;

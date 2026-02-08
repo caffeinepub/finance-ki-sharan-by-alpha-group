@@ -208,10 +208,6 @@ export interface InternetResultSource {
     title: string;
     snippet: string;
 }
-export interface Nifty50StockData {
-    ltp: number;
-    dayClose: number;
-}
 export interface _CaffeineStorageRefillResult {
     success?: boolean;
     topped_up_amount?: bigint;
@@ -257,7 +253,6 @@ export interface backendInterface {
     deleteResearchPaper(id: bigint): Promise<void>;
     exportGlossarySnapshot(): Promise<GlossarySnapshot>;
     getAllFeedback(): Promise<Array<[bigint, Feedback]>>;
-    getAllNifty50Data(): Promise<Array<[string, Nifty50StockData]>>;
     getApplicationPaths(): Promise<string>;
     getArticle(id: bigint): Promise<Article | null>;
     getArticles(): Promise<Array<Article>>;
@@ -275,7 +270,6 @@ export interface backendInterface {
     getMaintenanceStatus(): Promise<boolean>;
     getMarketHours(): Promise<Array<[bigint, MarketHour]>>;
     getMarketStatus(): Promise<boolean>;
-    getNifty50Data(symbol: string): Promise<Nifty50StockData | null>;
     getNifty50Stocks(): Promise<Array<Stock>>;
     getNifty50Symbols(): Promise<Array<string>>;
     getResearchPaper(id: bigint): Promise<ResearchPaper | null>;
@@ -302,7 +296,7 @@ export interface backendInterface {
     updateNifty50Data(symbol: string, ltp: number, dayClose: number): Promise<void>;
     updateStock(symbol: string, stock: Stock): Promise<void>;
 }
-import type { Article as _Article, BlogPost as _BlogPost, ChatAskResponsePayload as _ChatAskResponsePayload, ChatAskResponseSource as _ChatAskResponseSource, ChatSourceType as _ChatSourceType, ExternalBlob as _ExternalBlob, GlossaryStats as _GlossaryStats, InternetResultSource as _InternetResultSource, LearningSection as _LearningSection, Nifty50StockData as _Nifty50StockData, ResearchPaper as _ResearchPaper, Stock as _Stock, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
+import type { Article as _Article, BlogPost as _BlogPost, ChatAskResponsePayload as _ChatAskResponsePayload, ChatAskResponseSource as _ChatAskResponseSource, ChatSourceType as _ChatSourceType, ExternalBlob as _ExternalBlob, GlossaryStats as _GlossaryStats, InternetResultSource as _InternetResultSource, LearningSection as _LearningSection, ResearchPaper as _ResearchPaper, Stock as _Stock, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _caffeineStorageBlobIsLive(arg0: Uint8Array): Promise<boolean> {
@@ -655,20 +649,6 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async getAllNifty50Data(): Promise<Array<[string, Nifty50StockData]>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getAllNifty50Data();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getAllNifty50Data();
-            return result;
-        }
-    }
     async getApplicationPaths(): Promise<string> {
         if (this.processError) {
             try {
@@ -907,20 +887,6 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async getNifty50Data(arg0: string): Promise<Nifty50StockData | null> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getNifty50Data(arg0);
-                return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getNifty50Data(arg0);
-            return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
-        }
-    }
     async getNifty50Stocks(): Promise<Array<Stock>> {
         if (this.processError) {
             try {
@@ -953,42 +919,42 @@ export class Backend implements backendInterface {
         if (this.processError) {
             try {
                 const result = await this.actor.getResearchPaper(arg0);
-                return from_candid_opt_n29(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getResearchPaper(arg0);
-            return from_candid_opt_n29(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
         }
     }
     async getResearchPapers(): Promise<Array<ResearchPaper>> {
         if (this.processError) {
             try {
                 const result = await this.actor.getResearchPapers();
-                return from_candid_vec_n33(this._uploadFile, this._downloadFile, result);
+                return from_candid_vec_n32(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getResearchPapers();
-            return from_candid_vec_n33(this._uploadFile, this._downloadFile, result);
+            return from_candid_vec_n32(this._uploadFile, this._downloadFile, result);
         }
     }
     async getStock(arg0: string): Promise<Stock | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getStock(arg0);
-                return from_candid_opt_n34(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n33(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getStock(arg0);
-            return from_candid_opt_n34(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n33(this._uploadFile, this._downloadFile, result);
         }
     }
     async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
@@ -1281,14 +1247,14 @@ function from_candid_ChatAskResponseSource_n14(_uploadFile: (file: ExternalBlob)
 function from_candid_ChatSourceType_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ChatSourceType): ChatSourceType {
     return from_candid_variant_n17(_uploadFile, _downloadFile, value);
 }
-async function from_candid_ExternalBlob_n32(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ExternalBlob): Promise<ExternalBlob> {
+async function from_candid_ExternalBlob_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ExternalBlob): Promise<ExternalBlob> {
     return await _downloadFile(value);
 }
 function from_candid_GlossaryStats_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _GlossaryStats): GlossaryStats {
     return from_candid_record_n25(_uploadFile, _downloadFile, value);
 }
-async function from_candid_ResearchPaper_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ResearchPaper): Promise<ResearchPaper> {
-    return await from_candid_record_n31(_uploadFile, _downloadFile, value);
+async function from_candid_ResearchPaper_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ResearchPaper): Promise<ResearchPaper> {
+    return await from_candid_record_n30(_uploadFile, _downloadFile, value);
 }
 function from_candid_UserRole_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
     return from_candid_variant_n23(_uploadFile, _downloadFile, value);
@@ -1314,13 +1280,10 @@ function from_candid_opt_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
 function from_candid_opt_n27(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_LearningSection]): LearningSection | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Nifty50StockData]): Nifty50StockData | null {
-    return value.length === 0 ? null : value[0];
+async function from_candid_opt_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_ResearchPaper]): Promise<ResearchPaper | null> {
+    return value.length === 0 ? null : await from_candid_ResearchPaper_n29(_uploadFile, _downloadFile, value[0]);
 }
-async function from_candid_opt_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_ResearchPaper]): Promise<ResearchPaper | null> {
-    return value.length === 0 ? null : await from_candid_ResearchPaper_n30(_uploadFile, _downloadFile, value[0]);
-}
-function from_candid_opt_n34(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Stock]): Stock | null {
+function from_candid_opt_n33(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Stock]): Stock | null {
     return value.length === 0 ? null : value[0];
 }
 function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [boolean]): boolean | null {
@@ -1377,7 +1340,7 @@ function from_candid_record_n25(_uploadFile: (file: ExternalBlob) => Promise<Uin
         lastRestoreTimestamp: record_opt_to_undefined(from_candid_opt_n26(_uploadFile, _downloadFile, value.lastRestoreTimestamp))
     };
 }
-async function from_candid_record_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+async function from_candid_record_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: bigint;
     title: string;
     file: _ExternalBlob;
@@ -1391,7 +1354,7 @@ async function from_candid_record_n31(_uploadFile: (file: ExternalBlob) => Promi
     return {
         id: value.id,
         title: value.title,
-        file: await from_candid_ExternalBlob_n32(_uploadFile, _downloadFile, value.file),
+        file: await from_candid_ExternalBlob_n31(_uploadFile, _downloadFile, value.file),
         description: value.description
     };
 }
@@ -1430,8 +1393,8 @@ function from_candid_variant_n23(_uploadFile: (file: ExternalBlob) => Promise<Ui
 function from_candid_vec_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_ChatAskResponseSource>): Array<ChatAskResponseSource> {
     return value.map((x)=>from_candid_ChatAskResponseSource_n14(_uploadFile, _downloadFile, x));
 }
-async function from_candid_vec_n33(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_ResearchPaper>): Promise<Array<ResearchPaper>> {
-    return await Promise.all(value.map(async (x)=>await from_candid_ResearchPaper_n30(_uploadFile, _downloadFile, x)));
+async function from_candid_vec_n32(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_ResearchPaper>): Promise<Array<ResearchPaper>> {
+    return await Promise.all(value.map(async (x)=>await from_candid_ResearchPaper_n29(_uploadFile, _downloadFile, x)));
 }
 async function to_candid_ExternalBlob_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ExternalBlob): Promise<_ExternalBlob> {
     return await _uploadFile(value);

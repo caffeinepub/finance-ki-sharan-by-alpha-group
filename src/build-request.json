@@ -1,70 +1,55 @@
 {
   "kind": "build_request",
-  "title": "Fix Draft Glossary showing empty and prevent misleading empty-state when backend actor is unavailable",
-  "priority": "high",
+  "title": "Fetch and display live share prices from NSE India in the Market Ticker",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Persist glossary terms in the Motoko backend across canister upgrades so glossary data does not reset to empty after draft deployments.",
+      "text": "Implement backend support to fetch share prices from the NSE India website (https://www.nseindia.com/) using HTTP outcalls, and expose a query method that returns the latest available stock price data (at minimum: symbol, companyName, ltp, dayClose) for the frontend market ticker.",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-7"
+          "msg-1"
         ],
         "quotes": [
-          "draft wale me Glossary me kuch bhi show nhi ho raha"
+          "market Ticker Shares price take it from NSE Web site - https://www.nseindia.com/"
         ]
       },
       "acceptanceCriteria": [
-        "After deploying/upgrading the canister, previously added glossary terms are still returned by getGlossaryTerms().",
-        "A canister upgrade that previously caused an empty glossary no longer clears glossary terms.",
-        "Glossary backup/restore and batch publish endpoints continue to function and reflect the persisted glossary state."
+        "Backend exposes a query method that returns an array of Stock records (symbol, companyName, ltp, dayClose) sourced from https://www.nseindia.com/.",
+        "The HTTP outcall logic handles upstream failures gracefully (does not trap for transient HTTP errors; returns a clear error or an empty list consistently).",
+        "Responses are reasonably cached/throttled inside the canister to avoid excessive outcalls while still allowing fresh data when the market is open.",
+        "No additional backend actors/services are introduced; all logic remains in backend/main.mo."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Update the Glossary page empty-state logic so it only shows “Glossary is Empty” after glossary queries have actually fetched from the backend; if the backend actor is not yet available (e.g., draft config/connection issue), show a non-empty error/loading state instead of an empty glossary message.",
+      "text": "Ensure the frontend market ticker uses backend-provided NSE-sourced stock data and has appropriate loading, empty, and error states in the ticker UI.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-7"
+          "msg-1"
         ],
         "quotes": [
-          "draft wale me Glossary me kuch bhi show nhi ho raha"
+          "market Ticker Shares price take it from NSE Web site - https://www.nseindia.com/"
         ]
       },
       "acceptanceCriteria": [
-        "When the backend actor is unavailable (or glossary queries are not enabled yet), the UI does not show “Glossary is Empty”.",
-        "Once the glossary query successfully fetches and returns 0 terms (and search box is empty), the UI shows the existing “Glossary is Empty” message.",
-        "When the glossary query fails (network/canister error), the UI shows the existing error alert, not the empty-state alert."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Add lightweight diagnostics (developer-facing console logging is sufficient) in the Glossary data-fetch path to help differentiate between: (a) actor not initialized, (b) query disabled due to actor state, (c) successful fetch returning 0 terms, and (d) fetch error—so draft environment issues can be identified quickly.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-7"
-        ],
-        "quotes": [
-          "draft wale me Glossary me kuch bhi show nhi ho raha"
-        ]
-      },
-      "acceptanceCriteria": [
-        "When running the app, the browser console clearly indicates which of the four states occurred when opening the Glossary page.",
-        "No user-facing text is changed to Hindi; any user-facing additions remain in English."
+        "The footer market ticker renders a loading state while fetching, renders stock cards when data is available, and renders a clear empty state when no data is available.",
+        "If fetching fails, the UI shows a non-crashing error/empty experience (e.g., a message indicating data is unavailable) and does not break the rest of the page.",
+        "The data shown in the ticker matches the backend fields: company name, symbol, and the displayed price (LTP during market hours; closing price when market is closed)."
       ]
     }
   ],
   "constraints": [
-    "Do not edit any files under frontend/src/components/ui or any paths listed as immutable in SYSTEM_CONTEXT (e.g., frontend/src/hooks/useActor.ts and frontend/src/hooks/useInternetIdentity.ts).",
-    "Keep all backend logic in the single Motoko actor at backend/main.mo; only introduce migration logic if strictly required for preserving existing stable state."
+    "Use English for any user-facing text.",
+    "Backend must remain a single-actor Motoko canister (all logic in backend/main.mo).",
+    "Do not modify any files under frontend/src/components/ui or other frontend immutablePaths."
   ],
   "nonGoals": [
-    "Do not change the glossary grouping/sorting behavior (A/B/C sections) unless required to fix the empty glossary issue.",
-    "Do not introduce any external database or third-party backend services.",
-    "Do not add new authentication providers beyond Internet Identity."
+    "Adding third-party auth (other than Internet Identity).",
+    "Implementing trading, order placement, portfolios, or watchlists.",
+    "Using any external database or non-IC backend services."
   ],
   "imageRequirements": {
     "required": [],

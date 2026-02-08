@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useIsCallerAdmin, useGetAllFeedback } from '../hooks/useQueries';
+import { useIsCallerAdmin, useGetAllFeedback, useGetSystemInfoStorageUsage } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -8,12 +8,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, ArrowUpDown, ShieldAlert, LogIn } from 'lucide-react';
+import { Search, ArrowUpDown, ShieldAlert, LogIn, Database, HardDrive, AlertCircle } from 'lucide-react';
+import { formatBytes } from '../utils/formatters';
 
 export default function FeedbackAdminPage() {
   const { identity, login, loginStatus, isInitializing } = useInternetIdentity();
   const { data: isAdmin, isLoading: isAdminLoading } = useIsCallerAdmin();
   const { data: feedbackData, isLoading: isFeedbackLoading, error } = useGetAllFeedback();
+  const { data: storageUsage, isLoading: isStorageLoading, error: storageError } = useGetSystemInfoStorageUsage();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'email' | 'none'>('none');
@@ -136,7 +138,92 @@ export default function FeedbackAdminPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-12 space-y-8">
+      {/* System Info Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Database className="h-5 w-5 text-primary" />
+            System Info
+          </CardTitle>
+          <CardDescription>
+            Approximate storage usage across the platform
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isStorageLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-full" />
+            </div>
+          ) : storageError ? (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Storage Info Unavailable</AlertTitle>
+              <AlertDescription>
+                {storageError instanceof Error && storageError.message.includes('not yet implemented')
+                  ? 'The storage usage feature is not yet available. The backend method will be implemented soon.'
+                  : storageError instanceof Error 
+                    ? storageError.message 
+                    : 'Failed to load storage usage data.'}
+              </AlertDescription>
+            </Alert>
+          ) : storageUsage ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="flex items-center gap-3 p-4 rounded-lg border bg-card">
+                  <HardDrive className="h-8 w-8 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Storage</p>
+                    <p className="text-2xl font-bold">{formatBytes(Number(storageUsage.approximateTotalBytes))}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-4 rounded-lg border bg-card">
+                  <Database className="h-8 w-8 text-accent" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Glossary</p>
+                    <p className="text-2xl font-bold">{formatBytes(Number(storageUsage.glossaryBytes))}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-4 rounded-lg border bg-card">
+                  <Database className="h-8 w-8 text-accent" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Articles</p>
+                    <p className="text-2xl font-bold">{formatBytes(Number(storageUsage.articlesBytes))}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-4 rounded-lg border bg-card">
+                  <Database className="h-8 w-8 text-accent" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Blogs</p>
+                    <p className="text-2xl font-bold">{formatBytes(Number(storageUsage.blogsBytes))}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-4 rounded-lg border bg-card">
+                  <Database className="h-8 w-8 text-accent" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Feedback</p>
+                    <p className="text-2xl font-bold">{formatBytes(Number(storageUsage.feedbackBytes))}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-4 rounded-lg border bg-card">
+                  <Database className="h-8 w-8 text-accent" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Research Papers</p>
+                    <p className="text-2xl font-bold">{formatBytes(Number(storageUsage.researchPapersBytes))}</p>
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Note: Storage values are approximate estimates and may not reflect exact canister memory usage.
+              </p>
+            </div>
+          ) : null}
+        </CardContent>
+      </Card>
+
+      {/* Feedback Management Section */}
       <Card>
         <CardHeader>
           <CardTitle>Feedback Management</CardTitle>

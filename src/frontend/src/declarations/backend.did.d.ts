@@ -81,7 +81,6 @@ export interface MarketHour {
   'openMinute' : bigint,
   'openHour' : bigint,
 }
-export interface Nifty50StockData { 'ltp' : number, 'dayClose' : number }
 export interface PersistentGlossaryEntry {
   'key' : string,
   'term' : GlossaryTerm,
@@ -170,7 +169,6 @@ export interface _SERVICE {
   'deleteResearchPaper' : ActorMethod<[bigint], undefined>,
   'exportGlossarySnapshot' : ActorMethod<[], GlossarySnapshot>,
   'getAllFeedback' : ActorMethod<[], Array<[bigint, Feedback]>>,
-  'getAllNifty50Data' : ActorMethod<[], Array<[string, Nifty50StockData]>>,
   'getApplicationPaths' : ActorMethod<[], string>,
   'getArticle' : ActorMethod<[bigint], [] | [Article]>,
   'getArticles' : ActorMethod<[], Array<Article>>,
@@ -191,7 +189,6 @@ export interface _SERVICE {
   'getMaintenanceStatus' : ActorMethod<[], boolean>,
   'getMarketHours' : ActorMethod<[], Array<[bigint, MarketHour]>>,
   'getMarketStatus' : ActorMethod<[], boolean>,
-  'getNifty50Data' : ActorMethod<[string], [] | [Nifty50StockData]>,
   'getNifty50Stocks' : ActorMethod<[], Array<Stock>>,
   'getNifty50Symbols' : ActorMethod<[], Array<string>>,
   'getResearchPaper' : ActorMethod<[bigint], [] | [ResearchPaper]>,

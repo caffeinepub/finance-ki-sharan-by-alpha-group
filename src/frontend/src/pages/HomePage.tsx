@@ -1,4 +1,4 @@
-import { ArrowRight, BookOpen, FileText, GraduationCap, Shield, TrendingUp } from 'lucide-react';
+import { ArrowRight, BookOpen, FileText, GraduationCap, Shield, TrendingUp, Calculator } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,8 +9,8 @@ export default function HomePage() {
 
   return (
     <div className="w-full">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background">
+      {/* Hero Section - Overview anchor */}
+      <div id="overview" className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background">
         <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:60px_60px]" />
         <div className="container relative py-16 md:py-24">
           <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 items-center">
@@ -59,8 +59,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Features Section */}
-      <div className="container py-16 md:py-24">
+      {/* Features Section - Featured Content anchor */}
+      <div id="features" className="container py-16 md:py-24">
         <div className="text-center space-y-4 mb-12">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
             Comprehensive Financial Education
@@ -126,44 +126,48 @@ export default function HomePage() {
               </div>
               <CardTitle>Regulations & Awareness</CardTitle>
               <CardDescription>
-                Stay informed about SEBI & RBI guidelines, investor protection, and fraud awareness.
+                Stay informed about SEBI, RBI guidelines and protect yourself from financial fraud.
               </CardDescription>
             </CardHeader>
           </Card>
 
-          <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate({ to: '/about' })}>
+          <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate({ to: '/calculators' })}>
             <CardHeader>
               <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                <BookOpen className="h-6 w-6 text-primary" />
+                <Calculator className="h-6 w-6 text-primary" />
               </div>
-              <CardTitle>Education First</CardTitle>
+              <CardTitle>Financial Calculators</CardTitle>
               <CardDescription>
-                Learn about our mission to make financial education accessible to everyone.
+                Plan your investments with SIP, EMI, PPF, and 20+ other financial calculators.
               </CardDescription>
             </CardHeader>
           </Card>
         </div>
       </div>
 
-      {/* CTA Section */}
-      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10">
-        <div className="container py-16 md:py-20">
-          <div className="mx-auto max-w-3xl text-center space-y-6">
+      {/* Latest Articles Section - Latest anchor */}
+      <div id="latest" className="bg-gradient-to-b from-background to-primary/5">
+        <div className="container py-16 md:py-24">
+          <div className="text-center space-y-4 mb-12">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Ready to Start Your Financial Journey?
+              Start Your Learning Journey
             </h2>
-            <p className="text-lg text-muted-foreground">
-              Begin with our comprehensive learning resources and build your financial knowledge step by step.
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Explore our latest articles, blogs, and educational content to enhance your financial knowledge.
             </p>
-            <div className="flex flex-col gap-3 sm:flex-row justify-center">
-              <Button size="lg" onClick={() => navigate({ to: '/learning' })} className="gap-2">
-                Start Learning
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate({ to: '/glossary' })}>
-                Browse Glossary
-              </Button>
-            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button size="lg" onClick={() => navigate({ to: '/articles' })} className="gap-2">
+              Browse Articles
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+            <Button size="lg" variant="outline" onClick={() => navigate({ to: '/blogs' })} className="gap-2">
+              Read Blogs
+            </Button>
+            <Button size="lg" variant="outline" onClick={() => navigate({ to: '/calculators' })} className="gap-2">
+              Try Calculators
+            </Button>
           </div>
         </div>
       </div>

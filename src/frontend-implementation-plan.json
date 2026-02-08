@@ -1,41 +1,26 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Glossary: prevent misleading empty state when actor unavailable + add fetch-path diagnostics",
+  "title": "Use backend-provided NSE stock data in footer Market Ticker with loading/empty/error states",
   "requirements": [
     {
       "id": "REQ-2",
-      "summary": "Show “Glossary is Empty” only after a successful glossary fetch; when actor/query is unavailable, show a non-empty loading/error state instead.",
+      "summary": "Update the footer market ticker to fetch NSE-sourced stock data from the backend and render robust loading, empty, and error states while displaying LTP vs closing price appropriately.",
       "acceptanceCriteria": [
-        "When the backend actor is unavailable (or glossary queries are not enabled yet), the UI does not show “Glossary is Empty”.",
-        "Once the glossary query successfully fetches and returns 0 terms (and search box is empty), the UI shows the existing “Glossary is Empty” message.",
-        "When the glossary query fails (network/canister error), the UI shows the existing error alert, not the empty-state alert."
+        "The footer market ticker renders a loading state while fetching, renders stock cards when data is available, and renders a clear empty state when no data is available.",
+        "If fetching fails, the UI shows a non-crashing error/empty experience (e.g., a message indicating data is unavailable) and does not break the rest of the page.",
+        "The data shown in the ticker matches the backend fields: company name, symbol, and the displayed price (LTP during market hours; closing price when market is closed)."
       ],
       "file_operations": [
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Adjust glossary query hooks (useSearchTerms, useGetAllTerms) to expose actor/query readiness and a reliable “fetched” signal (e.g., isQueryEnabled, isActorAvailable, isFetched) so the Glossary page can distinguish disabled/unavailable vs successfully fetched empty results."
+          "description": "Add/adjust React Query hooks for the Market Ticker to rely on backend capabilities: (1) ensure the existing stock query uses the backend actor to fetch Stock[] (symbol, companyName, ltp, dayClose) and exposes error state without throwing UI-breaking errors; (2) introduce a dedicated query hook for backend market-open status (e.g., via the backend market-status capability) so the ticker can choose LTP vs dayClose based on backend truth rather than client time. Use core-infrastructure actor wiring via useActor. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/pages/GlossaryPage.tsx",
+          "path": "frontend/src/components/Footer.tsx",
           "operation": "modify",
-          "description": "Update empty-state gating to require a successful fetch before showing “Glossary is Empty” and before showing “No terms found”. When glossary queries are disabled because the actor is unavailable/not ready, render a non-empty loading/connection alert state instead of empty glossary messaging."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Add developer-facing console diagnostics for Glossary actor/query readiness, fetch results, and fetch errors.",
-      "acceptanceCriteria": [
-        "When running the app, the browser console clearly indicates which of the four states occurred when opening the Glossary page.",
-        "No user-facing text is changed to Hindi; any user-facing additions remain in English."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Add lightweight console logging in the glossary fetch path to differentiate: (a) actor not initialized, (b) query disabled due to actor fetching/state, (c) successful fetch returning 0 terms, and (d) fetch error. Keep logs developer-facing only (console.*), without changing user-facing copy."
+          "description": "Update the Market Ticker section to use backend-provided market status and stock data, and add explicit error and empty UI states: show a clear message when data cannot be loaded, keep the rest of the footer/page stable, and keep the existing loading spinner. Replace or de-emphasize the current client-side market-hours detection in favor of backend market-open status for deciding whether to display LTP or dayClose. Continue using the existing shadcn-ui ScrollArea/ScrollBar for horizontal scrolling. Verify the component's usage instructions before implementing."
         }
       ]
     }

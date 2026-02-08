@@ -1,11 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Ensure Draft Glossary reliably shows saved terms after backend upgrades and avoid misleading “Glossary is Empty” UI when the backend actor is unavailable.
+**Goal:** Fetch and display live share prices sourced from NSE India in the frontend Market Ticker.
 
 **Planned changes:**
-- Persist glossary terms in the Motoko backend across canister upgrades so previously added terms remain available after deployments.
-- Adjust Glossary page empty-state logic to only show “Glossary is Empty” after a successful fetch returns zero terms; show loading/error state instead when the actor is unavailable or the query fails.
-- Add lightweight developer-facing console diagnostics in the Glossary fetch path to distinguish actor-not-initialized, query-disabled, successful-empty result, and fetch error states.
+- Add backend HTTP outcall logic to retrieve the latest available stock price data from https://www.nseindia.com/ and expose a query method returning stock records with: symbol, companyName, ltp, dayClose.
+- Add backend-side caching/throttling so outcalls are not excessive while still providing reasonably fresh data, and handle upstream errors gracefully without trapping.
+- Update the frontend footer market ticker to use the backend-provided NSE data and show clear loading, empty, and non-crashing error states.
 
-**User-visible outcome:** After draft deployments/upgrades, glossary terms remain visible, and the Glossary page no longer incorrectly shows “Glossary is Empty” when the backend connection/actor isn’t ready—while providing clearer console signals for debugging draft issues.
+**User-visible outcome:** The Market Ticker displays NSE-sourced stock information (company name, symbol, and price), shows a loading indicator while fetching, and provides a clear “data unavailable/empty” experience if data cannot be loaded.

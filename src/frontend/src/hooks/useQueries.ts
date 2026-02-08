@@ -1,9 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { GlossaryTerm, Article, ResearchPaper, LearningSection, Feedback, Stock, UserProfile, ChatAskResponsePayload, BlogPost, GlossarySnapshot, GlossaryStats, GlossaryBatch } from '../backend';
+import type { GlossaryTerm, Article, ResearchPaper, LearningSection, Feedback, Stock, UserProfile, ChatAskResponsePayload, BlogPost, GlossarySnapshot, GlossaryStats, GlossaryBatch, GlossaryDiagnostic } from '../backend';
 import { toast } from 'sonner';
 import { cTermsBatch } from '../data/glossaryBulkImportC';
 import { termToKey } from '../utils/glossaryKey';
+
+// Local type definition for System Info (backend method not yet implemented)
+export interface SystemInfoStorageUsage {
+  approximateTotalBytes: bigint;
+  glossaryBytes: bigint;
+  articlesBytes: bigint;
+  blogsBytes: bigint;
+  feedbackBytes: bigint;
+  researchPapersBytes: bigint;
+}
 
 // Maintenance Mode Query
 export function useIsMaintenanceMode() {
@@ -99,8 +109,8 @@ export function useGetAllTerms() {
     queryKey: ['glossaryTerms'],
     queryFn: async () => {
       if (!actor) {
-        console.log('[Glossary] Actor not available in useGetAllTerms');
-        return [];
+        console.log('[Glossary] Actor not available in useGetAllTerms - query should not run');
+        throw new Error('Actor not available');
       }
       console.log('[Glossary] Fetching all terms...');
       const result = await actor.getGlossaryTerms();
@@ -119,11 +129,14 @@ export function useGetAllTerms() {
     console.error('[Glossary] Query error:', query.error);
   }
 
+  const isActorReady = !!actor && !actorFetching;
+
   return {
     ...query,
+    data: query.data || [],
     isActorAvailable: !!actor,
-    isQueryEnabled: !!actor && !actorFetching,
-    isFetched: !!actor && !actorFetching && query.isFetched,
+    isQueryEnabled: isActorReady,
+    isFetched: isActorReady && query.isFetched,
   };
 }
 
@@ -137,8 +150,8 @@ export function useSearchTerms(searchText: string) {
     queryKey: ['glossaryTerms', 'search', normalizedSearch],
     queryFn: async () => {
       if (!actor) {
-        console.log('[Glossary] Actor not available in useSearchTerms');
-        return [];
+        console.log('[Glossary] Actor not available in useSearchTerms - query should not run');
+        throw new Error('Actor not available');
       }
       if (!normalizedSearch) {
         console.log('[Glossary] Empty search, fetching all terms...');
@@ -163,12 +176,31 @@ export function useSearchTerms(searchText: string) {
     console.error('[Glossary] Search query error:', query.error);
   }
 
+  const isActorReady = !!actor && !actorFetching;
+
   return {
     ...query,
+    data: query.data || [],
     isActorAvailable: !!actor,
-    isQueryEnabled: !!actor && !actorFetching,
-    isFetched: !!actor && !actorFetching && query.isFetched,
+    isQueryEnabled: isActorReady,
+    isFetched: isActorReady && query.isFetched,
   };
+}
+
+// Glossary Diagnostics Query (Admin only)
+export function useGetGlossaryDiagnosticsByPrefix(prefix: string) {
+  const { actor, isFetching } = useActor();
+  const { data: isAdmin = false } = useIsCallerAdmin();
+
+  return useQuery<GlossaryDiagnostic[]>({
+    queryKey: ['glossaryDiagnostics', prefix],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getGlossaryDiagnosticsByPrefix(prefix);
+    },
+    enabled: !!actor && !isFetching && isAdmin,
+    retry: false,
+  });
 }
 
 export function useAddTerm() {
@@ -182,6 +214,7 @@ export function useAddTerm() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['glossaryTerms'] });
+      queryClient.invalidateQueries({ queryKey: ['glossaryDiagnostics'] });
       toast.success('Term added successfully');
     },
     onError: (error: Error) => {
@@ -201,6 +234,7 @@ export function useUpdateTerm() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['glossaryTerms'] });
+      queryClient.invalidateQueries({ queryKey: ['glossaryDiagnostics'] });
       toast.success('Term updated successfully');
     },
     onError: (error: Error) => {
@@ -220,6 +254,7 @@ export function useDeleteTerm() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['glossaryTerms'] });
+      queryClient.invalidateQueries({ queryKey: ['glossaryDiagnostics'] });
       toast.success('Term deleted successfully');
     },
     onError: (error: Error) => {
@@ -272,6 +307,7 @@ export function useRestoreGlossaryFromSnapshot() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['glossaryTerms'] });
       queryClient.invalidateQueries({ queryKey: ['glossaryStats'] });
+      queryClient.invalidateQueries({ queryKey: ['glossaryDiagnostics'] });
       toast.success('Glossary restored successfully (merge mode)');
     },
     onError: (error: Error) => {
@@ -292,6 +328,7 @@ export function useReplaceGlossaryWithSnapshot() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['glossaryTerms'] });
       queryClient.invalidateQueries({ queryKey: ['glossaryStats'] });
+      queryClient.invalidateQueries({ queryKey: ['glossaryDiagnostics'] });
       toast.success('Glossary replaced successfully');
     },
     onError: (error: Error) => {
@@ -300,38 +337,44 @@ export function useReplaceGlossaryWithSnapshot() {
   });
 }
 
-// Glossary Bulk Publish Mutation
+// Glossary Bulk Import C-Terms Mutation
 export function usePublishGlossaryBatch() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (batch: GlossaryBatch) => {
       if (!actor) throw new Error('Actor not initialized');
-      
-      // Build the batch payload from the C-terms data
+      return actor.publishGlossaryBatch(batch);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['glossaryTerms'] });
+      queryClient.invalidateQueries({ queryKey: ['glossaryDiagnostics'] });
+      toast.success('Glossary batch published successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to publish glossary batch');
+    },
+  });
+}
+
+export function usePublishCTermsBatch() {
+  const publishBatch = usePublishGlossaryBatch();
+
+  return useMutation({
+    mutationFn: async () => {
       const batch: GlossaryBatch = {
-        terms: cTermsBatch.map(entry => ({
+        terms: cTermsBatch.map((entry) => ({
           key: termToKey(entry.term),
           term: {
             term: entry.term,
             definition: entry.definition,
             example: entry.example || '',
             usage: entry.usage || '',
-          }
-        }))
+          },
+        })),
       };
-
-      return actor.publishGlossaryBatch(batch);
-    },
-    onSuccess: () => {
-      // Invalidate all glossary-related queries to refresh the UI
-      queryClient.invalidateQueries({ queryKey: ['glossaryTerms'] });
-      queryClient.invalidateQueries({ queryKey: ['glossaryStats'] });
-      toast.success(`Successfully published ${cTermsBatch.length} glossary terms`);
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Failed to publish glossary batch');
+      return publishBatch.mutateAsync(batch);
     },
   });
 }
@@ -350,6 +393,19 @@ export function useGetArticles() {
   });
 }
 
+export function useGetArticlesByCategory(category: string) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<Article[]>({
+    queryKey: ['articles', 'category', category],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getArticlesByCategory(category);
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
 export function useGetArticle(id: number) {
   const { actor, isFetching } = useActor();
 
@@ -360,19 +416,6 @@ export function useGetArticle(id: number) {
       return actor.getArticle(BigInt(id));
     },
     enabled: !!actor && !isFetching && id > 0,
-  });
-}
-
-export function useGetArticlesByCategory(category: string) {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<Article[]>({
-    queryKey: ['articles', 'category', category],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getArticlesByCategory(category);
-    },
-    enabled: !!actor && !isFetching && !!category,
   });
 }
 
@@ -447,19 +490,6 @@ export function useGetResearchPapers() {
   });
 }
 
-export function useGetResearchPaper(id: number) {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<ResearchPaper | null>({
-    queryKey: ['researchPaper', id],
-    queryFn: async () => {
-      if (!actor) return null;
-      return actor.getResearchPaper(BigInt(id));
-    },
-    enabled: !!actor && !isFetching && id > 0,
-  });
-}
-
 export function useAddResearchPaper() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
@@ -521,7 +551,7 @@ export function useGetLearningSection(key: string) {
       if (!actor) return null;
       return actor.getLearningSection(key);
     },
-    enabled: !!actor && !isFetching && !!key,
+    enabled: !!actor && !isFetching && key.length > 0,
   });
 }
 
@@ -592,7 +622,7 @@ export function useSubmitFeedback() {
       return actor.submitFeedback(name, email, message);
     },
     onSuccess: () => {
-      toast.success('Thank you for your feedback!');
+      toast.success('Feedback submitted successfully');
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to submit feedback');
@@ -618,9 +648,9 @@ export function useDeleteFeedback() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: bigint) => {
       if (!actor) throw new Error('Actor not initialized');
-      return actor.deleteFeedback(BigInt(id));
+      return actor.deleteFeedback(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feedback'] });
@@ -628,52 +658,6 @@ export function useDeleteFeedback() {
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to delete feedback');
-    },
-  });
-}
-
-// Stock Market Queries
-export function useGetNifty50Stocks() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<Stock[]>({
-    queryKey: ['nifty50Stocks'],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getNifty50Stocks();
-    },
-    enabled: !!actor && !isFetching,
-  });
-}
-
-export function useGetStock(symbol: string) {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<Stock | null>({
-    queryKey: ['stock', symbol],
-    queryFn: async () => {
-      if (!actor) return null;
-      return actor.getStock(symbol);
-    },
-    enabled: !!actor && !isFetching && !!symbol,
-  });
-}
-
-export function useUpdateStock() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ symbol, stock }: { symbol: string; stock: Stock }) => {
-      if (!actor) throw new Error('Actor not initialized');
-      return actor.updateStock(symbol, stock);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['nifty50Stocks'] });
-      toast.success('Stock updated successfully');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Failed to update stock');
     },
   });
 }
@@ -714,7 +698,7 @@ export function useGetBlogsByCategory(category: string, includeUnpublished: bool
       if (!actor) return [];
       return actor.getBlogsByCategory(category, includeUnpublished);
     },
-    enabled: !!actor && !isFetching && !!category,
+    enabled: !!actor && !isFetching,
   });
 }
 
@@ -723,25 +707,25 @@ export function useAddBlog() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      title, 
-      content, 
-      author, 
-      tags, 
-      category, 
-      publishedAt, 
-      isPublished 
-    }: { 
-      title: string; 
-      content: string; 
-      author: string; 
-      tags: string[]; 
-      category: string; 
-      publishedAt: number; 
+    mutationFn: async ({
+      title,
+      content,
+      author,
+      tags,
+      category,
+      publishedAt,
+      isPublished,
+    }: {
+      title: string;
+      content: string;
+      author: string;
+      tags: string[];
+      category: string;
+      publishedAt: bigint;
       isPublished: boolean;
     }) => {
       if (!actor) throw new Error('Actor not initialized');
-      return actor.addBlog(title, content, author, tags, category, BigInt(publishedAt), isPublished);
+      return actor.addBlog(title, content, author, tags, category, publishedAt, isPublished);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['blogs'] });
@@ -758,27 +742,27 @@ export function useUpdateBlog() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      id, 
-      title, 
-      content, 
-      author, 
-      tags, 
-      category, 
-      publishedAt, 
-      isPublished 
-    }: { 
-      id: number; 
-      title: string; 
-      content: string; 
-      author: string; 
-      tags: string[]; 
-      category: string; 
-      publishedAt: number; 
+    mutationFn: async ({
+      id,
+      title,
+      content,
+      author,
+      tags,
+      category,
+      publishedAt,
+      isPublished,
+    }: {
+      id: number;
+      title: string;
+      content: string;
+      author: string;
+      tags: string[];
+      category: string;
+      publishedAt: bigint;
       isPublished: boolean;
     }) => {
       if (!actor) throw new Error('Actor not initialized');
-      return actor.updateBlog(BigInt(id), title, content, author, tags, category, BigInt(publishedAt), isPublished);
+      return actor.updateBlog(BigInt(id), title, content, author, tags, category, publishedAt, isPublished);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['blogs'] });
@@ -806,5 +790,56 @@ export function useDeleteBlog() {
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to delete blog');
     },
+  });
+}
+
+// Market Data Queries
+export function useIsMarketOpen() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<boolean>({
+    queryKey: ['marketOpen'],
+    queryFn: async () => {
+      if (!actor) return false;
+      return actor.isMarketOpen();
+    },
+    enabled: !!actor && !isFetching,
+    staleTime: 60000, // Cache for 1 minute
+    refetchInterval: 60000, // Refetch every minute
+    retry: false,
+  });
+}
+
+export function useGetNifty50Stocks() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<Stock[]>({
+    queryKey: ['nifty50Stocks'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getNifty50Stocks();
+    },
+    enabled: !!actor && !isFetching,
+    staleTime: 30000, // Cache for 30 seconds
+    refetchInterval: 30000, // Refetch every 30 seconds
+    retry: 2,
+  });
+}
+
+// System Info Query (with graceful handling for unimplemented backend method)
+export function useGetSystemInfoStorageUsage() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<SystemInfoStorageUsage | null>({
+    queryKey: ['systemInfoStorageUsage'],
+    queryFn: async () => {
+      if (!actor) return null;
+      
+      // Backend method not yet implemented - return null
+      console.warn('getSystemInfoStorageUsage method not yet implemented in backend');
+      return null;
+    },
+    enabled: !!actor && !isFetching,
+    retry: false,
   });
 }

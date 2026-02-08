@@ -1,57 +1,49 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-08T06:03:11.032Z",
+  "generatedAt": "2026-02-08T12:12:33.294Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 2,
+    "total": 2,
+    "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Persist glossary terms in the Motoko backend across canister upgrades so glossary data does not reset to empty after draft deployments.",
+        "summary": "Implement backend support to fetch share prices from the NSE India website (https://www.nseindia.com/) using HTTP outcalls, and expose a query method that returns the latest available stock price data (at minimum: symbol, companyName, ltp, dayClose) for the frontend market ticker.",
         "status": "unknown",
         "plannedFiles": [],
         "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Update the Glossary page empty-state logic so it only shows “Glossary is Empty” after glossary queries have actually fetched from the backend; if the backend actor is not yet available (e.g., draft config/connection issue), show a non-empty error/loading state instead of an empty glossary message.",
+        "summary": "Ensure the frontend market ticker uses backend-provided NSE-sourced stock data and has appropriate loading, empty, and error states in the ticker UI.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/GlossaryPage.tsx"
+          "frontend/src/components/Footer.tsx"
         ],
         "matchedFiles": [
           "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/GlossaryPage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Add lightweight diagnostics (developer-facing console logging is sufficient) in the Glossary data-fetch path to help differentiate between: (a) actor not initialized, (b) query disabled due to actor state, (c) successful fetch returning 0 terms, and (d) fetch error—so draft environment issues can be identified quickly.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/components/Footer.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/Footer.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
     "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/GlossaryPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

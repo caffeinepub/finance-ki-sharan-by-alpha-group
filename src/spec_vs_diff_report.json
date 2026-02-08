@@ -1,51 +1,25 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-08T06:03:11.029Z",
-  "summary": "Frontend glossary empty-state behavior and diagnostics were updated (actor readiness flags, logging, and empty-state gating on successful fetch). Backend shows scaffolding for migration and new glossary-related maps, but the diff does not provide clear evidence that glossary terms are actually persisted across canister upgrades.",
+  "generatedAt": "2026-02-08T12:12:33.292Z",
+  "summary": "Frontend footer ticker UI was updated to consume market data hooks and display loading/error states, but the diff summary does not show the backend implementation required to fetch NSE India prices via HTTP outcalls nor a query method exposing Stock data sourced from nseindia.com.",
   "missing_requirements": [
     {
       "id": "REQ-1",
-      "requirement": "Persist glossary terms in the Motoko backend across canister upgrades so glossary data does not reset to empty after draft deployments.",
-      "reason": "The diff shows a new migration module and a new `persistentGlossaryEntries` map, but there is no visible evidence (in the truncated backend diff) of stable variables and/or `preupgrade`/`postupgrade` (or equivalent) logic that would actually persist and restore glossary terms across upgrades, nor evidence that existing glossary backup/restore and batch publish endpoints were updated to use the persisted state.",
+      "requirement": "Implement backend support to fetch share prices from the NSE India website (https://www.nseindia.com/) using HTTP outcalls, and expose a query method that returns the latest available stock price data (at minimum: symbol, companyName, ltp, dayClose) for the frontend market ticker.",
+      "reason": "backend/main.mo shows new Stock-related types and cache variables, but the diff excerpt does not provide evidence of (a) an HTTP outcall to https://www.nseindia.com/, (b) parsing/transforming NSE responses into Stock records, (c) a public query method returning [Stock], or (d) graceful failure handling and caching/throttling logic tied to those outcalls.",
       "evidence": [
-        "backend/main.mo",
-        "backend/migration.mo"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "requirement": "Add lightweight diagnostics to differentiate (b) query disabled due to actor state.",
-      "reason": "Console logs are shown for (a) actor not available, (c) successful fetch (including 0 terms), and (d) error, but the diff does not show explicit logging that indicates the query is disabled due to actor state (e.g., actor fetching / query `enabled` false) distinct from actor not initialized.",
-      "evidence": [
-        "frontend/src/hooks/useQueries.ts"
+        "backend/main.mo (truncated)"
       ]
     }
   ],
-  "hallucinated_features": [
-    {
-      "description": "Admin-only per-letter glossary term count diagnostic summary displayed in the Glossary page UI.",
-      "reason": "The BuildRequest asked for developer-facing console diagnostics, not additional UI diagnostics/metrics for admins.",
-      "evidence": [
-        "frontend/src/pages/GlossaryPage.tsx"
-      ]
-    },
-    {
-      "description": "Search query normalization by trimming whitespace (treating whitespace-only search as empty).",
-      "reason": "Not requested by the BuildRequest; it changes glossary search input handling (even if minor).",
-      "evidence": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/GlossaryPage.tsx"
-      ]
-    }
-  ],
+  "hallucinated_features": [],
   "confidence": 0.62,
   "changed_files": [
     "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
+    "frontend/src/components/Footer.tsx",
     "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/GlossaryPage.tsx",
     "project_state.json"
   ]
 }

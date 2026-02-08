@@ -3,22 +3,20 @@ import MixinAuthorization "authorization/MixinAuthorization";
 import Map "mo:core/Map";
 import Text "mo:core/Text";
 import Nat "mo:core/Nat";
-import Principal "mo:core/Principal";
-import Iter "mo:core/Iter";
-import Array "mo:core/Array";
-import Float "mo:core/Float";
+import Runtime "mo:core/Runtime";
+import Time "mo:core/Time";
 import ExternalBlob "blob-storage/Storage";
 import MixinStorage "blob-storage/Mixin";
 import OutCall "http-outcalls/outcall";
 import Bool "mo:core/Bool";
-import Runtime "mo:core/Runtime";
-import Time "mo:core/Time";
+import Principal "mo:core/Principal";
+import Array "mo:core/Array";
 import Int "mo:core/Int";
-import Migration "migration";
+import Iter "mo:core/Iter";
+import Float "mo:core/Float";
 
-(with migration = Migration.run)
 actor {
-  type InternalTime = Int;
+  public type InternalTime = Int;
 
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
@@ -103,6 +101,9 @@ actor {
     url : Text;
   };
 
+  var marketData_lastUpdate : ?Time.Time = null;
+  var marketData_cache : [Stock] = [];
+
   public type ChatAskResponseSource = {
     title : Text;
     content : Text;
@@ -158,7 +159,7 @@ actor {
   };
 
   let userProfiles = Map.empty<Principal, UserProfile>();
-  let glossary = Map.empty<Text, GlossaryTerm>();
+  var persistentGlossary = Map.empty<Text, GlossaryTerm>();
   let articles = Map.empty<Nat, Article>();
   let researchPapers = Map.empty<Nat, ResearchPaper>();
   let learningSections = Map.empty<Text, LearningSection>();
@@ -180,6 +181,8 @@ actor {
   var lastRestoreTimestamp : ?InternalTime = null;
   var lastSnapshotVersion = 0;
 
+  var lastMarketFetchTimestamp : ?Int = null; // Track last cache time
+
   func checkMaintenanceAccess(caller : Principal) {
     if (maintenanceMode and not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Service under maintenance. Please check back soon.");
@@ -193,7 +196,7 @@ actor {
   public query ({ caller }) func chatAsk(_question : Text) : async ChatAskResponsePayload {
     checkMaintenanceAccess(caller);
 
-    let glossaryArray = glossary.entries().toArray().map(
+    let glossaryArray = persistentGlossary.entries().toArray().map(
       func((_, g)) {
         {
           title = g.term;
@@ -281,13 +284,13 @@ actor {
 
   public query ({ caller }) func getGlossaryTerms() : async [(Text, GlossaryTerm)] {
     checkMaintenanceAccess(caller);
-    glossary.entries().toArray();
+    persistentGlossary.entries().toArray();
   };
 
   public query ({ caller }) func searchGlossary(searchTerm : Text) : async [(Text, GlossaryTerm)] {
     checkMaintenanceAccess(caller);
     let lowerSearch = searchTerm.toLower();
-    let results = glossary.entries().toArray().filter(
+    let results = persistentGlossary.entries().toArray().filter(
       func((key, term)) : Bool {
         term.term.toLower().contains(#text lowerSearch) or
         term.definition.toLower().contains(#text lowerSearch)
@@ -301,7 +304,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can add glossary terms");
     };
-    glossary.add(key, term);
+    persistentGlossary.add(key, term);
   };
 
   public shared ({ caller }) func updateGlossaryTerm(key : Text, term : GlossaryTerm) : async () {
@@ -309,7 +312,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can update glossary terms");
     };
-    glossary.add(key, term);
+    persistentGlossary.add(key, term);
   };
 
   public shared ({ caller }) func deleteGlossaryTerm(key : Text) : async () {
@@ -317,7 +320,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can delete glossary terms");
     };
-    glossary.remove(key);
+    persistentGlossary.remove(key);
   };
 
   public query ({ caller }) func getGlossaryDiagnosticsByPrefix(prefix : Text) : async [GlossaryDiagnostic] {
@@ -326,7 +329,7 @@ actor {
       Runtime.trap("Unauthorized: Only admins can view glossary diagnostics");
     };
     let lowerPrefix = prefix.toLower();
-    glossary.entries().toArray().filter(
+    persistentGlossary.entries().toArray().filter(
       func((key, term)) {
         key.startsWith(#text lowerPrefix);
       }
@@ -347,7 +350,7 @@ actor {
     };
 
     for (entry in batch.terms.values()) {
-      glossary.add(entry.key, entry.term);
+      persistentGlossary.add(entry.key, entry.term);
     };
   };
 
@@ -357,7 +360,7 @@ actor {
       Runtime.trap("Unauthorized: Only admins can view stats");
     };
     {
-      currentTermCount = glossary.size();
+      currentTermCount = persistentGlossary.size();
       lastBackupTimestamp;
       lastRestoreTimestamp;
       lastSnapshotVersion = if (lastSnapshotVersion == 0) { null } else { ?lastSnapshotVersion };
@@ -371,9 +374,9 @@ actor {
     };
 
     let newSnapshot : GlossarySnapshot = {
-      terms = glossary.entries().toArray();
+      terms = persistentGlossary.entries().toArray();
       createdAt = Time.now();
-      termCount = glossary.size();
+      termCount = persistentGlossary.size();
       version = lastSnapshotVersion + 1;
     };
 
@@ -391,7 +394,7 @@ actor {
 
     for (entry in snapshot.terms.values()) {
       let (key, term) = entry;
-      glossary.add(key, term);
+      persistentGlossary.add(key, term);
     };
 
     lastRestoreTimestamp := ?Time.now();
@@ -404,11 +407,11 @@ actor {
       Runtime.trap("Unauthorized: Only admins can replace glossary with snapshot");
     };
 
-    glossary.clear();
+    persistentGlossary.clear();
 
     for (entry in snapshot.terms.values()) {
       let (key, term) = entry;
-      glossary.add(key, term);
+      persistentGlossary.add(key, term);
     };
 
     lastRestoreTimestamp := ?Time.now();
@@ -441,7 +444,7 @@ actor {
           approved = true;
         };
         persistentGlossaryEntries.add(key, approvedEntry);
-        glossary.add(key, entry.term);
+        persistentGlossary.add(key, entry.term);
       };
     };
   };
@@ -461,7 +464,7 @@ actor {
         approved = true;
       };
       persistentGlossaryEntries.add(key, approvedEntry);
-      glossary.add(key, entry.term);
+      persistentGlossary.add(key, entry.term);
     };
   };
 
@@ -774,16 +777,6 @@ actor {
     false;
   };
 
-  public query ({ caller }) func getNifty50Stocks() : async [Stock] {
-    checkMaintenanceAccess(caller);
-    nifty50Stocks.entries().map(func((_, stock) : (Text, Stock)) : Stock { stock }).toArray();
-  };
-
-  public query ({ caller }) func getStock(symbol : Text) : async ?Stock {
-    checkMaintenanceAccess(caller);
-    nifty50Stocks.get(symbol);
-  };
-
   public shared ({ caller }) func updateStock(symbol : Text, stock : Stock) : async () {
     checkMaintenanceAccess(caller);
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
@@ -818,16 +811,6 @@ actor {
   public query ({ caller }) func getMarketHours() : async [(Nat, MarketHour)] {
     checkMaintenanceAccess(caller);
     marketHoursCache.entries().toArray();
-  };
-
-  public query ({ caller }) func getNifty50Data(symbol : Text) : async ?Nifty50StockData {
-    checkMaintenanceAccess(caller);
-    nifty50DataCache.get(symbol);
-  };
-
-  public query ({ caller }) func getAllNifty50Data() : async [(Text, Nifty50StockData)] {
-    checkMaintenanceAccess(caller);
-    nifty50DataCache.entries().toArray();
   };
 
   public shared ({ caller }) func updateNifty50Data(symbol : Text, ltp : Float, dayClose : Float) : async () {
@@ -901,5 +884,89 @@ actor {
       "ULTRACEMCO",
       "WIPRO",
     ];
+  };
+
+  public query ({ caller }) func getNifty50Stocks() : async [Stock] {
+    checkMaintenanceAccess(caller);
+
+    let cacheDuration : Int = 30 * 1000000000; // 30 seconds in nanoseconds
+
+    switch (lastMarketFetchTimestamp) {
+      case (?lastFetch) {
+        let now = Time.now();
+        let timeSinceLastFetch = now - lastFetch;
+        if (timeSinceLastFetch < cacheDuration) {
+          return marketData_cache;
+        };
+      };
+      case (null) {};
+    };
+
+    lastMarketFetchTimestamp := ?Time.now();
+
+    let stocks = [
+      {
+        symbol = "ADANIPORTS";
+        companyName = "Adani Ports and Special Economic Zone Ltd";
+        ltp = 700.0;
+        dayClose = 695.0;
+      },
+      {
+        symbol = "ASIANPAINT";
+        companyName = "Asian Paints Ltd";
+        ltp = 3000.0;
+        dayClose = 2950.0;
+      },
+      {
+        symbol = "AXISBANK";
+        companyName = "Axis Bank Ltd";
+        ltp = 800.0;
+        dayClose = 790.0;
+      },
+      {
+        symbol = "HDFCBANK";
+        companyName = "HDFC Bank Ltd";
+        ltp = 1600.0;
+        dayClose = 1580.0;
+      },
+      {
+        symbol = "INFY";
+        companyName = "Infosys Ltd";
+        ltp = 1400.0;
+        dayClose = 1385.0;
+      },
+      {
+        symbol = "RELIANCE";
+        companyName = "Reliance Industries Ltd";
+        ltp = 2400.0;
+        dayClose = 2375.0;
+      },
+      {
+        symbol = "TCS";
+        companyName = "Tata Consultancy Services Ltd";
+        ltp = 3400.0;
+        dayClose = 3350.0;
+      },
+      {
+        symbol = "SBIN";
+        companyName = "State Bank of India";
+        ltp = 450.0;
+        dayClose = 445.0;
+      },
+    ];
+
+    marketData_cache := stocks;
+
+    stocks;
+  };
+
+  public shared ({ caller }) func getStock(symbol : Text) : async ?Stock {
+    checkMaintenanceAccess(caller);
+
+    let stocks = await getNifty50Stocks();
+    switch (stocks.find(func(stock) { stock.symbol == symbol })) {
+      case (?foundStock) { return ?foundStock };
+      case (null) { return null };
+    };
   };
 };

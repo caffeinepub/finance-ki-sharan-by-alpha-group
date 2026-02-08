@@ -4,12 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { usePublishGlossaryBatch } from '../hooks/useQueries';
+import { usePublishCTermsBatch } from '../hooks/useQueries';
 import { cTermsBatch } from '../data/glossaryBulkImportC';
 
 export default function GlossaryBulkImportCTermsPanel() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const publishMutation = usePublishGlossaryBatch();
+  const publishMutation = usePublishCTermsBatch();
 
   const handlePublish = () => {
     setShowConfirmDialog(true);

@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
-import { Search, Loader2, BookOpen, ExternalLink, AlertTriangle, Database, Info } from 'lucide-react';
+import { Search, Loader2, BookOpen, ExternalLink, AlertTriangle, Database, Info, Activity } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useSearchTerms, useGetAllTerms, useIsCallerAdmin } from '../hooks/useQueries';
+import { useSearchTerms, useGetAllTerms, useIsCallerAdmin, useGetGlossaryDiagnosticsByPrefix } from '../hooks/useQueries';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -28,6 +28,11 @@ export default function GlossaryPage() {
   
   const { data: allTerms = [] } = useGetAllTerms();
   const { data: isAdmin = false } = useIsCallerAdmin();
+
+  // Admin diagnostics: fetch counts for A, B, C from backend
+  const { data: diagnosticA = [] } = useGetGlossaryDiagnosticsByPrefix('a');
+  const { data: diagnosticB = [] } = useGetGlossaryDiagnosticsByPrefix('b');
+  const { data: diagnosticC = [] } = useGetGlossaryDiagnosticsByPrefix('c');
 
   const groupedTerms = useMemo(() => {
     const groups: Record<string, typeof terms> = {};
@@ -57,8 +62,8 @@ export default function GlossaryPage() {
     });
   }, [terms]);
 
-  // Admin diagnostic: count terms per letter
-  const diagnosticCounts = useMemo(() => {
+  // Admin diagnostic: count rendered terms per letter
+  const renderedCounts = useMemo(() => {
     if (!isAdmin) return null;
     
     const counts: Record<string, number> = {};
@@ -67,15 +72,27 @@ export default function GlossaryPage() {
       counts[groupKey] = (counts[groupKey] || 0) + 1;
     });
     
-    // Sort keys A-Z, then #
-    const sortedKeys = Object.keys(counts).sort((a, b) => {
-      if (a === '#') return 1;
-      if (b === '#') return -1;
-      return a.localeCompare(b);
-    });
-    
-    return sortedKeys.map(key => `${key}: ${counts[key]}`).join(', ');
+    return counts;
   }, [terms, isAdmin]);
+
+  // Admin diagnostic: compare backend vs rendered for A, B, C
+  const diagnosticSummary = useMemo(() => {
+    if (!isAdmin || !renderedCounts) return null;
+
+    const backendA = diagnosticA.length;
+    const backendB = diagnosticB.length;
+    const backendC = diagnosticC.length;
+
+    const renderedA = renderedCounts['A'] || 0;
+    const renderedB = renderedCounts['B'] || 0;
+    const renderedC = renderedCounts['C'] || 0;
+
+    return {
+      A: { backend: backendA, rendered: renderedA, mismatch: backendA !== renderedA },
+      B: { backend: backendB, rendered: renderedB, mismatch: backendB !== renderedB },
+      C: { backend: backendC, rendered: renderedC, mismatch: backendC !== renderedC },
+    };
+  }, [isAdmin, renderedCounts, diagnosticA, diagnosticB, diagnosticC]);
 
   const handleReferenceClick = (reference: string) => {
     const matchedTerm = findTermByReference(reference, allTerms);
@@ -86,10 +103,10 @@ export default function GlossaryPage() {
     }
   };
 
-  // Check if glossary is truly empty - only after successful fetch with no search query
-  const isGlossaryEmpty = isFetched && !isError && !normalizedQuery && terms.length === 0;
+  // Check if glossary is truly empty - only after successful fetch with actor ready and no search query
+  const isGlossaryEmpty = isActorAvailable && isQueryEnabled && isFetched && !isError && !normalizedQuery && terms.length === 0;
   
-  // Show loading state when actor is not available or query is not enabled
+  // Show loading/connecting state when actor is not available or query is not enabled
   const isInitializing = !isActorAvailable || !isQueryEnabled;
 
   return (
@@ -115,13 +132,48 @@ export default function GlossaryPage() {
               <GlossaryBackupRestorePanel />
               <GlossaryBulkImportCTermsPanel />
               
-              {/* Admin Diagnostic Summary */}
-              {diagnosticCounts && (
-                <Alert className="bg-muted/50">
-                  <Info className="h-4 w-4" />
-                  <AlertTitle>Admin Diagnostic</AlertTitle>
-                  <AlertDescription className="text-xs font-mono">
-                    {diagnosticCounts}
+              {/* Admin Diagnostic Panel */}
+              {diagnosticSummary && (
+                <Alert className="bg-muted/50 border-primary/30">
+                  <Activity className="h-4 w-4 text-primary" />
+                  <AlertTitle className="font-semibold">Admin Diagnostics (A/B/C Terms)</AlertTitle>
+                  <AlertDescription className="space-y-2 mt-2">
+                    <div className="grid grid-cols-3 gap-4 text-xs font-mono">
+                      <div>
+                        <div className="font-semibold text-foreground mb-1">Letter A</div>
+                        <div>Backend: {diagnosticSummary.A.backend}</div>
+                        <div>Rendered: {diagnosticSummary.A.rendered}</div>
+                        {diagnosticSummary.A.mismatch && (
+                          <Badge variant="destructive" className="mt-1 text-xs">Mismatch</Badge>
+                        )}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-foreground mb-1">Letter B</div>
+                        <div>Backend: {diagnosticSummary.B.backend}</div>
+                        <div>Rendered: {diagnosticSummary.B.rendered}</div>
+                        {diagnosticSummary.B.mismatch && (
+                          <Badge variant="destructive" className="mt-1 text-xs">Mismatch</Badge>
+                        )}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-foreground mb-1">Letter C</div>
+                        <div>Backend: {diagnosticSummary.C.backend}</div>
+                        <div>Rendered: {diagnosticSummary.C.rendered}</div>
+                        {diagnosticSummary.C.mismatch && (
+                          <Badge variant="destructive" className="mt-1 text-xs">Mismatch</Badge>
+                        )}
+                      </div>
+                    </div>
+                    {(diagnosticSummary.A.mismatch || diagnosticSummary.B.mismatch || diagnosticSummary.C.mismatch) && (
+                      <div className="text-xs text-destructive mt-2">
+                        ⚠️ Mismatch detected: Backend has terms that are not rendered in UI. Check grouping logic.
+                      </div>
+                    )}
+                    {diagnosticSummary.C.backend === 0 && (
+                      <div className="text-xs text-warning mt-2">
+                        ℹ️ No C-terms found in backend. Use the bulk import panel above to publish C-terms.
+                      </div>
+                    )}
                   </AlertDescription>
                 </Alert>
               )}
@@ -140,7 +192,7 @@ export default function GlossaryPage() {
           )}
 
           {/* Error State */}
-          {isError && (
+          {isError && !isInitializing && (
             <Alert variant="destructive" className="mb-8 max-w-2xl mx-auto">
               <AlertTriangle className="h-4 w-4" />
               <AlertTitle>Error Loading Glossary</AlertTitle>
@@ -150,7 +202,7 @@ export default function GlossaryPage() {
             </Alert>
           )}
 
-          {/* Empty State Message - only after successful fetch */}
+          {/* Empty State Message - only after successful fetch with actor ready */}
           {isGlossaryEmpty && (
             <Alert className="mb-8 max-w-2xl mx-auto">
               <Database className="h-4 w-4" />
@@ -186,7 +238,7 @@ export default function GlossaryPage() {
             </div>
           )}
 
-          {!isLoading && !isError && isFetched && terms.length === 0 && normalizedQuery && (
+          {!isLoading && !isError && !isInitializing && isFetched && terms.length === 0 && normalizedQuery && (
             <div className="text-center py-12">
               <p className="text-lg text-muted-foreground">
                 No terms found matching "{normalizedQuery}"
@@ -197,7 +249,7 @@ export default function GlossaryPage() {
             </div>
           )}
 
-          {!isLoading && !isError && isFetched && terms.length > 0 && (
+          {!isLoading && !isError && !isInitializing && isFetched && terms.length > 0 && (
             <div className="space-y-12">
               {groupedTerms.map(([letter, letterTerms]) => (
                 <div key={letter} className="space-y-4">

@@ -1,40 +1,12 @@
-import { Heart, Clock, TrendingUp } from 'lucide-react';
+import { Heart, Clock, TrendingUp, AlertCircle } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
-import { useGetNifty50Stocks } from '../hooks/useQueries';
+import { useGetNifty50Stocks, useIsMarketOpen } from '../hooks/useQueries';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-
-// Client-side market hours detection for Indian Stock Exchange (IST timezone)
-function isIndianMarketOpen(): boolean {
-  const now = new Date();
-  
-  // Convert to IST (UTC+5:30)
-  const istOffset = 5.5 * 60; // IST is UTC+5:30
-  const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
-  const istTime = new Date(utcTime + (istOffset * 60000));
-  
-  const day = istTime.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-  const hours = istTime.getHours();
-  const minutes = istTime.getMinutes();
-  
-  // Market is closed on weekends (Saturday = 6, Sunday = 0)
-  if (day === 0 || day === 6) {
-    return false;
-  }
-  
-  // Market hours: Monday-Friday, 9:15 AM - 3:30 PM IST
-  const currentTimeInMinutes = hours * 60 + minutes;
-  const marketOpenTime = 9 * 60 + 15; // 9:15 AM
-  const marketCloseTime = 15 * 60 + 30; // 3:30 PM
-  
-  return currentTimeInMinutes >= marketOpenTime && currentTimeInMinutes <= marketCloseTime;
-}
 
 export default function Footer() {
   const navigate = useNavigate();
-  const { data: stocksData, isLoading: isStocksLoading } = useGetNifty50Stocks();
-  
-  // Check market status client-side
-  const isMarketOpen = isIndianMarketOpen();
+  const { data: stocksData, isLoading: isStocksLoading, isError: isStocksError } = useGetNifty50Stocks();
+  const { data: isMarketOpen = false } = useIsMarketOpen();
 
   // Determine market status text
   const getMarketStatusLabel = () => {
@@ -93,6 +65,13 @@ export default function Footer() {
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
+            ) : isStocksError ? (
+              <div className="flex flex-col items-center justify-center py-8 gap-2">
+                <AlertCircle className="h-8 w-8 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">
+                  Market data temporarily unavailable
+                </p>
+              </div>
             ) : stocksData && stocksData.length > 0 ? (
               <ScrollArea className="w-full whitespace-nowrap rounded-lg border border-border/40 bg-card/50">
                 <div className="flex gap-4 p-4">
@@ -123,8 +102,11 @@ export default function Footer() {
                 <ScrollBar orientation="horizontal" />
               </ScrollArea>
             ) : (
-              <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
-                No stock data available
+              <div className="flex flex-col items-center justify-center py-8 gap-2">
+                <AlertCircle className="h-8 w-8 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">
+                  No stock data available
+                </p>
               </div>
             )}
 
@@ -231,7 +213,7 @@ export default function Footer() {
 
         <div className="mt-8 pt-8 border-t border-border/40 flex flex-col items-center gap-2 text-center">
           <p className="flex items-center gap-1 text-sm text-muted-foreground">
-            © 2025. Built with{' '}
+            © 2026. Built with{' '}
             <Heart className="h-3 w-3 fill-primary text-primary" />{' '}
             using{' '}
             <a

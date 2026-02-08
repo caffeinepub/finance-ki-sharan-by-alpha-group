@@ -72,10 +72,6 @@ export const Feedback = IDL.Record({
   'email' : IDL.Text,
   'message' : IDL.Text,
 });
-export const Nifty50StockData = IDL.Record({
-  'ltp' : IDL.Float64,
-  'dayClose' : IDL.Float64,
-});
 export const Article = IDL.Record({
   'id' : IDL.Nat,
   'title' : IDL.Text,
@@ -222,11 +218,6 @@ export const idlService = IDL.Service({
       [IDL.Vec(IDL.Tuple(IDL.Nat, Feedback))],
       ['query'],
     ),
-  'getAllNifty50Data' : IDL.Func(
-      [],
-      [IDL.Vec(IDL.Tuple(IDL.Text, Nifty50StockData))],
-      ['query'],
-    ),
   'getApplicationPaths' : IDL.Func([], [IDL.Text], ['query']),
   'getArticle' : IDL.Func([IDL.Nat], [IDL.Opt(Article)], ['query']),
   'getArticles' : IDL.Func([], [IDL.Vec(Article)], ['query']),
@@ -268,16 +259,11 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getMarketStatus' : IDL.Func([], [IDL.Bool], ['query']),
-  'getNifty50Data' : IDL.Func(
-      [IDL.Text],
-      [IDL.Opt(Nifty50StockData)],
-      ['query'],
-    ),
   'getNifty50Stocks' : IDL.Func([], [IDL.Vec(Stock)], ['query']),
   'getNifty50Symbols' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
   'getResearchPaper' : IDL.Func([IDL.Nat], [IDL.Opt(ResearchPaper)], ['query']),
   'getResearchPapers' : IDL.Func([], [IDL.Vec(ResearchPaper)], ['query']),
-  'getStock' : IDL.Func([IDL.Text], [IDL.Opt(Stock)], ['query']),
+  'getStock' : IDL.Func([IDL.Text], [IDL.Opt(Stock)], []),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
@@ -391,10 +377,6 @@ export const idlFactory = ({ IDL }) => {
     'name' : IDL.Text,
     'email' : IDL.Text,
     'message' : IDL.Text,
-  });
-  const Nifty50StockData = IDL.Record({
-    'ltp' : IDL.Float64,
-    'dayClose' : IDL.Float64,
   });
   const Article = IDL.Record({
     'id' : IDL.Nat,
@@ -534,11 +516,6 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(IDL.Nat, Feedback))],
         ['query'],
       ),
-    'getAllNifty50Data' : IDL.Func(
-        [],
-        [IDL.Vec(IDL.Tuple(IDL.Text, Nifty50StockData))],
-        ['query'],
-      ),
     'getApplicationPaths' : IDL.Func([], [IDL.Text], ['query']),
     'getArticle' : IDL.Func([IDL.Nat], [IDL.Opt(Article)], ['query']),
     'getArticles' : IDL.Func([], [IDL.Vec(Article)], ['query']),
@@ -584,11 +561,6 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getMarketStatus' : IDL.Func([], [IDL.Bool], ['query']),
-    'getNifty50Data' : IDL.Func(
-        [IDL.Text],
-        [IDL.Opt(Nifty50StockData)],
-        ['query'],
-      ),
     'getNifty50Stocks' : IDL.Func([], [IDL.Vec(Stock)], ['query']),
     'getNifty50Symbols' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     'getResearchPaper' : IDL.Func(
@@ -597,7 +569,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getResearchPapers' : IDL.Func([], [IDL.Vec(ResearchPaper)], ['query']),
-    'getStock' : IDL.Func([IDL.Text], [IDL.Opt(Stock)], ['query']),
+    'getStock' : IDL.Func([IDL.Text], [IDL.Opt(Stock)], []),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],

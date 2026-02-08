@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, MessageSquare, Send, CheckCircle } from 'lucide-react';
+import { Mail, MessageSquare, Send, CheckCircle, Instagram } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -59,7 +59,7 @@ export default function ContactPage() {
             </p>
           </div>
 
-          <div className="max-w-4xl mx-auto grid gap-8 md:grid-cols-2">
+          <div className="max-w-5xl mx-auto grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
               <CardHeader>
                 <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
@@ -89,6 +89,33 @@ export default function ContactPage() {
             </Card>
 
             <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+              <CardHeader>
+                <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                  <Instagram className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle>Instagram</CardTitle>
+                <CardDescription>
+                  Follow us on Instagram for updates and financial education content.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <a 
+                    href="https://www.instagram.com/finance_ki_sharan?utm_source=qr&igsh=MXFyN2tvNHgwdzF0Yg=="
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline font-medium block"
+                  >
+                    @finance_ki_sharan
+                  </a>
+                  <p className="text-sm text-muted-foreground">
+                    Connect with us on Instagram for daily tips and insights.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent md:col-span-2 lg:col-span-1">
               <CardHeader>
                 <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
                   <MessageSquare className="h-6 w-6 text-primary" />

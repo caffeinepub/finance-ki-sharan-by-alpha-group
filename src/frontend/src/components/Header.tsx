@@ -12,9 +12,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import BrandLogo from './BrandLogo';
 import { BRAND_NAME, BRAND_TAGLINE } from '@/utils/assetPaths';
+import { NAV_STRUCTURE } from '@/utils/navStructure';
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
@@ -28,19 +30,8 @@ export default function Header() {
   const isAuthenticated = !!identity;
   const isLoggingIn = loginStatus === 'logging-in';
 
-  const navItems = [
-    { label: 'Home', path: '/' },
-    { label: 'Learn Finance', path: '/learning' },
-    { label: 'Glossary', path: '/glossary' },
-    { label: 'Articles', path: '/articles' },
-    { label: 'Blogs', path: '/blogs' },
-    { label: 'Research Papers', path: '/research' },
-    { label: 'Regulations', path: '/regulations' },
-    { label: 'About', path: '/about' },
-    { label: 'Contact', path: '/contact' },
-  ];
-
   const calculatorItems = [
+    { label: 'All Calculators', path: '/calculators' },
     { label: 'SIP Calculator', path: '/calculators/sip' },
     { label: 'Lump Sum Calculator', path: '/calculators/lumpsum' },
     { label: 'Step-Up Calculator', path: '/calculators/stepup' },
@@ -69,8 +60,22 @@ export default function Header() {
     { label: 'Admin Feedback', path: '/admin/feedback' },
   ];
 
-  const handleNavigate = (path: string) => {
-    navigate({ to: path });
+  const handleNavigate = (path: string, hash?: string, query?: Record<string, string>) => {
+    const searchParams = query ? new URLSearchParams(query).toString() : '';
+    const fullPath = `${path}${searchParams ? `?${searchParams}` : ''}${hash ? `#${hash}` : ''}`;
+    
+    navigate({ to: path, search: query as any });
+    
+    // Handle hash navigation after route change
+    if (hash) {
+      setTimeout(() => {
+        const element = document.getElementById(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+    
     setIsOpen(false);
   };
 
@@ -93,7 +98,12 @@ export default function Header() {
   };
 
   const isCalculatorPath = currentPath.startsWith('/calculators');
-  const isBlogsPath = currentPath.startsWith('/blogs');
+
+  // Check if current path matches any nav item
+  const isNavItemActive = (path: string) => {
+    if (path === '/') return currentPath === '/';
+    return currentPath.startsWith(path);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -109,25 +119,39 @@ export default function Header() {
           </div>
         </button>
 
+        {/* Desktop Navigation */}
         <nav className="hidden items-center gap-6 lg:flex">
-          {navItems.map((item) => {
-            const isActive = item.path === '/blogs' 
-              ? isBlogsPath 
-              : currentPath === item.path;
+          {NAV_STRUCTURE.map((group) => {
+            const hasActiveItem = group.items.some(item => isNavItemActive(item.path));
             
             return (
-              <button
-                key={item.path}
-                onClick={() => handleNavigate(item.path)}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  isActive ? 'text-primary' : 'text-foreground/80'
-                }`}
-              >
-                {item.label}
-              </button>
+              <DropdownMenu key={group.label}>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary ${
+                      hasActiveItem ? 'text-primary' : 'text-foreground/80'
+                    }`}
+                  >
+                    {group.label}
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  {group.items.map((item) => (
+                    <DropdownMenuItem
+                      key={`${item.path}-${item.hash || ''}-${JSON.stringify(item.query || {})}`}
+                      onClick={() => handleNavigate(item.path, item.hash, item.query)}
+                      className="cursor-pointer"
+                    >
+                      {item.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             );
           })}
-          
+
+          {/* Tools dropdown with calculators */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
@@ -135,7 +159,7 @@ export default function Header() {
                   isCalculatorPath ? 'text-primary' : 'text-foreground/80'
                 }`}
               >
-                Calculator
+                Calculators
                 <ChevronDown className="h-4 w-4" />
               </button>
             </DropdownMenuTrigger>
@@ -200,6 +224,7 @@ export default function Header() {
             )}
           </Button>
 
+          {/* Mobile Menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="lg:hidden">
@@ -210,27 +235,35 @@ export default function Header() {
             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
               <ScrollArea className="h-full pr-4">
                 <nav className="flex flex-col gap-4 mt-8">
-                  {navItems.map((item) => {
-                    const isActive = item.path === '/blogs' 
-                      ? isBlogsPath 
-                      : currentPath === item.path;
-                    
-                    return (
-                      <button
-                        key={item.path}
-                        onClick={() => handleNavigate(item.path)}
-                        className={`text-left text-lg font-medium transition-colors hover:text-primary ${
-                          isActive ? 'text-primary' : 'text-foreground/80'
-                        }`}
-                      >
-                        {item.label}
-                      </button>
-                    );
-                  })}
-                  
+                  {NAV_STRUCTURE.map((group) => (
+                    <div key={group.label} className="flex flex-col gap-2">
+                      <div className="text-lg font-semibold text-foreground">
+                        {group.label}
+                      </div>
+                      <div className="flex flex-col gap-2 pl-4">
+                        {group.items.map((item) => {
+                          const isActive = isNavItemActive(item.path);
+                          return (
+                            <button
+                              key={`${item.path}-${item.hash || ''}-${JSON.stringify(item.query || {})}`}
+                              onClick={() => handleNavigate(item.path, item.hash, item.query)}
+                              className={`text-left text-base font-medium transition-colors hover:text-primary ${
+                                isActive ? 'text-primary' : 'text-foreground/80'
+                              }`}
+                            >
+                              {item.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+
+                  <Separator className="my-2" />
+
                   <div className="flex flex-col gap-2">
-                    <div className={`text-lg font-medium ${isCalculatorPath ? 'text-primary' : 'text-foreground/80'}`}>
-                      Calculator
+                    <div className={`text-lg font-semibold ${isCalculatorPath ? 'text-primary' : 'text-foreground'}`}>
+                      Calculators
                     </div>
                     <div className="flex flex-col gap-2 pl-4">
                       {calculatorItems.map((item) => (
@@ -249,7 +282,7 @@ export default function Header() {
 
                   {isAuthenticated && (
                     <>
-                      <div className="my-2 border-t border-border" />
+                      <Separator className="my-2" />
                       <div className="text-sm font-semibold text-muted-foreground">Admin</div>
                       {adminItems.map((item) => (
                         <button
@@ -264,7 +297,9 @@ export default function Header() {
                       ))}
                     </>
                   )}
-                  <div className="my-2 border-t border-border" />
+
+                  <Separator className="my-2" />
+                  
                   <Button
                     variant={isAuthenticated ? "outline" : "default"}
                     onClick={handleAuth}
