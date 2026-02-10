@@ -1,126 +1,77 @@
 {
   "kind": "build_request",
-  "title": "Optimize Draft and Live page load performance (code splitting, deferred widgets, query caching)",
+  "title": "Add NIFTY Top 100 live market ticker sourced from NSE India",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Reduce initial JavaScript bundle size by code-splitting route components so that non-home pages (learning, glossary, articles, research, blogs, calculators, admin, etc.) are loaded lazily only when the user navigates to them.",
-      "target": "frontend",
+      "text": "Add backend support to fetch and serve NIFTY Top 100 (NIFTY 100) stock prices sourced from https://www.nseindia.com/ via canister HTTP outcalls, returning an array of Stock items (symbol, companyName, ltp, dayClose).",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-1",
-          "msg-2"
+          "msg-1"
         ],
         "quotes": [
-          "Draft and Live page taking too much time",
-          "do it"
+          "add market ticker nifty top 100 stock source from https://www.nseindia.com/ AND show in website live price"
         ]
       },
       "acceptanceCriteria": [
-        "Opening the home route ('/') does not eagerly include code for all other page components in the initial bundle (verify via build output/chunking or bundle analyzer).",
-        "Navigation to a lazily-loaded route still works and shows a loading fallback while the chunk downloads."
+        "A new backend method is available to the frontend that returns NIFTY Top 100 stocks as [Stock] with fields symbol, companyName, ltp, and dayClose.",
+        "The backend market-data fetch uses HTTPS requests to https://www.nseindia.com/ (no browser-side calls to NSE).",
+        "Backend responses are resilient: on upstream fetch failure, the method returns the most recent cached data if available; otherwise it returns an empty array (and does not trap).",
+        "Market data is cached server-side to avoid fetching on every request, with a documented cache TTL appropriate for \"live\" display (e.g., tens of seconds while market is open)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add a consistent route-level loading UI (e.g., a minimal skeleton/spinner) for lazy-loaded routes so the app provides immediate feedback during chunk download and canister query latency.",
+      "text": "Expose a new React Query hook to retrieve NIFTY Top 100 stock data from the backend and refetch it periodically to provide live prices.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1",
-          "msg-2"
+          "msg-1"
         ],
         "quotes": [
-          "Draft and Live page taking too much time",
-          "do it"
+          "add market ticker nifty top 100 stock source from https://www.nseindia.com/ AND show in website live price"
         ]
       },
       "acceptanceCriteria": [
-        "When navigating to any lazy-loaded route on a cold load, the user sees a loading state within 100ms of navigation.",
-        "Loading UI uses English text (e.g., \"Loading...\")."
+        "A new hook exists in frontend/src/hooks/useQueries.ts (e.g., useGetNifty100Stocks) that calls the new backend method.",
+        "The query refetches periodically to keep prices live (similar to the existing useGetNifty50Stocks behavior).",
+        "When the backend actor is not available, the hook returns an empty array without throwing."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Defer non-critical UI and network work on first paint by loading the ChatAssistantWidget asynchronously (do not block initial render on its code or initialization).",
+      "text": "Update the website market ticker UI to display NIFTY Top 100 live prices (instead of NIFTY 50), including appropriate label text for live vs closed market state.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1",
-          "msg-2"
+          "msg-1"
         ],
         "quotes": [
-          "Draft and Live page taking too much time",
-          "do it"
+          "add market ticker nifty top 100 stock source from https://www.nseindia.com/ AND show in website live price"
         ]
       },
       "acceptanceCriteria": [
-        "On initial page load, the main content (Header + current route content) renders before the chat widget bundle is fetched/initialized.",
-        "Chat widget still becomes available shortly after load or on first user interaction without breaking existing behavior."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Optimize above-the-fold image loading on the home page by ensuring the hero image does not block first render and minimizes layout shift (use explicit dimensions and appropriate loading behavior).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1",
-          "msg-2"
-        ],
-        "quotes": [
-          "Draft and Live page taking too much time",
-          "do it"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Home page hero image element includes explicit sizing to prevent layout shift.",
-        "Hero image loading behavior is optimized so it does not delay interactivity (e.g., uses modern loading attributes and avoids unnecessary reflows)."
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Reduce redundant backend queries during app startup by tuning React Query settings for global/initial checks and always-on components (e.g., maintenance/admin checks and footer market ticker) to avoid aggressive refetching and to cache results appropriately.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1",
-          "msg-2"
-        ],
-        "quotes": [
-          "Draft and Live page taking too much time",
-          "do it"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Repeated reloads/navigation within a short window do not trigger unnecessary refetch loops for maintenance/admin checks.",
-        "Refetch-on-focus/mount behavior is adjusted so that the app feels faster on first load while still remaining correct (no incorrect maintenance gating).",
-        "Footer ticker does not cause the entire app to appear “stuck” on a spinner during initial load."
+        "The ticker label text reflects NIFTY Top 100 (e.g., \"Live Market Ticker: NIFTY 100 LTP\" when open and \"Market Ticker: NIFTY 100 Closing Prices\" when closed).",
+        "The ticker renders up to 100 stock tiles with symbol, formatted price, and company name.",
+        "When data is loading, an in-place loading indicator is shown; when data fails, an in-place error state is shown (keeping the current UX pattern in Footer.tsx)."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or any files in frontend/src/components/ui (compose instead).",
-    "Keep backend architecture as a single Motoko actor in backend/main.mo; only add migration.mo if a state upgrade is required."
+    "Backend must remain a single Motoko actor (all logic in backend/main.mo); only add migration.mo if an upgrade requires state migration.",
+    "Do not edit frontend immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or any files under frontend/src/components/ui.",
+    "All user-facing text must be in English.",
+    "Market data must be sourced from https://www.nseindia.com/ (per user request)."
   ],
   "nonGoals": [
-    "Implementing new product features unrelated to performance (new pages, new calculators, new content).",
-    "Adding third-party performance monitoring/analytics services.",
-    "Changing authentication providers (Internet Identity remains the only auth method)."
+    "Adding user accounts, watchlists, portfolios, alerts, or trading features.",
+    "Building charts, historical OHLC data, or intraday analytics beyond showing live/closing prices in the ticker.",
+    "Integrating third-party auth providers, WebSockets, or external databases."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

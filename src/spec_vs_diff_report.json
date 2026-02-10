@@ -1,72 +1,51 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-08T14:14:48.096Z",
-  "summary": "Most performance-focused requirements appear addressed: non-home pages are converted to React.lazy imports in App.tsx, a shared RouteLoadingFallback component was added, the chat widget is deferred via an AsyncChatAssistantWidget wrapper, the HomePage hero image now has explicit dimensions/aspect ratio and async decoding, and React Query defaults plus maintenance/admin query caching were tuned. However, the diff also includes several unrelated UI/content/admin enhancements not requested by the performance brief.",
-  "missing_requirements": [],
-  "hallucinated_features": [
+  "generatedAt": "2026-02-10T08:24:26.100Z",
+  "summary": "Frontend ticker UI was updated to use a new NIFTY 100 query hook and display NIFTY 100 labels, loading, and error states. However, the diff summary does not provide evidence that the backend HTTP outcall to nseindia.com, caching TTL behavior, or the new backend method to return NIFTY 100 stocks is implemented. The new frontend hook implementation details (periodic refetch and actor-null empty-array behavior) are also not evidenced in the truncated hook file content.",
+  "missing_requirements": [
     {
-      "description": "Added/expanded glossary admin backup/restore UI and snapshot parsing/validation behavior (product/admin functionality not requested as part of performance optimization).",
-      "reason": "BuildRequest non-goals explicitly exclude new product features unrelated to performance; glossary backup/restore changes are not mentioned in REQ-1..REQ-5.",
+      "id": "REQ-1",
+      "requirement": "Add backend support to fetch and serve NIFTY Top 100 stock prices sourced from https://www.nseindia.com/ via canister HTTP outcalls, returning [Stock] (symbol, companyName, ltp, dayClose), with resilient cached responses and a documented TTL.",
+      "reason": "backend/main.mo shows Stock types and cache variables, but the diff excerpt does not show any new public backend method for NIFTY 100, any HTTPS request to https://www.nseindia.com/, any TTL logic, or fallback-to-cache-on-failure behavior. Because the file is truncated, this cannot be confirmed from provided evidence.",
       "evidence": [
-        "frontend/src/components/GlossaryBackupRestorePanel.tsx"
+        "backend/main.mo"
       ]
     },
     {
-      "description": "Header navigation restructuring and addition of prominent Feedback entry points (desktop + mobile) using shared openFeedbackForm utility.",
-      "reason": "Not requested by any requirement; constitutes UI/navigation feature work outside performance scope.",
+      "id": "REQ-2",
+      "requirement": "Add a new React Query hook in frontend/src/hooks/useQueries.ts (e.g., useGetNifty100Stocks) that calls the new backend method, refetches periodically, and returns an empty array without throwing when the backend actor is not available.",
+      "reason": "Footer.tsx imports and uses useGetNifty100Stocks, and a summary claims it exists with 30-second refetching, but the provided truncated code for useQueries.ts does not include the new hook implementation or show the actor-not-available empty-array behavior.",
       "evidence": [
-        "frontend-file-summaries.txt (frontend/src/components/Header.tsx)"
-      ]
-    },
-    {
-      "description": "Footer navigation/link changes including a new Feedback link under Company section and dynamic branding/layout changes beyond query-caching/ticker performance tuning.",
-      "reason": "Only ticker/query caching behavior is within REQ-5; additional navigation/link features are not requested.",
-      "evidence": [
-        "frontend-file-summaries.txt (frontend/src/components/Footer.tsx)"
-      ]
-    },
-    {
-      "description": "Multiple page-level content/feature enhancements (e.g., LearningPage URL topic selection/auto-scroll, ArticlesPage tabbed categories UI, RegulationsPage SEBI disclaimer/tabbed content, AboutPage new 'live market integration feature' content).",
-      "reason": "BuildRequest non-goals disallow adding new content/pages/features unrelated to performance; these appear to be feature/content changes.",
-      "evidence": [
-        "frontend-file-summaries.txt (frontend/src/pages/LearningPage.tsx)",
-        "frontend-file-summaries.txt (frontend/src/pages/ArticlesPage.tsx)",
-        "frontend-file-summaries.txt (frontend/src/pages/RegulationsPage.tsx)",
-        "frontend-file-summaries.txt (frontend/src/pages/AboutPage.tsx)"
-      ]
-    },
-    {
-      "description": "Contact page functional/content change: message submission form behavior and removal of embedded Google Form feedback card.",
-      "reason": "Not requested by REQ-1..REQ-5; constitutes product/UI change.",
-      "evidence": [
-        "frontend-file-summaries.txt (frontend/src/pages/ContactPage.tsx)"
-      ]
-    },
-    {
-      "description": "Global styling/theme typography changes applying font-body to body and font-heading to headings.",
-      "reason": "Not requested by the performance requirements; could be visual redesign work unrelated to code-splitting/deferred loading/query caching.",
-      "evidence": [
-        "frontend-file-summaries.txt (frontend/src/index.css)"
-      ]
-    },
-    {
-      "description": "Glossary page additions: admin diagnostic panel showing backend vs rendered counts with mismatch detection.",
-      "reason": "Not part of performance requirements; adds admin diagnostics functionality.",
-      "evidence": [
-        "frontend-file-summaries.txt (frontend/src/pages/GlossaryPage.tsx)"
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/components/Footer.tsx",
+        "frontend-file-summaries.txt"
       ]
     }
   ],
-  "confidence": 0.66,
+  "hallucinated_features": [
+    {
+      "description": "Footer integrates a feedback form utility (openFeedbackForm) and additional UI elements unrelated to the NIFTY 100 ticker requirements.",
+      "reason": "BuildRequest focuses on market ticker and data fetching; feedback form integration is not requested.",
+      "evidence": [
+        "frontend/src/components/Footer.tsx"
+      ]
+    },
+    {
+      "description": "Broad React Query caching/behavior changes for non-market features (e.g., maintenance mode/admin checks, glossary logging/diagnostics) beyond adding a NIFTY 100 hook.",
+      "reason": "BuildRequest only asks for adding a new NIFTY 100 data hook and periodic refetch behavior; other query optimizations are not requested.",
+      "evidence": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend-file-summaries.txt"
+      ]
+    }
+  ],
+  "confidence": 0.62,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
-    "frontend/src/components/AsyncChatAssistantWidget.tsx",
-    "frontend/src/components/GlossaryBackupRestorePanel.tsx",
-    "frontend/src/components/RouteLoadingFallback.tsx",
+    "frontend/src/components/Footer.tsx",
     "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/HomePage.tsx",
     "project_state.json"
   ]
 }

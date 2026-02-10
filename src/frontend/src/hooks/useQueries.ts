@@ -567,6 +567,22 @@ export function useGetNifty50Stocks() {
   });
 }
 
+export function useGetNifty100Stocks() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<Stock[]>({
+    queryKey: ['nifty100Stocks'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getNifty100Stocks();
+    },
+    enabled: !!actor && !isFetching,
+    staleTime: 30 * 1000, // 30 seconds
+    refetchInterval: 30 * 1000, // Refetch every 30 seconds
+    placeholderData: [], // Keep previous data while refetching
+  });
+}
+
 // Blog Queries
 export function useGetBlogs(includeUnpublished: boolean = false) {
   const { actor, isFetching } = useActor();
@@ -594,50 +610,119 @@ export function useGetBlog(id: number) {
   });
 }
 
-// System Info Query (for admin page)
-export function useGetSystemInfoStorageUsage() {
-  const { actor, isFetching } = useActor();
-  const { data: isAdmin = false } = useIsCallerAdmin();
-
-  return useQuery<SystemInfoStorageUsage | null>({
-    queryKey: ['systemInfoStorageUsage'],
-    queryFn: async () => {
-      if (!actor) return null;
-      
-      // Backend method not yet implemented, return null gracefully
-      try {
-        // @ts-ignore - method may not exist yet
-        if (typeof actor.getSystemInfoStorageUsage === 'function') {
-          // @ts-ignore
-          return await actor.getSystemInfoStorageUsage();
-        }
-        return null;
-      } catch (error) {
-        console.log('System info storage usage not yet implemented');
-        return null;
-      }
-    },
-    enabled: !!actor && !isFetching && isAdmin,
-    retry: false,
-  });
-}
-
-// Maintenance Mode Mutation
-export function useSetMaintenanceMode() {
+export function useAddBlog() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (enabled: boolean) => {
+    mutationFn: async ({
+      title,
+      content,
+      author,
+      tags,
+      category,
+      publishedAt,
+      isPublished,
+    }: {
+      title: string;
+      content: string;
+      author: string;
+      tags: string[];
+      category: string;
+      publishedAt: bigint;
+      isPublished: boolean;
+    }) => {
       if (!actor) throw new Error('Actor not initialized');
-      return actor.setMaintenanceMode(enabled);
+      return actor.addBlog(title, content, author, tags, category, publishedAt, isPublished);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['maintenanceMode'] });
-      toast.success('Maintenance mode updated');
+      queryClient.invalidateQueries({ queryKey: ['blogs'] });
+      toast.success('Blog added successfully');
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to update maintenance mode');
+      toast.error(error.message || 'Failed to add blog');
     },
+  });
+}
+
+export function useUpdateBlog() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      title,
+      content,
+      author,
+      tags,
+      category,
+      publishedAt,
+      isPublished,
+    }: {
+      id: bigint;
+      title: string;
+      content: string;
+      author: string;
+      tags: string[];
+      category: string;
+      publishedAt: bigint;
+      isPublished: boolean;
+    }) => {
+      if (!actor) throw new Error('Actor not initialized');
+      return actor.updateBlog(id, title, content, author, tags, category, publishedAt, isPublished);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogs'] });
+      queryClient.invalidateQueries({ queryKey: ['blog'] });
+      toast.success('Blog updated successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to update blog');
+    },
+  });
+}
+
+export function useDeleteBlog() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error('Actor not initialized');
+      return actor.deleteBlog(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogs'] });
+      toast.success('Blog deleted successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to delete blog');
+    },
+  });
+}
+
+// System Info Query (Admin only)
+export function useGetSystemInfoStorageUsage() {
+  const { actor, isFetching } = useActor();
+  const { data: isAdmin = false } = useIsCallerAdmin();
+
+  return useQuery<SystemInfoStorageUsage>({
+    queryKey: ['systemInfoStorageUsage'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      // This method is not yet implemented in the backend
+      // Return mock data for now
+      return {
+        approximateTotalBytes: BigInt(0),
+        glossaryBytes: BigInt(0),
+        articlesBytes: BigInt(0),
+        blogsBytes: BigInt(0),
+        feedbackBytes: BigInt(0),
+        researchPapersBytes: BigInt(0),
+      };
+    },
+    enabled: !!actor && !isFetching && isAdmin,
+    retry: false,
   });
 }

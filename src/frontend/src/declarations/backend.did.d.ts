@@ -189,6 +189,7 @@ export interface _SERVICE {
   'getMaintenanceStatus' : ActorMethod<[], boolean>,
   'getMarketHours' : ActorMethod<[], Array<[bigint, MarketHour]>>,
   'getMarketStatus' : ActorMethod<[], boolean>,
+  'getNifty100Stocks' : ActorMethod<[], Array<Stock>>,
   'getNifty50Stocks' : ActorMethod<[], Array<Stock>>,
   'getNifty50Symbols' : ActorMethod<[], Array<string>>,
   'getResearchPaper' : ActorMethod<[bigint], [] | [ResearchPaper]>,

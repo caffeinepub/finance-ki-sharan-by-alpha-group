@@ -1,96 +1,37 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Frontend performance optimizations: route code-splitting, loading fallbacks, deferred chat widget, image tuning, and React Query caching",
+  "title": "NIFTY 100 live market ticker (frontend wiring)",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Code-split route components so non-home pages are lazily loaded on navigation instead of being bundled into the initial '/' load.",
-      "acceptanceCriteria": [
-        "Opening the home route ('/') does not eagerly include code for all other page components in the initial bundle (verify via build output/chunking or bundle analyzer).",
-        "Navigation to a lazily-loaded route still works and shows a loading fallback while the chunk downloads."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Replace eager page imports with route-level lazy loading (e.g., dynamic imports / TanStack Router lazy route components) so only the home route is included in the initial bundle; ensure all existing routes are still registered and navigable."
-        }
-      ]
-    },
-    {
       "id": "REQ-2",
-      "summary": "Add a consistent route-level loading UI for lazy-loaded routes (chunk download + initial query latency feedback).",
+      "summary": "Add a React Query hook to fetch NIFTY 100 stocks from the backend and refetch periodically for live prices.",
       "acceptanceCriteria": [
-        "When navigating to any lazy-loaded route on a cold load, the user sees a loading state within 100ms of navigation.",
-        "Loading UI uses English text (e.g., \"Loading...\")."
+        "A new hook exists in frontend/src/hooks/useQueries.ts (e.g., useGetNifty100Stocks) that calls the new backend method.",
+        "The query refetches periodically to keep prices live (similar to the existing useGetNifty50Stocks behavior).",
+        "When the backend actor is not available, the hook returns an empty array without throwing."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/RouteLoadingFallback.tsx",
-          "operation": "create",
-          "description": "Create a minimal, consistent route-level loading UI component (spinner/skeleton + English \"Loading...\") to be used as the fallback during lazy route loading and initial data fetches; compose from existing primitives (do not edit files in frontend/src/components/ui)."
-        },
-        {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Wire the RouteLoadingFallback into the router configuration as the default/pending component for lazily-loaded routes so navigation immediately shows a loading state while code and queries resolve."
+          "description": "Add a new React Query hook (e.g., useGetNifty100Stocks) that calls actor.getNifty100Stocks(), uses periodic refetching for live updates (mirroring the timing pattern of useGetNifty50Stocks), and safely returns an empty array when the actor is unavailable (no throw)."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Defer the ChatAssistantWidget so its bundle and initialization do not block first paint; load it asynchronously after initial render or on first interaction.",
+      "summary": "Update the footer market ticker UI to show NIFTY 100 live/closing prices with correct labels and states.",
       "acceptanceCriteria": [
-        "On initial page load, the main content (Header + current route content) renders before the chat widget bundle is fetched/initialized.",
-        "Chat widget still becomes available shortly after load or on first user interaction without breaking existing behavior."
+        "The ticker label text reflects NIFTY Top 100 (e.g., \"Live Market Ticker: NIFTY 100 LTP\" when open and \"Market Ticker: NIFTY 100 Closing Prices\" when closed).",
+        "The ticker renders up to 100 stock tiles with symbol, formatted price, and company name.",
+        "When data is loading, an in-place loading indicator is shown; when data fails, an in-place error state is shown (keeping the current UX pattern in Footer.tsx)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/AsyncChatAssistantWidget.tsx",
-          "operation": "create",
-          "description": "Introduce an async loader wrapper that dynamically imports ChatAssistantWidget after first paint (e.g., idle callback / short timeout) and/or on first user interaction, ensuring the widget does not block initial render."
-        },
-        {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/components/Footer.tsx",
           "operation": "modify",
-          "description": "Stop importing ChatAssistantWidget eagerly; render AsyncChatAssistantWidget instead so the chat code is fetched/initialized asynchronously while preserving existing widget behavior."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Optimize above-the-fold home hero image loading to prevent layout shift and avoid delaying interactivity.",
-      "acceptanceCriteria": [
-        "Home page hero image element includes explicit sizing to prevent layout shift.",
-        "Hero image loading behavior is optimized so it does not delay interactivity (e.g., uses modern loading attributes and avoids unnecessary reflows)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/HomePage.tsx",
-          "operation": "modify",
-          "description": "Update the hero <img> to include explicit width/height (matching the intended hero asset dimensions), plus modern attributes (e.g., decoding behavior and appropriate loading/fetch priority) and/or a stable aspect ratio to minimize CLS and avoid unnecessary reflows."
-        }
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "summary": "Tune React Query caching/refetch behavior for startup/global checks and always-on components (maintenance/admin checks and footer market ticker) to reduce redundant queries and avoid aggressive refetching.",
-      "acceptanceCriteria": [
-        "Repeated reloads/navigation within a short window do not trigger unnecessary refetch loops for maintenance/admin checks.",
-        "Refetch-on-focus/mount behavior is adjusted so that the app feels faster on first load while still remaining correct (no incorrect maintenance gating).",
-        "Footer ticker does not cause the entire app to appear “stuck” on a spinner during initial load."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Configure QueryClient default query options (stale time, GC time, refetchOnWindowFocus/refetchOnMount, retry) to reduce startup refetch churn while keeping correctness for maintenance gating."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Adjust React Query options for maintenance/admin checks (and market/ticker queries) to cache results appropriately and avoid aggressive refetching; ensure footer ticker queries use sensible staleTime/refetch settings (and keep/initial data where appropriate) so they don't contribute to perceived app-wide loading stalls."
+          "description": "Switch the ticker data source from useGetNifty50Stocks to the new useGetNifty100Stocks hook; update label text to NIFTY 100 variants for open/closed states; ensure rendering is capped to at most 100 tiles; preserve the existing in-place loading spinner and error/empty states pattern already used in this component."
         }
       ]
     }

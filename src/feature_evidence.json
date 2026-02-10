@@ -2,32 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-reduce-initial-javascript-bundle-size-by-code-splitting-route-components-so-that-non-home-pages-learning-glossary-articles-research-blogs-calculators-admin-etc-are-loaded-lazily-only-when-the-user-navigates-to-them",
-      "featureTitle": "Reduce initial JavaScript bundle size by code-splitting route components so that non-home pages (learning, glossary, articles, research, blogs, calculators, admin, etc.) are loaded lazily only when the user navigates to them.",
+      "featureId": "feature-expose-a-new-react-query-hook-to-retrieve-nifty-top-100-stock-data-from-the-backend-and-refetch-it-periodically-to-provide-live-prices",
+      "featureTitle": "Expose a new React Query hook to retrieve NIFTY Top 100 stock data from the backend and refetch it periodically to provide live prices.",
       "files": [
-        "frontend/src/App.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "authorization@4.0.0",
-        "http-outcalls@3.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-consistent-route-level-loading-ui-e-g-a-minimal-skeleton-spinner-for-lazy-loaded-routes-so-the-app-provides-immediate-feedback-during-chunk-download-and-canister-query-latency",
-      "featureTitle": "Add a consistent route-level loading UI (e.g., a minimal skeleton/spinner) for lazy-loaded routes so the app provides immediate feedback during chunk download and canister query latency.",
-      "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/RouteLoadingFallback.tsx"
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -45,11 +23,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-defer-non-critical-ui-and-network-work-on-first-paint-by-loading-the-chatassistantwidget-asynchronously-do-not-block-initial-render-on-its-code-or-initialization",
-      "featureTitle": "Defer non-critical UI and network work on first paint by loading the ChatAssistantWidget asynchronously (do not block initial render on its code or initialization).",
+      "featureId": "feature-update-the-website-market-ticker-ui-to-display-nifty-top-100-live-prices-instead-of-nifty-50-including-appropriate-label-text-for-live-vs-closed-market-state",
+      "featureTitle": "Update the website market ticker UI to display NIFTY Top 100 live prices (instead of NIFTY 50), including appropriate label text for live vs closed market state.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/AsyncChatAssistantWidget.tsx"
+        "frontend/src/components/Footer.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -63,49 +40,6 @@
       ],
       "testIds": [
         "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-optimize-above-the-fold-image-loading-on-the-home-page-by-ensuring-the-hero-image-does-not-block-first-render-and-minimizes-layout-shift-use-explicit-dimensions-and-appropriate-loading-behavior",
-      "featureTitle": "Optimize above-the-fold image loading on the home page by ensuring the hero image does not block first render and minimizes layout shift (use explicit dimensions and appropriate loading behavior).",
-      "files": [
-        "frontend/src/pages/HomePage.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "authorization@4.0.0",
-        "http-outcalls@3.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-reduce-redundant-backend-queries-during-app-startup-by-tuning-react-query-settings-for-global-initial-checks-and-always-on-components-e-g-maintenance-admin-checks-and-footer-market-ticker-to-avoid-aggressive-refetching-and-to-cache-results-appropriately",
-      "featureTitle": "Reduce redundant backend queries during app startup by tuning React Query settings for global/initial checks and always-on components (e.g., maintenance/admin checks and footer market ticker) to avoid aggressive refetching and to cache results appropriately.",
-      "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/hooks/useQueries.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "authorization@4.0.0",
-        "http-outcalls@3.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
       ],
       "confidence": "high"
     }

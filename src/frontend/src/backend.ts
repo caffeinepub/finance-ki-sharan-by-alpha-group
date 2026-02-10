@@ -270,6 +270,7 @@ export interface backendInterface {
     getMaintenanceStatus(): Promise<boolean>;
     getMarketHours(): Promise<Array<[bigint, MarketHour]>>;
     getMarketStatus(): Promise<boolean>;
+    getNifty100Stocks(): Promise<Array<Stock>>;
     getNifty50Stocks(): Promise<Array<Stock>>;
     getNifty50Symbols(): Promise<Array<string>>;
     getResearchPaper(id: bigint): Promise<ResearchPaper | null>;
@@ -884,6 +885,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.getMarketStatus();
+            return result;
+        }
+    }
+    async getNifty100Stocks(): Promise<Array<Stock>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getNifty100Stocks();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getNifty100Stocks();
             return result;
         }
     }

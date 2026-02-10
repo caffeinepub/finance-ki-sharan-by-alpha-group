@@ -1,20 +1,20 @@
 import { Heart, Clock, TrendingUp, AlertCircle } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
-import { useGetNifty50Stocks, useIsMarketOpen } from '../hooks/useQueries';
+import { useGetNifty100Stocks, useIsMarketOpen } from '../hooks/useQueries';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { openFeedbackForm } from '@/utils/feedbackForm';
 
 export default function Footer() {
   const navigate = useNavigate();
-  const { data: stocksData, isLoading: isStocksLoading, isError: isStocksError } = useGetNifty50Stocks();
+  const { data: stocksData, isLoading: isStocksLoading, isError: isStocksError } = useGetNifty100Stocks();
   const { data: isMarketOpen = false } = useIsMarketOpen();
 
   // Determine market status text
   const getMarketStatusLabel = () => {
     if (isMarketOpen) {
-      return 'Live Market Ticker: NIFTY 50 LTP';
+      return 'Live Market Ticker: NIFTY 100 LTP';
     }
-    return 'Market Ticker: NIFTY 50 Closing Prices';
+    return 'Market Ticker: NIFTY 100 Closing Prices';
   };
 
   // Format price with Indian Rupee symbol
@@ -76,7 +76,7 @@ export default function Footer() {
             ) : stocksData && stocksData.length > 0 ? (
               <ScrollArea className="w-full whitespace-nowrap rounded-lg border border-border/40 bg-card/50">
                 <div className="flex gap-4 p-4">
-                  {stocksData.map((stock) => (
+                  {stocksData.slice(0, 100).map((stock) => (
                     <div
                       key={stock.symbol}
                       className="flex flex-col gap-1 min-w-[140px] px-3 py-2 rounded-md bg-background/80 border border-border/40"

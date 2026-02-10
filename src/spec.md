@@ -1,13 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Improve Draft and Live page load performance by reducing initial bundle size, deferring non-critical work, and minimizing redundant startup queries.
+**Goal:** Replace the existing market ticker with a live NIFTY 100 (Top 100) ticker whose data is fetched server-side from NSE India.
 
 **Planned changes:**
-- Code-split and lazy-load non-home route components (learning, glossary, articles, research, blogs, calculators, admin, etc.) so they are not included in the initial home bundle.
-- Add a consistent route-level loading UI for lazy-loaded routes (English “Loading...” or equivalent) to show immediate feedback during chunk download/query latency.
-- Load the ChatAssistantWidget asynchronously so it does not block initial render or first paint.
-- Optimize home hero image loading to reduce layout shift and avoid blocking interactivity (explicit dimensions and appropriate loading behavior).
-- Tune React Query caching/refetch settings for global/always-on checks (e.g., maintenance/admin checks and footer ticker) to reduce redundant refetching and prevent the app feeling “stuck” on initial load.
+- Add a backend method that fetches NIFTY 100 stock data from https://www.nseindia.com/ via canister HTTP outcalls and returns an array of stocks (symbol, companyName, ltp, dayClose), with server-side caching and resilient fallback to cached/empty results on failure.
+- Add a new React Query hook (e.g., `useGetNifty100Stocks`) in `frontend/src/hooks/useQueries.ts` to call the new backend method and periodically refetch for live updates, returning an empty array when the backend actor is unavailable.
+- Update the market ticker UI to display NIFTY 100 (instead of NIFTY 50), including label text for live vs closed market state, and showing loading/error states consistent with the current Footer ticker UX.
 
-**User-visible outcome:** The home page loads faster, navigation to other pages shows a quick loading state while code downloads, the chat widget appears after initial content renders, the hero image is smoother with less layout shift, and startup checks/ticker feel less “heavy” due to better query caching.
+**User-visible outcome:** The website ticker shows up to 100 NIFTY 100 stocks with live (or closing) prices and appropriate labels, updating periodically without the browser calling NSE directly.

@@ -177,6 +177,7 @@ export interface backendInterface {
     getMaintenanceStatus(): Promise<boolean>;
     getMarketHours(): Promise<Array<[bigint, MarketHour]>>;
     getMarketStatus(): Promise<boolean>;
+    getNifty100Stocks(): Promise<Array<Stock>>;
     getNifty50Stocks(): Promise<Array<Stock>>;
     getNifty50Symbols(): Promise<Array<string>>;
     getResearchPaper(id: bigint): Promise<ResearchPaper | null>;

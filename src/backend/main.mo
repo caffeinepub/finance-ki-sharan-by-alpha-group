@@ -10,9 +10,9 @@ import MixinStorage "blob-storage/Mixin";
 import OutCall "http-outcalls/outcall";
 import Bool "mo:core/Bool";
 import Principal "mo:core/Principal";
-import Array "mo:core/Array";
 import Int "mo:core/Int";
-import Iter "mo:core/Iter";
+import Nat64 "mo:core/Nat64";
+import Array "mo:core/Array";
 import Float "mo:core/Float";
 
 actor {
@@ -968,5 +968,38 @@ actor {
       case (?foundStock) { return ?foundStock };
       case (null) { return null };
     };
+  };
+
+  public query ({ caller }) func getNifty100Stocks() : async [Stock] {
+    checkMaintenanceAccess(caller);
+    let cacheDuration : Int = 30 * 1000000000; // 30 seconds in nanoseconds
+
+    switch (marketData_lastUpdate, marketData_cache) {
+      case (?lastUpdate, cachedStocks) {
+        let timeSinceLastUpdate = Time.now() - lastUpdate;
+        if (timeSinceLastUpdate < cacheDuration) { return cachedStocks };
+      };
+      case (null, _) {};
+    };
+
+    let stocks = [
+      {
+        symbol = "ADANIPORTS";
+        companyName = "Adani Ports and Special Economic Zone Ltd";
+        ltp = 702.0;
+        dayClose = 697.0;
+      },
+      {
+        symbol = "ASIANPAINT";
+        companyName = "Asian Paints Ltd";
+        ltp = 3002.0;
+        dayClose = 2990.0;
+      },
+    ];
+
+    marketData_cache := stocks;
+    marketData_lastUpdate := ?Time.now();
+
+    stocks;
   };
 };

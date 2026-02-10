@@ -259,6 +259,7 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getMarketStatus' : IDL.Func([], [IDL.Bool], ['query']),
+  'getNifty100Stocks' : IDL.Func([], [IDL.Vec(Stock)], ['query']),
   'getNifty50Stocks' : IDL.Func([], [IDL.Vec(Stock)], ['query']),
   'getNifty50Symbols' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
   'getResearchPaper' : IDL.Func([IDL.Nat], [IDL.Opt(ResearchPaper)], ['query']),
@@ -561,6 +562,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getMarketStatus' : IDL.Func([], [IDL.Bool], ['query']),
+    'getNifty100Stocks' : IDL.Func([], [IDL.Vec(Stock)], ['query']),
     'getNifty50Stocks' : IDL.Func([], [IDL.Vec(Stock)], ['query']),
     'getNifty50Symbols' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     'getResearchPaper' : IDL.Func(
